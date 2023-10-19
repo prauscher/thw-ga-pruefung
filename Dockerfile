@@ -26,4 +26,4 @@ RUN tar xf /tmp/build.tar \
     python3 -m pip install --no-cache-dir -r requirements.txt
 
 USER worker
-CMD ["python3", "main.py"]
+CMD ["python3", "-u", "main.py"]

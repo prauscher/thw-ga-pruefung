@@ -4,9 +4,9 @@ services:
     environment:
       REDIS_HOST: redis
       COOKIE_SECRET: sehrGeheim
-      WEB_DEBUG: yes
+      WEB_DEBUG: "yes"
       WEB_PORT: 8888
     ports:
-      8888:8888
+      - 8888:8888
   redis:
     image: redis:latest
