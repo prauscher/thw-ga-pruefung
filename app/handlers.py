@@ -28,8 +28,8 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
         self._clients.remove(self)
 
 
-class MessageHandler(BroadcastWebSocketHandler):
-    # Must use a complex datatype here to make sure it is shared across all instances
+class JsonBroadcastWebSocketHandler(BroadcastWebSocketHandler):
+    # Must use a complex datatypes here to make sure it is shared across all instances
     state = {"no": 0}
 
     def open(self):
@@ -38,6 +38,10 @@ class MessageHandler(BroadcastWebSocketHandler):
         print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | New Client connected")
 
     def on_message(self, message):
+        # Ignore anything after error
+        if not self.ws_connection or self.ws_connection.is_closing():
+            return None
+
         try:
             msg = json.loads(message)
 
@@ -53,7 +57,14 @@ class MessageHandler(BroadcastWebSocketHandler):
         self.broadcast(json.dumps({**msg, "no": self.state["no"]}))
         print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {self.state['no']:04d} | {msg}")
 
-    def process_station(self, index, name):
-        if "stations" not in self.state:
-            self.state["stations"] = {}
-        self.state["stations"][index] = name
+
+class MessageHandler(JsonBroadcastWebSocketHandler):
+    state = {**JsonBroadcastWebSocketHandler.state,
+             "stations": {},
+             "examinees": {}}
+
+    def process_station(self, i, **kwargs):
+        self.state["stations"][i] = kwargs
+
+    def process_examinee(self, index, name):
+        self.state["examinees"][i] = kwargs
