@@ -6,12 +6,16 @@ RUN python3 -m pip install --upgrade pip
 
 # Cache
 RUN python3 -m pip install tornado
+RUN apt update \
+    && apt install tini gosu -y \
+    && apt clean all -y
 
 FROM base AS build
 
 COPY ./ /opt/app
 
-RUN tar cf /build.tar requirements.txt main.py app/ templates/ static/
+RUN chown root:root docker-entrypoint.sh && chmod 500 docker-entrypoint.sh
+RUN tar cf /build.tar  requirements.txt main.py app/ templates/ static/
 
 FROM base AS app
 
@@ -25,10 +29,10 @@ RUN tar xf /tmp/build.tar \
     && rm /tmp/build.tar && \
     python3 -m pip install --no-cache-dir -r requirements.txt
 
+COPY --from=build /opt/app/docker-entrypoint.sh /docker-entrypoint.sh
+
 VOLUME /data
-
-RUN chown worker /data
-
-USER worker
 WORKDIR /data
+
+ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
 CMD ["python3", "-u", "/opt/app/main.py"]
