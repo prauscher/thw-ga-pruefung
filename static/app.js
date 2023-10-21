@@ -87,7 +87,7 @@ $(function () {
 				modal.elem.find(".modal-footer").append(button);
 				modal.show();
 				modal.elem.on("shown.bs.modal", function () {
-					modal.elem.find("#name").focus();
+					modal.elem.find("#token").focus();
 				});
 			}
 		},
