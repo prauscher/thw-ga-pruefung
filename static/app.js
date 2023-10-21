@@ -93,14 +93,63 @@ $(function () {
 		},
 		on_init: function (state) {
 			console.log("INIT", state);
+			for (var i in state.examinees) {
+				updateExaminee(i, state.examinees[i].name);
+			}
 		},
 		handlers: {
 			"station": function (msg) {
 				console.log("STATION", msg);
 			},
+			"examinee": function (msg) {
+				updateExaminee(msg.i, msg.name);
+			},
 		},
 	});
+
+	$("#examinee-add").click(function () {
+		var modal = Modal("Prüflinge eintragen");
+
+		function _submit(e) {
+			e.preventDefault();
+
+			for (var name of modal.elem.find("#names").val().split("\n").values()) {
+				name = name.trim();
+				if (name != "") {
+					socket.send({"_m": "examinee", "i": _gen_id(), "name": name});
+				}
+			}
+
+			modal.close();
+		}
+
+		modal.elem.find(".modal-body").append([
+			$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen pro Zeile angegeben werden:"),
+			$("<div>").attr("id", "alerts"),
+			$("<form>").prop("action", "#").on("submit", _submit).append([
+				$("<div>").addClass("mb-3").append([
+					$("<label>").attr("for", "names").addClass("col-form-label").text("Namen"),
+					$("<textarea>").addClass("form-control").attr("rows", 15).attr("id", "names")
+				]),
+			]),
+		]);
+
+		var button = $("<button>").addClass(["btn", "btn-primary"]).text("Eintragen").click(_submit);
+		modal.elem.find(".modal-footer").append(button);
+		modal.show();
+		modal.elem.on("shown.bs.modal", function () {
+			modal.elem.find("#names").focus();
+		});
+	});
 });
+
+function updateExaminee(i, name) {
+	// TODO check iff assignments are open
+	$("#examinees").append($("<div>").addClass(["card", "mb-1"]).data("e-id", i).append(
+		$("<div>").addClass("card-body").append([
+			name,
+		])));
+}
 
 function Modal(title) {
 	var wrap = _buildModal(title);
