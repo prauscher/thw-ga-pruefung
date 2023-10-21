@@ -3,6 +3,7 @@
 
 import json
 import traceback
+from pathlib import Path
 from datetime import datetime
 
 import tornado
@@ -18,7 +19,32 @@ class BroadcastState:
     snr = 0
     users = {}
     # First entry in cache is never transmitted, but needed during search of _fetch
-    message_cache = [{"_snr": 0, "_m": "_empty"}]
+    message_cache = [{"_snr": 0}]
+    _storage = Path("data.json")
+    _loaded = False
+
+    def startup(self):
+        # Startup is called on each new connection, but should only run on first
+        if self._loaded:
+            return
+        self._loaded = True
+
+        if self._storage.exists():
+            self.from_file(json.loads(self._storage.read_text()))
+        tornado.ioloop.PeriodicCallback(self.store, 1000 * 5).start()
+
+    def store(self):
+        self._storage.write_text(json.dumps(self.to_file()))
+
+    def from_file(self, data):
+        self.snr = data.get("snr", 0)
+        self.users = data.get("users", {})
+        self.message_cache = data.get("message_cache", [{"_snr": 0}])
+
+    def to_file(self):
+        return {"snr": self.snr,
+                "users": self.users,
+                "message_cache": self.message_cache}
 
     def to_client(self):
         return {"_snr": self.snr}
@@ -28,6 +54,10 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     _clients = set()
     state = BroadcastState()
     auth = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.state.startup()
 
     @property
     def current_user(self):
@@ -143,6 +173,18 @@ class AppState(BroadcastState):
                 "stations": self.stations,
                 "examinees": self.examinees,
                 "assignments": self.assignments}
+
+    def to_file(self):
+        return {**super().to_file(),
+                "stations": self.stations,
+                "examinees": self.examinees,
+                "assignments": self.assignments}
+
+    def from_file(self, data):
+        super().from_file(data)
+        self.stations = data.get("stations", {})
+        self.examinees = data.get("examinees", {})
+        self.assignments = data.get("assignments", {})
 
 
 class MessageHandler(BroadcastWebSocketHandler):

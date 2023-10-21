@@ -25,5 +25,10 @@ RUN tar xf /tmp/build.tar \
     && rm /tmp/build.tar && \
     python3 -m pip install --no-cache-dir -r requirements.txt
 
+VOLUME /data
+
+RUN chown worker /data
+
 USER worker
-CMD ["python3", "-u", "main.py"]
+WORKDIR /data
+CMD ["python3", "-u", "/opt/app/main.py"]
