@@ -14,7 +14,7 @@ $(function () {
 		on_login: function (user) {
 			$("#socketIndicator").text("Online").addClass("bg-success").removeClass("bg-danger");
 			$("#username").text(user.name);
-			$("#admin").toggle(user.grant);
+			$("#admin").toggle(user.grant ? true : false);
 		},
 		on_auth_required: function (data) {
 			if (data.first_login) {
