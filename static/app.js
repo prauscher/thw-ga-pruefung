@@ -402,8 +402,14 @@ function _generateStation(i, name, assignments) {
 		function _submit(e) {
 			e.preventDefault();
 
+			var autoEnd = modal.elem.find("#minutes").val();
+
 			var assignments = modal.elem.find("#examinees").find("option:selected").map(function (_i, elem) {
-				return {"i": _gen_id(), "station": i, "examinee": $(elem).val()}
+				var assignment = {"i": _gen_id(), "station": i, "examinee": $(elem).val()}
+				if (autoEnd > 0) {
+					assignment["autoEnd"] = autoEnd * 60;
+				}
+				return assignment;
 			}).get();
 
 			if (assignments.length == 0) {

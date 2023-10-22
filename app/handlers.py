@@ -206,6 +206,25 @@ class AppState(BroadcastState):
 class MessageHandler(BroadcastWebSocketHandler):
     state = AppState()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # TODO yes, this will run on each handler, so we use only every 60 seconds
+        tornado.ioloop.PeriodicCallback(self.release_assignments, 1000 * 60).start()
+
+    def release_assignments(self):
+        for assignment_id, assignment in self.state.assignments.items():
+            if assignment["end"] is None:
+                continue
+
+            if assignment["end"] > time.time():
+                continue
+
+            if assignment["result"] != "open":
+                continue
+
+            assignment["result"] = "done"
+            self.broadcast({}, {"_m": "assignment", "i": assignment_id, **assignment})
+
     def process_station(self, msg):
         i = msg.get("i")
         self.state.stations[i] = {"name": msg.get("name"), "tasks": msg.get("tasks")}
@@ -222,7 +241,7 @@ class MessageHandler(BroadcastWebSocketHandler):
             "examinee": msg.get("examinee"),
             "station": msg.get("station"),
             "start": time.time(),
-            "end": None,
+            "end": None if "autoEnd" not in msg else time.time() + msg["autoEnd"],
             "result": "open"}
         self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
 
