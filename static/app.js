@@ -241,25 +241,53 @@ $(function () {
 		function _submit(e) {
 			e.preventDefault();
 
-			var tasks = $("#tasks").find("option:selected").map(function (i, elem) {
-				return {"name": $(elem).text(), "parts": JSON.parse($(elem).val())};
-			}).get();
+			var tasks = [];
+			var currentTask = null;
+			for (var line of (modal.elem.find("#tasks").val() + "\n").split("\n")) {
+				line = line.trim();
+				if (line == "") {
+					// blank line, add current task if existant
+					if (currentTask !== null) {
+						tasks.push(currentTask);
+						currentTask = null;
+					}
+				} else if (currentTask === null) {
+					// First line of a Task (name)
+					currentTask = {"name": line, "parts": []};
+				} else {
+					// must be a singe task, prefixed with P or O
+					currentTask.parts.push({"name": line.substring(2), "mandatory": line.substring(0, 1) != "O"});
+				}
+			}
+
 			socket.send({"_m": "station", "i": _gen_id(), "name": modal.elem.find("#name").val(), "tasks": tasks});
 
 			modal.close();
 		}
 
+		var predefinedTasks = $("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "predefined_tasks").append(
+			tasks.map((task) => $("<option>").data("preset", task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n")).text(task.name))
+		).change(function () {
+			var taskDescription = $(this).find("option:selected").map(function (_i, elem) {
+				return $(elem).data("preset");
+			}).get().join("\n\n");
+			modal.elem.find("#tasks").val(taskDescription);
+		});
+
 		modal.elem.find(".modal-body").append([
-			$("<p>").text("An Prüfungsstationen werden die praktischen Prüfungsaufgaben bearbeitet. Jeder Prüfling muss jede Station alleine bearbeiten."),
+			$("<p>").text("An Prüfungsstationen werden die praktischen Prüfungsaufgaben bearbeitet. Jeder Prüfling muss jede Station alleine bearbeiten. Die Aufgaben werden verwendet um die Laufzettel zu befüllen: Aus einer Vorauswahl können Einträge ausgewählt werden oder eine eigene Definition kann eingegeben werden."),
 			$("<form>").on("submit", _submit).append([
 				$("<div>").addClass("mb-3").append([
 					$("<label>").attr("for", "name").addClass("col-form-label").text("Name"),
 					$("<input>").attr("type", "text").addClass("form-control").attr("id", "name")
 				]),
 				$("<div>").addClass("mb-3").append([
+					$("<label>").attr("for", "predefined_tasks").addClass("col-form-label").text("Vordefinierte Aufgaben"),
+					predefinedTasks
+				]),
+				$("<div>").addClass("mb-3").append([
 					$("<label>").attr("for", "tasks").addClass("col-form-label").text("Aufgaben"),
-					$("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "tasks").append(
-						tasks.map((task) => $("<option>").attr("value", JSON.stringify(task.parts)).text(task.name)))
+					$("<textarea>").attr("rows", 7).addClass("form-control").attr("id", "tasks"),
 				]),
 			]),
 		]);
