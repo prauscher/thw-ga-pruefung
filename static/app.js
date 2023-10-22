@@ -634,7 +634,12 @@ function _generatePage(assignment) {
 
 function formatTimestamp(timestamp) {
 	const date = new Date(timestamp * 1000);
-	return date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
+	return (
+		(date.getDate() < 10 ? "0" : "") + date.getDate() + "." +
+		(date.getMonth() < 9 ? "0" : "") + (date.getMonth() + 1) + "." +
+		date.getFullYear() + " " +
+		(date.getHours() < 10 ? "0" : "") + date.getHours() + ":" +
+		(date.getMinutes() < 10 ? "0" : "") + date.getMinutes());
 }
 
 function Modal(title) {
