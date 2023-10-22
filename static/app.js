@@ -420,7 +420,6 @@ function _generateStation(i, name, assignments) {
 			// Open print dialog
 			var frame_id = "print-" + _gen_id();
 			$("body").append($("<iframe>").addClass("d-none").attr("id", frame_id).attr("name", frame_id));
-			window.frames[frame_id].document.write("<style type=\"text/css\">@font-face {font-family:'code128_L'; src:url(data:application/font-woff2;charset=utf-8;base64,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);}</style>");
 			if (i === null) {
 				window.frames[frame_id].document.write("<h2>Pausenankündigung</h2>");
 				window.frames[frame_id].document.write("<p>Beginn: " + formatTimestamp(Date.now() / 1000) + "</p>");
@@ -433,14 +432,10 @@ function _generateStation(i, name, assignments) {
 				}
 			}
 			window.frames[frame_id].document.close();
-			window.frames[frame_id].onload = function () {
-				function close() {
-					$("#" + frame_id).remove();
-				}
-				this.onbeforeunload = close;
-				this.onafterprint = close;
-				this.print();
-			}
+			setTimeout(function () {
+				window.frames[frame_id].print();
+				$("#" + frame_id).remove();
+			}, 0);
 
 			modal.close();
 		}
@@ -543,19 +538,12 @@ var Examinee = {
 	}
 }
 
-function updateExaminee(i, name) {
-	// TODO check iff assignments are open
-	$("#examinees").append(
-		$("<div>").addClass(["card", "mb-1"]).data("e-id", i).append(
-			$("<div>").addClass("card-body").append([
-				name,
-			])
-		)
-	);
-}
-
 function _generatePage(assignment) {
 	var page = $("<div>");
+
+	var code = BARCode("A-" + assignment.i);
+	var codeContainer = document.createElement("div");
+	codeContainer.appendChild(code);
 
 	var start = Date.now() / 1000;
 
@@ -564,7 +552,7 @@ function _generatePage(assignment) {
 			$("<th>").attr("width", "15%").text("Station"),
 			$("<td>").attr("width", "45%").text(data.stations[assignment.station].name),
 			$("<td>").attr("rowspan", "3").css("text-align", "center").append([
-				$("<div>").css("font-family", "code128_L").css("font-size", "33px").text("A-" + assignment.i),
+				codeContainer,
 				$("<div>").text("A-" + assignment.i)
 			])
 		]),
@@ -578,21 +566,24 @@ function _generatePage(assignment) {
 		]),
 	]));
 
+	page.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt. Bitte setze für jeden Prüfungspunkt <b>entweder</b> eine Kreuz in der Spalte &quot;B&quot; wie Bestanden oder &quot;n.B.&quot; für nicht Bestanden."));
+
 	for (var task of data.stations[assignment.station].tasks) {
 		page.append($("<div>").css("float", "left").css("padding", "10px").css("width", "45%").append([
 			$("<table>").css("width", "100%").css("border", "1px dotted black").css("border-collapse", "collapse").append([
 				$("<tr>").append([
-					$("<th>").attr("colspan", 3).text(task.name)
+					$("<th>").css("text-align","left").attr("colspan", 3).text(task.name)
 				]),
 				$("<tr>").css("border-bottom", "1px dotted black").append([
-					$("<th>").attr("width", "70%").text("Bewertung"),
-					$("<th>").attr("width", "15%").text("Bestanden"),
+					$("<th>").attr("width", "70%").text(" "),
+					$("<th>").attr("width", "15%").text("B"),
 					$("<th>").attr("width", "15%").text("n.B."),
 				])
 			]).append(task.parts.map(function (part) {
 				var field = $("<div>").text(" ").css({
-					"width": "20px",
-					"height": "20px",
+					"margin": "auto",
+					"width": "15px",
+					"height": "15px",
 					"border": "3px solid black",
 				});
 				if (!part.mandatory) {
