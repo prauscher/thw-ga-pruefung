@@ -162,6 +162,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
             self.process__login(msg)
             return
 
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |      | {self.current_user['name']:<10} | {msg['_cid']:<8} | Created user {msg.get('name')}")
         self.reply(msg, {"_m": "_success"})
 
     def process_request_users(self, msg):
@@ -173,6 +174,8 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
 
     def process_user_delete(self, msg):
         self.state.users.pop(msg["token"], "")
+
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |      | {self.current_user['name']:<10} | {msg['_cid']:<8} | Deleted user {msg.get('name')}")
         self.reply(msg, {"_m": "_confirm"})
 
 

@@ -291,9 +291,6 @@ var tasks = [
 ];
 
 function render() {
-	// Examinees
-	// TODO find obsolete examinees
-
 	var examineesWaiting = Object.keys(data.examinees);
 	var examineesInStation = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, []]));
 	examineesInStation[null] = [];
@@ -355,7 +352,7 @@ function _openAssignmentModal(a_id) {
 	}));
 
 	modal.elem.find(".modal-body").append([
-		$("<p>").text(""),
+		$("<p>").text("Eine Zuweisung spiegelt den Besuch eines Prüflings an einer Station wieder. Wird eine Zuweisung beendet, zählt die Station als besucht und wird nicht erneut zugeteilt. Wird ihr Besuch abgebrochen, erfolgt später eine erneute Zuteilung."),
 		$("<table>").addClass(["table", "table-striped"]).append(
 			$("<tbody>").append([
 				$("<tr>").append([
