@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import time
 import traceback
 from pathlib import Path
 from datetime import datetime
@@ -85,7 +86,8 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
         print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {msg['_snr']:04d} | {self.current_user['name']:<10} | {msg['_cid']:<8} | {msg}")
 
         for client in self._clients:
-            client.send(msg)
+            if client.auth is not None and client.auth in self.state.users:
+                client.send(msg)
 
     def on_close(self):
         self._clients.discard(self)
@@ -162,6 +164,17 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
 
         self.reply(msg, {"_m": "_success"})
 
+    def process_request_users(self, msg):
+        if not self.current_user["grant"]:
+            self.reply(msg, {"_m": "_unauthorized"})
+            return
+
+        self.reply(msg, {"_m": "users", "users": self.state.users})
+
+    def process_user_delete(self, msg):
+        self.state.users.pop(msg["token"], "")
+        self.reply(msg, {"_m": "_confirm"})
+
 
 class AppState(BroadcastState):
     stations = {}
@@ -192,10 +205,29 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_station(self, msg):
         i = msg.get("i")
-        self.state.stations[i] = {"name": msg.get("name")}
+        self.state.stations[i] = {"name": msg.get("name"), "tasks": msg.get("tasks")}
         self.broadcast(msg, {"_m": "station", "i": i, **self.state.stations[i]})
 
     def process_examinee(self, msg):
         i = msg.get("i")
-        self.state.examinees[i] = {"name": msg.get("name")}
+        self.state.examinees[i] = {"name": msg.get("name"), "priority": int(msg.get("priority"))}
         self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
+
+    def process_assign(self, msg):
+        i = msg.get("i")
+        self.state.assignments[i] = {
+            "examinee": msg.get("examinee"),
+            "station": msg.get("station"),
+            "start": time.time(),
+            "end": None,
+            "result": "open"}
+        self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
+
+    def process_return(self, msg):
+        i = msg.get("i")
+        self.state.assignments[i].update({
+            "end": time.time(),
+            "result": msg.get("result")})
+        self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
+
+        # TODO store task results iff needed

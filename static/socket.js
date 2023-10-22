@@ -92,7 +92,7 @@ function ReliableWebSocket(options) {
 					_send(send_queue[i]);
 				}
 
-				(options.on_login || function () {})();
+				(options.on_login || function (_user) {})(data.user);
 				return;
 			}
 
@@ -141,5 +141,9 @@ function ReliableWebSocket(options) {
 
 	return {
 		"send": _send,
+		"reconnect": function () {
+			(options.on_close || function () {})();
+			connect();
+		},
 	};
 }
