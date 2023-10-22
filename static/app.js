@@ -338,7 +338,15 @@ function render() {
 		return _buildExamineeItem(e_id, null);
 	}));
 
-	$("#stations").empty().append(Object.keys(data.stations).map(function (s_id) {
+	var station_ids = Object.keys(data.stations);
+	station_ids.sort(function (a, b) {
+		let _a = data.stations[a].name.toLowerCase();
+		let _b = data.stations[b].name.toLowerCase();
+		if (_a < _b) {return -1;}
+		if (_a > _b) {return 1;}
+		return 0;
+	});
+	$("#stations").empty().append(station_ids.map(function (s_id) {
 		return _generateStation(s_id, data.stations[s_id].name, examineesInStation[s_id]);
 	}));
 
@@ -515,6 +523,9 @@ function _generateStation(i, name, assignments) {
 		});
 	});
 
+	assignments.sort(function (a, b) {
+		return b.start - a.start;
+	});
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").text(name),
