@@ -334,6 +334,24 @@ function render() {
 		}
 	}
 
+	var examineesWaitingPrio = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, 0]));
+	for (var assignment of Object.values(data.assignments)) {
+		if (assignment.end !== null) {
+			examineesWaitingPrio[assignment.examinee] = Math.max(examineesWaitingPrio[assignment.examinee], assignment.end);
+		}
+	}
+	examineesWaiting.sort(function (a, b) {
+		if (examineesWaitingPrio[a] != examineesWaitingPrio[b]) {
+			return examineesWaitingPrio[a] - examineesWaitingPrio[b];
+		}
+		if (data.examinees[a].name < data.examinees[b].name) {
+			return -1;
+		}
+		if (data.examinees[a].name > data.examinees[b].name) {
+			return 1;
+		}
+		return 0;
+	});
 	$("#examinees").empty().append(examineesWaiting.map(function (e_id) {
 		return _buildExamineeItem(e_id, null);
 	}));
