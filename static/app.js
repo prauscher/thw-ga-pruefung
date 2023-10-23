@@ -622,7 +622,11 @@ function _generateStation(i, name) {
 				window.frames[frame_id].document.write("<h2>Pausenankündigung</h2>");
 				window.frames[frame_id].document.write("<p>Beginn: " + formatTimestamp(Date.now() / 1000) + "</p>");
 				for (var assignment of assignments) {
-					window.frames[frame_id].document.write("<li>" + data.examinees[assignment.examinee].name + "</li>");
+					var label = data.examinees[assignment.examinee].name;
+					if ("autoEnd" in assignment) {
+						label = label + " (" + Math.round(assignment.autoEnd / 60) + " Minuten)";
+					}
+					window.frames[frame_id].document.write("<li>" + label + "</li>");
 				}
 			} else {
 				for (var assignment of assignments) {
