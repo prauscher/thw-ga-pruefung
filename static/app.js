@@ -546,7 +546,7 @@ function _openAssignmentModal(a_id) {
 		}));
 	}
 
-	var ende = [$("<span>").text(assignment.end === null ? "-" : formatTimestamp(assignment.end)];
+	var ende = [$("<span>").text(assignment.end === null ? "-" : formatTimestamp(assignment.end))];
 	if (assignment.end !== null && assignment.end > Date.now() / 1000) {
 		ende.push($("<span>").addClass("fst-italic").text(" (noch " + Math.round((assignment.end - Date.now() / 1000) / 60) + " Minuten)"));
 	}
