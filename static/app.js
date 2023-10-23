@@ -523,8 +523,84 @@ function _openExamineeModal(e_id) {
 function _openStationModal(s_id) {
 	var modal = new Modal("Station " + (s_id === null ? "Pause" : data.stations[s_id].name));
 
+	var missingExaminees = Object.keys(data.examinees);
+	var assignments = [];
+	var durationSum = 0;
+	var durationCount = 0;
+
+	for (const a_id of Object.keys(data.assignments)) {
+		const assignment = data.assignments[a_id];
+
+		if (assignment.station == s_id) {
+			assignments.push({"i": a_id, ...assignment});
+			if (assignment.result == "done") {
+				durationSum += assignment.end - assignment.start;
+				durationCount += 1;
+
+				var _i = missingExaminees.indexOf(assignment.examinee);
+				if (_i >= 0) {
+					missingExaminees.splice(_i, 1);
+				}
+			}
+		}
+	}
+
 	modal.elem.find(".modal-body").append([
-		$("<p>").text(),
+		$("<p>").text(""),
+		$("<h5>").text("Historie"),
+		$("<table>").addClass(["table", "table-striped"]).append([
+			$("<thead>").append(
+				$("<tr>").append([
+					$("<th>").text("Prüfling"),
+					$("<th>").addClass("text-end").text("Dauer [min]"),
+				])
+			),
+			$("<tbody>").append(
+				assignments.map(function (assignment) {
+					var duration = [];
+					if (assignment.end === null) {
+						duration.push($("<span>").text("bisher " + Math.round((Date.now() / 1000 - assignment.start) / 60)));
+					} else {
+						duration.push($("<span>").text(Math.round((assignment.end - assignment.start) / 60)));
+					}
+
+					var name = $("<span>").text(data.examinees[assignment.examinee].name);
+					if (assignment.result == "canceled") {
+						name.addClass("fst-italic");
+						name.text(name.text() + " (abgebrochen)");
+					}
+					name.toggleClass("fw-bold", assignment.result == "open");
+					return $("<tr>").toggleClass("fw-bold", assignment.result == "open").append([
+						$("<td>").append(name),
+						$("<td>").addClass("text-end").append(duration)
+					]);
+				})
+			),
+			$("<tfoot>").append(
+				$("<tr>").append([
+					$("<th>").text("Durchschnitt"),
+					$("<th>").addClass("text-end").text(Math.round((durationSum / durationCount) / 60)),
+				])
+			),
+		]),
+		$("<h5>").text("Offene Prüflinge"),
+			$("<table>").addClass(["table", "table-striped"]).append([
+			$("<thead>").append(
+				$("<tr>").append([
+					$("<th>").text("Prüfling"),
+				])
+			),
+			$("<tbody>").append(
+				missingExaminees.map(function (e_id) {
+					return $("<tr>").append([
+						$("<td>").append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
+							e.preventDefault();
+							_openExamineeModal(e_id);
+						})),
+					]);
+				})
+			),
+		]),
 	]);
 
 	modal.show();
