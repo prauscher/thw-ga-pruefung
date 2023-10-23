@@ -705,17 +705,22 @@ function _generateStation(i, name) {
 		}
 	}
 
+	assignButton.prop("disabled", Object.keys(data.examinees).length <= assignmentsFinished + assignments.length);
+
 	assignments.sort(function (a, b) {
 		return b.start - a.start;
 	});
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
-			$("<div>").addClass("card-header").text(name),
+			$("<div>").addClass("card-header").text(name).click(function () {
+				_openStationModal(i);
+			}),
 			$("<ul>").addClass(["list-group", "list-group-flush", "examinees"]).append(
 				$("<li>").addClass("list-group-item").append(
 					$("<div>").addClass(["progress"]).append([
-						$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (assignmentsFinished / Object.keys(data.examinees).length) * 100 + "%"),
-						$("<div>").addClass(["progress-bar", "bg-primary"]).css("width", (assignments.length / Object.keys(data.examinees).length) * 100 + "%"),
+						$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (assignmentsFinished / Object.keys(data.examinees).length) * 100 + "%").text(assignmentsFinished > 0 ? assignmentsFinished : ""),
+						$("<div>").addClass(["progress-bar", "bg-primary"]).css("width", (assignments.length / Object.keys(data.examinees).length) * 100 + "%").text(assignments.length > 0 ? assignments.length : ""),
+						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", ((Object.keys(data.examinees).length - assignmentsFinished - assignments.length) / Object.keys(data.examinees).length) * 100 + "%").text(Object.keys(data.examinees).length > assignmentsFinished + assignments.length ? Object.keys(data.examinees).length - assignmentsFinished - assignments.length : ""),
 					])
 				)
 			).append(assignments.map(function (a_id) {
