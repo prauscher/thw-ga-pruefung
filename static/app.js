@@ -1,6 +1,35 @@
 var data = {};
 
 $(function () {
+	var _timeoutHandler = null;
+	var _input = "";
+
+	$(document).keyup(function (e) {
+		if (_timeoutHandler != null) {
+			clearTimeout(_timeoutHandler);
+		}
+		var key = String.fromCharCode(e.which);
+		// Fix english keyboard layout transformation
+		if (key == "/") {
+			key = "-";
+		}
+		_input += key;
+		this._timeoutHandler = setTimeout(function () {
+			if (_input.length > 3) {
+				$(document).trigger("onbarcodescanned", _input);
+			}
+			_input = "";
+		}, 20);
+	});
+});
+
+$(document).on("onbarcodescanned", function (code) {
+	if (code.startsWith("A-")) {
+		_openAssignmentModal(code.substring(2));
+	}
+});
+
+$(function () {
 	// Overwrite app_token if one is given
 	if (location.hash.length > 1) {
 		localStorage.setItem("app_token", location.hash.substring(1));
