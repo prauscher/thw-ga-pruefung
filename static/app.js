@@ -141,6 +141,7 @@ $(function () {
 			"assignment": function (msg) {
 				data.assignments[msg.i] = msg;
 				render();
+				$(".examinee-" + msg.examinee).hide().slideDown(1000);
 			},
 			"users": function (msg) {
 				var modal = Modal("Benutzerverwaltung");
@@ -398,7 +399,7 @@ function render() {
 }
 
 function _buildExamineeItem(e_id, a_id) {
-	return $("<li>").addClass("list-group-item").text(data.examinees[e_id].name).click(function () {
+	return $("<li>").addClass(["list-group-item", "examinee-" + e_id]).text(data.examinees[e_id].name).click(function () {
 		if (a_id !== null) {
 			_openAssignmentModal(a_id);
 		} else {
