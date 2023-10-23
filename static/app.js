@@ -320,13 +320,10 @@ var tasks = [
 
 function render() {
 	var examineesWaiting = Object.keys(data.examinees);
-	var examineesInStation = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, []]));
-	examineesInStation[null] = [];
 
 	for (var a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
 		if (assignment.result == "open") {
-			examineesInStation[assignment.station].push(a_id);
 			var _i = examineesWaiting.indexOf(assignment.examinee);
 			if (_i >= 0) {
 				examineesWaiting.splice(_i, 1);
@@ -365,10 +362,10 @@ function render() {
 		return 0;
 	});
 	$("#stations").empty().append(station_ids.map(function (s_id) {
-		return _generateStation(s_id, data.stations[s_id].name, examineesInStation[s_id]);
+		return _generateStation(s_id, data.stations[s_id].name);
 	}));
 
-	$("#pause-container").empty().append(_generateStation(null, "Pause", examineesInStation[null]));
+	$("#pause-container").empty().append(_generateStation(null, "Pause"));
 }
 
 function _buildExamineeItem(e_id, a_id) {
@@ -585,7 +582,7 @@ function _openAssignmentModal(a_id) {
 	modal.show();
 }
 
-function _generateStation(i, name, assignments) {
+function _generateStation(i, name) {
 	var elem;
 	var assignButton = $("<button>").addClass(["btn", "btn-success"]).text("Zuweisen").click(function (e) {
 		e.preventDefault();
@@ -680,13 +677,35 @@ function _generateStation(i, name, assignments) {
 		});
 	});
 
+	var assignments = [];
+	var assignmentsFinished = 0;
+
+	for (var a_id of Object.keys(data.assignments)) {
+		const assignment = data.assignments[a_id];
+		if (assignment.station == i) {
+			console.log(assignment);
+			if (assignment.result == "open") {
+				assignments.push(a_id);
+			} else if (assignment.result == "done") {
+				assignmentsFinished += 1;
+			}
+		}
+	}
+
 	assignments.sort(function (a, b) {
 		return b.start - a.start;
 	});
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").text(name),
-			$("<ul>").addClass(["list-group", "list-group-flush", "examinees"]).append(assignments.map(function (a_id) {
+			$("<ul>").addClass(["list-group", "list-group-flush", "examinees"]).append(
+				$("<li>").addClass("list-group-item").append(
+					$("<div>").addClass(["progress"]).append([
+						$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (assignmentsFinished / Object.keys(data.examinees).length) * 100 + "%"),
+						$("<div>").addClass(["progress-bar", "bg-primary"]).css("width", (assignments.length / Object.keys(data.examinees).length) * 100 + "%"),
+					])
+				)
+			).append(assignments.map(function (a_id) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
 			})),
 			$("<div>").addClass("card-footer").append([
