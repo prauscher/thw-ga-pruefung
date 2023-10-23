@@ -683,7 +683,6 @@ function _generateStation(i, name) {
 	for (var a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
 		if (assignment.station == i) {
-			console.log(assignment);
 			if (assignment.result == "open") {
 				assignments.push(a_id);
 			} else if (assignment.result == "done") {
