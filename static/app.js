@@ -453,7 +453,7 @@ function _openExamineeModal(e_id) {
 		now = assignment.end;
 		if (assignment.result === "open" && assignment.end !== null) {
 			durationContent.push($("<br>"));
-			durationContent.push($("<span>").addClass("fst-italic").text("noch " + Math.round((now - new Date().now() / 1000) / 60) + " verbleibend"));
+			durationContent.push($("<span>").addClass("fst-italic").text("noch " + Math.round((now - Date.now() / 1000) / 60) + " verbleibend"));
 			now = null;
 		}
 		assignmentBody.append($("<tr>").append([
