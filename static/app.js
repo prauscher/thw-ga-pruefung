@@ -450,6 +450,12 @@ function _openExamineeModal(e_id) {
 			durationContent.push($("<br>"));
 			durationContent.push($("<span>").toggleClass("text-danger", usage > 1).toggleClass("text-success", usage < 1).text((usage >= 1 ? "+" : "") + Math.round((usage - 1) * 100) + " %"));
 		}
+		now = assignment.end;
+		if (assignment.result === "open" && assignment.end !== null) {
+			durationContent.push($("<br>"));
+			durationContent.push($("<span>").addClass("fst-italic").text("noch " + Math.round((now - new Date().now() / 1000) / 60) + " verbleibend"));
+			now = null;
+		}
 		assignmentBody.append($("<tr>").append([
 			$("<td>").toggleClass("fst-italic", assignment.station === null || assignment.result == "canceled").append(
 				$("<a>").attr("href", "#").text(name).click(function (e) {
@@ -459,7 +465,6 @@ function _openExamineeModal(e_id) {
 			),
 			$("<td>").addClass("text-end").append(durationContent),
 		]));
-		now = assignment.end;
 	}
 	if (now !== null) {
 		assignmentBody.append($("<tr>").append([
