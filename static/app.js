@@ -520,6 +520,16 @@ function _openExamineeModal(e_id) {
 	modal.show();
 }
 
+function _openStationModal(s_id) {
+	var modal = new Modal("Station " + (s_id === null ? "Pause" : data.stations[s_id].name));
+
+	modal.elem.find(".modal-body").append([
+		$("<p>").text(),
+	]);
+
+	modal.show();
+}
+
 function _openAssignmentModal(a_id) {
 	var modal = Modal("Zuweisung");
 	const assignment = data.assignments[a_id];
