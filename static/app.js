@@ -546,6 +546,11 @@ function _openAssignmentModal(a_id) {
 		}));
 	}
 
+	var ende = [$("<span>").text(assignment.end === null ? "-" : formatTimestamp(assignment.end)];
+	if (assignment.end !== null && assignment.end > Date.now() / 1000) {
+		ende.push($("<span>").addClass("fst-italic").text(" (noch " + Math.round((assignment.end - Date.now() / 1000) / 60) + " Minuten)"));
+	}
+
 	modal.elem.find(".modal-body").append([
 		$("<p>").text("Eine Zuweisung spiegelt den Besuch eines Prüflings an einer Station wieder. Wird eine Zuweisung beendet, zählt die Station als besucht und wird nicht erneut zugeteilt. Wird ihr Besuch abgebrochen, erfolgt später eine erneute Zuteilung."),
 		$("<table>").addClass(["table", "table-striped"]).append(
@@ -578,7 +583,7 @@ function _openAssignmentModal(a_id) {
 				]),
 				$("<tr>").append([
 					$("<th>").text("Ende"),
-					$("<td>").text(assignment.end === null ? "-" : formatTimestamp(assignment.end)),
+					$("<td>").text(ende),
 				]),
 			])
 		),
