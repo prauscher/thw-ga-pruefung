@@ -244,7 +244,7 @@ $(function () {
 		}
 
 		modal.elem.find(".modal-body").append([
-			$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen pro Zeile angegeben werden. Prüflinge mit höherer Priorität werden bevorzugt auf Stationen gebucht (z.B. für Jugend-Goldabzeichen):"),
+			$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen pro Zeile angegeben werden. Die Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen):"),
 			$("<form>").on("submit", _submit).append([
 				$("<div>").addClass("mb-3").append([
 					$("<label>").attr("for", "priority").addClass("col-form-label").text("Priorität"),
@@ -576,7 +576,7 @@ function _openStationModal(s_id) {
 	}
 
 	modal.elem.find(".modal-body").append([
-		$("<p>").text(""),
+		$("<p>").text("Hier kann die Auslastung einer Station eingesehen werden."),
 		$("<h5>").text("Historie"),
 		$("<table>").addClass(["table", "table-striped"]).append([
 			$("<thead>").append(
@@ -609,7 +609,7 @@ function _openStationModal(s_id) {
 			$("<tfoot>").append(
 				$("<tr>").append([
 					$("<th>").text("Durchschnitt"),
-					$("<th>").addClass("text-end").text(Math.round((durationSum / durationCount) / 60)),
+					$("<th>").addClass("text-end").text(durationCount == 0 ? "unbekannt" : Math.round((durationSum / durationCount) / 60)),
 				])
 			),
 		]),
