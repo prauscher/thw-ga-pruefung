@@ -381,6 +381,143 @@ function _buildExamineeItem(e_id, a_id) {
 	});
 }
 
+function _openExamineeModal(e_id) {
+	const examinee = data.examinees[e_id];
+	var modal = Modal("Prüfling " + examinee.name);
+
+	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, {"sum": 0, "count": 0}]));
+	var assignments = [];
+	var missingStations = Object.keys(data.stations);
+	var currentAssignment = null;
+	var firstStart = null;
+	for (const a_id of Object.keys(data.assignments)) {
+		const assignment = data.assignments[a_id];
+		if (firstStart === null || assignment.start < firstStart) {
+			firstStart = assignment.start;
+		}
+
+		if (assignment.result == "done" && assignment.station !== null) {
+			stationTimes[assignment.station].sum += assignment.end - assignment.start;
+			stationTimes[assignment.station].count += 1;
+		}
+
+		if (assignment.examinee == e_id) {
+			if (assignment.result != "canceled") {
+				var _i = missingStations.indexOf(assignment.station);
+				if (_i >= 0) {
+					missingStations.splice(_i, 1);
+				}
+			}
+			if (assignment.result == "open") {
+				currentAssignment = assignment;
+			}
+			assignments.push({"i": a_id, ...assignment});
+		}
+	}
+	assignments.sort(function (a, b) {
+		return a.start - b.start;
+	});
+	for (const s_id of Object.keys(stationTimes)) {
+		if (stationTimes[s_id].count > 0) {
+			stationTimes[s_id] = stationTimes[s_id].sum / stationTimes[s_id].count;
+		} else {
+			stationTimes[s_id] = null;
+		}
+	}
+
+	var currentAssignmentText;
+	if (currentAssignment === null) {
+		currentAssignmentText = "Der*die Prüfling befindet sich im Bereitstellungsraum.";
+	} else if (currentAssignment.station === null) {
+		currentAssignmentText = "Der*die Prüfling befindet sich bis " + formatTimestamp(currentAssignment.end) + " in Pause";
+	} else {
+		currentAssignmentText = "Der*die Prüfling befindet sich seit " + formatTimestamp(currentAssignment.start) + " an Station " + data.stations[currentAssignment.station].name;
+	}
+
+	var now = firstStart;
+	var assignmentBody = $("<tbody>");
+	for (const assignment of assignments) {
+		assignmentBody.append($("<tr>").append([
+			$("<td>").addClass("fst-italic").text("Bereitstellungsraum"),
+			$("<td>").addClass("text-end").text(Math.round((assignment.start - now) / 60)),
+		]));
+
+		var name = assignment.station === null ? "Pause" : data.stations[assignment.station].name;
+		if (assignment.result === "canceled") {
+			name = name + " (Abgebrochen)";
+		}
+		var duration = (assignment.end || Date.now() / 1000) - assignment.start;
+		var usage = stationTimes[assignment.station] === null ? 1.0 : duration / stationTimes[assignment.station];
+		var durationContent = [$("<span>").text(Math.round(duration / 60))];
+		if (assignment.result === "done" && assignment.station !== null) {
+			durationContent.push($("<br>"));
+			durationContent.push($("<span>").toggleClass("text-danger", usage > 1).toggleClass("text-success", usage < 1).text((usage >= 1 ? "+" : "") + Math.round((usage - 1) * 100) + " %"));
+		}
+		assignmentBody.append($("<tr>").append([
+			$("<td>").toggleClass("fst-italic", assignment.station === null || assignment.result == "canceled").append(
+				$("<a>").attr("href", "#").text(name).click(function (e) {
+					e.preventDefault();
+					_openAssignmentModal(assignment.i);
+				}),
+			),
+			$("<td>").addClass("text-end").append(durationContent),
+		]));
+		now = assignment.end;
+	}
+	if (now !== null) {
+		assignmentBody.append($("<tr>").append([
+			$("<td>").addClass("fst-italic").text("Bereitstellungsraum"),
+			$("<td>").addClass("text-end").text(Math.round((Date.now() / 1000 - now) / 60)),
+		]));
+	}
+
+	modal.elem.find(".modal-body").append([
+		$("<p>").text(currentAssignmentText),
+		$("<h5>").text("Historie"),
+		$("<table>").addClass(["table", "table-striped"]).append([
+			$("<thead>").append(
+				$("<tr>").append([
+					$("<th>").text("Station"),
+					$("<th>").addClass("text-end").text("Dauer [min]"),
+				])
+			),
+			assignmentBody,
+		]),
+		$("<h5>").text("Offene Stationen"),
+		$("<table>").addClass(["table", "table-striped"]).append([
+			$("<thead>").append(
+				$("<tr>").append([
+					$("<th>").text("Station"),
+					$("<th>").addClass("text-end").text("⌀ Dauer [min]"),
+				])
+			),
+			$("<tbody>").append(
+				missingStations.map(function (s_id) {
+					return $("<tr>").append([
+						$("<td>").append($("<a>").attr("href", "#").text(data.stations[s_id].name).click(function (e) {
+							e.preventDefault();
+							_openStationModal(s_id);
+						})),
+						$("<td>").addClass("text-end").text(stationTimes[s_id] === null ? "unbekannt" : Math.round(stationTimes[s_id] / 60)),
+					]);
+				})
+			),
+			$("<tfoot>").append([
+				$("<tr>").append([
+					$("<th>").text("Gesamt"),
+					$("<th>").addClass("text-end").text(Math.round(missingStations.reduce((sum, s_id) => sum + stationTimes[s_id] || 0, 0) / 60))
+				]),
+				$("<tr>").append([
+					$("<th>").text("Schätzung für Prüfling"),
+					$("<th>").addClass("text-end").text(Math.round(Examinee.calculateRemainingTime(e_id) / 60))
+				]),
+			]),
+		]),
+	]);
+
+	modal.show();
+}
+
 function _openAssignmentModal(a_id) {
 	var modal = Modal("Zuweisung");
 	const assignment = data.assignments[a_id];
@@ -398,12 +535,14 @@ function _openAssignmentModal(a_id) {
 		}));
 		options.push("&nbsp;");
 	}
-	options.push($("<button>").addClass(["btn", "btn-warning"]).text("Abbrechen").click(function () {
-		if (confirm("Sicher, dass die Station ohne Ergebnis abgebrochen werden soll?")) {
-			socket.send({"_m": "return", "i": a_id, "result": "canceled"});
-			modal.close();
-		}
-	}));
+	if (assignment.result != "canceled") {
+		options.push($("<button>").addClass(["btn", "btn-warning"]).text("Abbrechen").click(function () {
+			if (confirm("Sicher, dass die Station ohne Ergebnis abgebrochen werden soll?")) {
+				socket.send({"_m": "return", "i": a_id, "result": "canceled"});
+				modal.close();
+			}
+		}));
+	}
 
 	modal.elem.find(".modal-body").append([
 		$("<p>").text("Eine Zuweisung spiegelt den Besuch eines Prüflings an einer Station wieder. Wird eine Zuweisung beendet, zählt die Station als besucht und wird nicht erneut zugeteilt. Wird ihr Besuch abgebrochen, erfolgt später eine erneute Zuteilung."),
