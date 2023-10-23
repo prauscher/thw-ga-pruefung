@@ -593,7 +593,7 @@ function _openAssignmentModal(a_id) {
 				]),
 				$("<tr>").append([
 					$("<th>").text("Ende"),
-					$("<td>").text(ende),
+					$("<td>").append(ende),
 				]),
 			])
 		),
@@ -703,6 +703,8 @@ function _generateStation(i, name) {
 
 	var assignments = [];
 	var assignmentsFinished = 0;
+	var firstStartedAssignment = null;
+	var lastFinishedAssignment = null;
 
 	for (var a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
@@ -710,6 +712,12 @@ function _generateStation(i, name) {
 			if (assignment.result == "open") {
 				assignments.push(a_id);
 			} else if (assignment.result == "done") {
+				if (firstStartedAssignment === null || assignment.start < firstStartedAssignment) {
+					firstStartedAssignment = assignment.start;
+				}
+				if (lastFinishedAssignment === null || assignment.end > lastFinishedAssignment) {
+					lastFinishedAssignment = assignment.end;
+				}
 				assignmentsFinished += 1;
 			}
 		}
@@ -720,20 +728,30 @@ function _generateStation(i, name) {
 	assignments.sort(function (a, b) {
 		return b.start - a.start;
 	});
+
+	var end = null;
+	if (firstStartedAssignment !== null && lastFinishedAssignment !== null) {
+		end = lastFinishedAssignment + (Object.keys(data.examinees).length - assignmentsFinished) * (lastFinishedAssignment - firstStartedAssignment) / assignmentsFinished;
+	}
+
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").text(name).click(function () {
 				_openStationModal(i);
 			}),
-			$("<ul>").addClass(["list-group", "list-group-flush", "examinees"]).append(
+			$("<ul>").addClass(["list-group", "list-group-flush", "examinees"]).append([
 				$("<li>").addClass("list-group-item").append(
 					$("<div>").addClass(["progress"]).append([
 						$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (assignmentsFinished / Object.keys(data.examinees).length) * 100 + "%").text(assignmentsFinished > 0 ? assignmentsFinished : ""),
 						$("<div>").addClass(["progress-bar", "bg-primary"]).css("width", (assignments.length / Object.keys(data.examinees).length) * 100 + "%").text(assignments.length > 0 ? assignments.length : ""),
 						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", ((Object.keys(data.examinees).length - assignmentsFinished - assignments.length) / Object.keys(data.examinees).length) * 100 + "%").text(Object.keys(data.examinees).length > assignmentsFinished + assignments.length ? Object.keys(data.examinees).length - assignmentsFinished - assignments.length : ""),
 					])
-				)
-			).append(assignments.map(function (a_id) {
+				),
+				$("<li>").addClass("list-group-item").append([
+					$("<span>").addClass("float-end").text(end === null ? "unbekannt" : formatTimestamp(end)),
+					$("<span>").text("Abschluss"),
+				]),
+			]).append(assignments.map(function (a_id) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
 			})),
 			$("<div>").addClass("card-footer").append([
