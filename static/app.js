@@ -1,6 +1,6 @@
 var data = {};
 
-scannerChars = {173: "-", 10: "", 13: ""};
+scannerChars = {173: "-", 13: "", 16: ""};
 
 $(function () {
 	var _timeoutHandler = null;
@@ -23,7 +23,7 @@ $(function () {
 
 $(document).on("onbarcodescanned", function (e, code) {
 	if (code.startsWith("A-")) {
-		_openAssignmentModal(code.substring(2));
+		_openAssignmentModal(code.substring(2).toLowerCase());
 	}
 });
 
