@@ -16,14 +16,14 @@ $(function () {
 		_input += key;
 		this._timeoutHandler = setTimeout(function () {
 			if (_input.length > 3) {
-				$(document).trigger("onbarcodescanned", _input);
+				$(document).trigger("onbarcodescanned", [_input]);
 			}
 			_input = "";
 		}, 20);
 	});
 });
 
-$(document).on("onbarcodescanned", function (code) {
+$(document).on("onbarcodescanned", function (e, code) {
 	if (code.startsWith("A-")) {
 		_openAssignmentModal(code.substring(2));
 	}
