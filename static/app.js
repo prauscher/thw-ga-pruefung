@@ -1,5 +1,7 @@
 var data = {};
 
+scannerChars = {173: "-", 10: "", 13: ""};
+
 $(function () {
 	var _timeoutHandler = null;
 	var _input = "";
@@ -8,13 +10,7 @@ $(function () {
 		if (_timeoutHandler != null) {
 			clearTimeout(_timeoutHandler);
 		}
-		var key = String.fromCharCode(e.which);
-		// Fix english keyboard layout transformation
-		if (key == "/") {
-			key = "-";
-		}
-		// Ignore control codes
-		console.log(key, e.which);
+		var key = e.which in scannerChars ? scannerChars[e.which] : String.fromCharCode(e.which);
 		_input += key;
 		this._timeoutHandler = setTimeout(function () {
 			if (_input.length > 3) {
