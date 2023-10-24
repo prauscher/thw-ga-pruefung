@@ -13,13 +13,15 @@ $(function () {
 		if (key == "/") {
 			key = "-";
 		}
+		// Ignore control codes
+		console.log(key, e.which);
 		_input += key;
 		this._timeoutHandler = setTimeout(function () {
 			if (_input.length > 3) {
 				$(document).trigger("onbarcodescanned", [_input]);
 			}
 			_input = "";
-		}, 20);
+		}, 50);
 	});
 });
 
