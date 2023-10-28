@@ -422,7 +422,15 @@ function render() {
 		}
 		return 0;
 	});
-	$("#examinees").empty().append(examineesWaiting.map(function (e_id) {
+	var examineesCompleted = Object.keys(examinesWaitingMissingStations).filter((_stations) => _stations.length == 0).length;
+	$("#examinees").empty().append(
+		$("<li>").addClass("list-group-item").append(
+			$("<div>").addClass(["progress"]).append([
+				$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (examineesCompleted / Object.keys(data.examinees).length) * 100 + "%").text(examineesCompleted),
+				$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", ((Object.keys(data.examinees).length - examineesCompleted) / Object.keys(data.examinees).length) * 100 + "%").text(Object.keys(data.examinees).length - examineesCompleted),
+			])
+		)
+	).append(examineesWaiting.map(function (e_id) {
 		return _buildExamineeItem(e_id, null).toggleClass("text-muted", examineesWaitingMissingStations[e_id].length == 0);
 	}));
 
