@@ -243,7 +243,8 @@ class MessageHandler(BroadcastWebSocketHandler):
              self.reply(msg, {"_m": "unauthorized"})
 
         i = msg.get("i")
-        self.state.assignments = {a_id: assignment for self.state.assignments.items()
+        self.state.assignments = {a_id: assignment
+                                  for a_id, assignment in self.state.assignments.items()
                                   if assignment.station != i}
         self.state.stations.pop(i, None)
         self.broadcast(msg, {"_m": "station_delete", "i": i})
@@ -261,7 +262,8 @@ class MessageHandler(BroadcastWebSocketHandler):
              self.reply(msg, {"_m": "unauthorized"})
 
         i = msg.get("i")
-        self.state.assignments = {a_id: assignment for self.state.assignments.items()
+        self.state.assignments = {a_id: assignment
+                                  for a_id, assignment in self.state.assignments.items()
                                   if assignment.examinee != i}
         self.state.examinees.pop(i, None)
         self.broadcast(msg, {"_m": "examinee_delete", "i": i})
