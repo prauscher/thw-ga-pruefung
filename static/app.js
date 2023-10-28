@@ -422,7 +422,7 @@ function render() {
 		}
 		return 0;
 	});
-	var examineesCompleted = Object.keys(examineesWaitingMissingStations).filter((_stations) => _stations.length == 0).length;
+	var examineesCompleted = Object.values(examineesWaitingMissingStations).filter((_stations) => _stations.length == 0).length;
 	$("#examinees").empty().append(
 		$("<li>").addClass("list-group-item").append(
 			$("<div>").addClass(["progress"]).append([
