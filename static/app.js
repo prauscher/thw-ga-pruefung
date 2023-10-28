@@ -388,15 +388,31 @@ function render() {
 		}
 	}
 
-	var examineesWaitingPrio = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, 0]));
+	var examineesWaitingReturnTime = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, 0]));
+	var examineesWaitingMissingStations = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, Object.keys(data.stations)]));
 	for (var assignment of Object.values(data.assignments)) {
 		if (assignment.end !== null) {
-			examineesWaitingPrio[assignment.examinee] = Math.max(examineesWaitingPrio[assignment.examinee], assignment.end);
+			examineesWaitingReturnTime[assignment.examinee] = Math.max(examineesWaitingReturnTime[assignment.examinee], assignment.end);
+		}
+		if (assignment.result == "done") {
+			var _i = examineesWaitingMissingStations.indexOf(assignment.station);
+			if (_i >= 0) {
+				examineesWaitingMissingStations.splice(_i, 1);
+			}
 		}
 	}
 	examineesWaiting.sort(function (a, b) {
-		if (examineesWaitingPrio[a] != examineesWaitingPrio[b]) {
-			return examineesWaitingPrio[a] - examineesWaitingPrio[b];
+		// Make sure completed users are listed down below
+		if (examineesWaitingMissingStations[a].length != examineesWaitingMissingStations[b].length) {
+			if (examineesWaitingMissingStations[a] == 0) {
+				return -1;
+			}
+			if (examineesWaitingMissingStations[b] == 0) {
+				return 1;
+			}
+		}
+		if (examineesWaitingReturnTime[a] != examineesWaitingReturnTime[b]) {
+			return examineesWaitingReturnTime[a] - examineesWaitingReturnTime[b];
 		}
 		if (data.examinees[a].name < data.examinees[b].name) {
 			return -1;
@@ -407,7 +423,7 @@ function render() {
 		return 0;
 	});
 	$("#examinees").empty().append(examineesWaiting.map(function (e_id) {
-		return _buildExamineeItem(e_id, null);
+		return _buildExamineeItem(e_id, null).toggleClass("text-muted", examineesWaitingMissingStations[e_id].length == 0);
 	}));
 
 	var station_ids = Object.keys(data.stations);
