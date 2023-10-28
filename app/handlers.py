@@ -63,7 +63,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     @property
     def current_user(self):
         if self.auth is None:
-            return {"name": "Anonymous", "grant": False}
+            return {"name": "Anonymous", "role": "guest"}
 
         return self.state.users[self.auth]
 
@@ -151,11 +151,11 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     def process__create_user(self, msg):
         first_run = not self.state.users
 
-        if not first_run and not self.current_user["grant"]:
+        if not first_run and self.current_user.get("role", "") != "admin" and not self.current_user.get("grant", False):
             self.reply(msg, {"_m": "_unauthorized"})
             return
 
-        self.state.users[msg.get("token")] = {"name": msg.get("name"), "grant": msg.get("grant")}
+        self.state.users[msg.get("token")] = {"name": msg.get("name"), "role": msg.get("role")}
 
         if first_run:
             # Special case: Login after creation of first user
@@ -166,13 +166,17 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
         self.reply(msg, {"_m": "_success"})
 
     def process_request_users(self, msg):
-        if not self.current_user["grant"]:
+        if self.current_user.get("role", "") != "admin" and not self.current_user.get("grant", False):
             self.reply(msg, {"_m": "_unauthorized"})
             return
 
         self.reply(msg, {"_m": "users", "users": self.state.users})
 
     def process_user_delete(self, msg):
+        if self.current_user.get("role", "") != "admin" and not self.current_user.get("grant", False):
+            self.reply(msg, {"_m": "_unauthorized"})
+            return
+
         self.state.users.pop(msg["token"], "")
 
         print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |      | {self.current_user['name']:<10} | {msg['_cid']:<8} | Deleted user {msg.get('name')}")
@@ -226,16 +230,25 @@ class MessageHandler(BroadcastWebSocketHandler):
             self.broadcast({}, {"_m": "assignment", "i": assignment_id, **assignment})
 
     def process_station(self, msg):
+        if self.current_user.get("role", "") != "admin":
+             self.reply(msg, {"_m": "unauthorized"})
+
         i = msg.get("i")
         self.state.stations[i] = {"name": msg.get("name"), "tasks": msg.get("tasks")}
         self.broadcast(msg, {"_m": "station", "i": i, **self.state.stations[i]})
 
     def process_examinee(self, msg):
+        if self.current_user.get("role", "") != "admin":
+             self.reply(msg, {"_m": "unauthorized"})
+
         i = msg.get("i")
         self.state.examinees[i] = {"name": msg.get("name"), "priority": int(msg.get("priority"))}
         self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
 
     def process_assign(self, msg):
+        if self.current_user.get("role", "") != "operator":
+             self.reply(msg, {"_m": "unauthorized"})
+
         i = msg.get("i")
         self.state.assignments[i] = {
             "examinee": msg.get("examinee"),
@@ -246,10 +259,11 @@ class MessageHandler(BroadcastWebSocketHandler):
         self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
 
     def process_return(self, msg):
+        if self.current_user.get("role", "") != "operator":
+             self.reply(msg, {"_m": "unauthorized"})
+
         i = msg.get("i")
         self.state.assignments[i].update({
             "end": time.time(),
             "result": msg.get("result")})
         self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
-
-        # TODO store task results iff needed

@@ -1,4 +1,5 @@
 var data = {};
+var user = null;
 
 scannerChars = {173: "-", 13: "", 16: ""};
 
@@ -40,10 +41,14 @@ $(function () {
 		on_close: function () {
 			$("#socketIndicator").text("Offline").addClass("bg-danger").removeClass("bg-success");
 		},
-		on_login: function (user) {
+		on_login: function (_user) {
+			user = _user;
 			$("#socketIndicator").text("Online").addClass("bg-success").removeClass("bg-danger");
 			$("#username").text(user.name);
-			$("#admin").toggle(user.grant ? true : false);
+			$("#admin").toggle(("grant" in user && user.grant) || user.role == "admin");
+			$("#examinee-add").toggle(user.role == "admin");
+			$("#station-add").toggle(user.role == "admin");
+			$(".assign-examinee").toggle(user.role == "operator");
 		},
 		on_auth_required: function (data) {
 			if (data.first_login) {
@@ -59,12 +64,12 @@ $(function () {
 					e.preventDefault();
 					var token = startModal.elem.find("#token").val();
 					localStorage.setItem("app_token", token);
-					socket.send({"_m": "_create_user", "token": token, "name": startModal.elem.find("#name").val(), "grant": true})
+					socket.send({"_m": "_create_user", "token": token, "name": startModal.elem.find("#name").val(), "role": "admin"})
 					startModal.close();
 				}
 
 				startModal.elem.find(".modal-body").append([
-					$("<p>").text("Willkommen beim GA-Prüfungsmonitor. Dieses Tool soll bei der Durchführung der GA-Prüfung unterstützen. Da dies dein erster Aufruf ist, muss ein erster Administrator-Benutzer eingerichtet werden. Bitte vergebe hier einen Namen für diesen und notiere dir den hier angezeigten Token:"),
+					$("<p>").text("Willkommen beim GA-Prüfungsmonitor. Dieses Tool soll bei der Durchführung der GA-Prüfung unterstützen. Da dies dein erster Aufruf ist, muss ein erster Administrator-Benutzer eingerichtet werden. Anschließend kannst du Stationen und Prüflinge anlegen sowie einen Operator-Benutzer einrichten. Bitte vergebe hier einen Namen für diesen und notiere dir den hier angezeigten Token:"),
 					$("<form>").on("submit", _submit).append([
 						$("<div>").addClass("mb-3").append([
 							$("<label>").attr("for", "token").addClass("col-form-label").text("Token"),
@@ -167,7 +172,7 @@ $(function () {
 					var user = {
 						"token": modal.elem.find("#token").val(),
 						"name": modal.elem.find("#username").val(),
-						"grant": modal.elem.find("#grant").is(":checked")
+						"role": modal.elem.find("#role").val(),
 					}
 					socket.send({"_m": "_create_user", ...user});
 					msg.users[user.token] = user;
@@ -184,7 +189,8 @@ $(function () {
 						modal.elem.find("#user-" + u_id).remove();
 					});
 					return $("<tr>").attr("id", "user-" + u_id).append([
-						$("<td>").toggleClass("fw-bold", msg.users[u_id].grant).text(msg.users[u_id].name),
+						$("<td>").text(msg.users[u_id].name),
+						$("<td>").text(msg.users[u_id].role),
 						$("<td>").addClass("text-end").append([
 							deleteButton,
 						])
@@ -198,7 +204,9 @@ $(function () {
 					$("<table>").addClass(["table", "table-striped"]).append([
 						$("<thead>").append(
 							$("<tr>").append([
-								$("<th>").attr("colspan", 2).text("Benutzername"),
+								$("<th>").text("Benutzername"),
+								$("<th>").text("Rolle"),
+								$("<th>").text(""),
 							])
 						),
 						$("<tbody>").attr("id", "users").append(
@@ -206,7 +214,7 @@ $(function () {
 						),
 						$("<tfoot>").append(
 							$("<tr>").append(
-								$("<th>").attr("colspan", 2).append([
+								$("<th>").attr("colspan", 3).append([
 									$("<form>").on("submit", _create).append([
 										$("<div>").addClass("mb-3").append([
 											$("<label>").attr("for", "token").addClass("col-form-label").text("Token"),
@@ -216,9 +224,13 @@ $(function () {
 											$("<label>").attr("for", "username").addClass("col-form-label").text("Benutzername"),
 											$("<input>").attr("type", "text").addClass("form-control").attr("id", "username")
 										]),
-										$("<div>").addClass(["form-check", "mb-3"]).append([
-											$("<input>").attr("type", "checkbox").addClass("form-check-input").attr("id", "grant"),
-											$("<label>").attr("for", "grant").addClass("form-check-label").text("Priviligiert"),
+										$("<div>").addClass("mb-3").append([
+											$("<label>").attr("for", "role").addClass("col-form-label").text("Rolle"),
+											$("<select>").attr("id", "role").addClass("form-select").append([
+												$("<option>").attr("value", "admin").text("Administrator"),
+												$("<option>").attr("value", "operator").text("Operator"),
+												$("<option>").attr("value", "viewer").text("Betrachter"),
+											]),
 										]),
 									]),
 									createButton
@@ -734,7 +746,7 @@ function _openAssignmentModal(a_id) {
 
 function _generateStation(i, name) {
 	var elem;
-	var assignButton = $("<button>").addClass(["btn", "btn-success"]).text("Zuweisen").click(function (e) {
+	var assignButton = $("<button>").addClass(["btn", "btn-success", "assign-examinee"]).text("Zuweisen").click(function (e) {
 		e.preventDefault();
 
 		var modal = Modal("Prüflinge zuweisen");
@@ -885,7 +897,7 @@ function _generateStation(i, name) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
 			})),
 			$("<div>").addClass("card-footer").append([
-				assignButton
+				assignButton.toggle(user && user.role == "operator")
 			])
 		])
 	);
