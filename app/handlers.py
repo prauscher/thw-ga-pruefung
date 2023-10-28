@@ -238,6 +238,16 @@ class MessageHandler(BroadcastWebSocketHandler):
         self.state.stations[i] = {"name": msg.get("name"), "tasks": msg.get("tasks")}
         self.broadcast(msg, {"_m": "station", "i": i, **self.state.stations[i]})
 
+    def process_station_delete(self, msg):
+        if self.current_user.get("role", "") != "admin":
+             self.reply(msg, {"_m": "unauthorized"})
+
+        i = msg.get("i")
+        self.state.assignments = {a_id: assignment for self.state.assignments.items()
+                                  if assignment.station != i}
+        self.state.stations.pop(i, None)
+        self.broadcast(msg, {"_m": "station_delete", "i": i})
+
     def process_examinee(self, msg):
         if self.current_user.get("role", "") != "admin":
              self.reply(msg, {"_m": "unauthorized"})
@@ -245,6 +255,16 @@ class MessageHandler(BroadcastWebSocketHandler):
         i = msg.get("i")
         self.state.examinees[i] = {"name": msg.get("name"), "priority": int(msg.get("priority"))}
         self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
+
+    def process_examinee_delete(self, msg):
+        if self.current_user.get("role", "") != "admin":
+             self.reply(msg, {"_m": "unauthorized"})
+
+        i = msg.get("i")
+        self.state.assignments = {a_id: assignment for self.state.assignments.items()
+                                  if assignment.examinee != i}
+        self.state.examinees.pop(i, None)
+        self.broadcast(msg, {"_m": "examinee_delete", "i": i})
 
     def process_assign(self, msg):
         if self.current_user.get("role", "") != "operator":

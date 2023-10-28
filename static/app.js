@@ -154,8 +154,18 @@ $(function () {
 				data.stations[msg.i] = msg;
 				render();
 			},
+			"station_delete": function (msg) {
+				data.assignments = Objects.fromEntries(Object.entries(data.assignments).filter(([k, assignment]) => assignment.station != msg.i));
+				delete data.stations[msg.i];
+				render();
+			},
 			"examinee": function (msg) {
 				data.examinees[msg.i] = msg;
+				render();
+			},
+			"examinee_delete": function (msg) {
+				data.assignments = Objects.fromEntries(Object.entries(data.assignments).filter(([k, assignment]) => assignment.examinee != msg.i));
+				delete data.examinees[msg.i];
 				render();
 			},
 			"assignment": function (msg) {
@@ -608,6 +618,24 @@ function _openExamineeModal(e_id) {
 		]),
 	]);
 
+	modal.find(".modal-footer").append([
+		$("<button>").addClass(["btn", "btn-danger"]).toggle(user.role == "admin").text("Löschen").click(function (e) {
+			e.preventDefault();
+
+			if (confirm("Achtung, das Löschen eines Prüflings ist nicht umkehrbar und entfernt alle Zuweisungen!")) {
+				socket.send({"_m": "examinee_delete", "i": e_id});
+				modal.close();
+			}
+		}),
+		$("<button>").addClass(["btn", "btn-warning"]).toggle(user.role == "admin").text("Umbenennen").click(function (e) {
+			e.preventDefault();
+
+			var new_name = prompt("Bitte den neuen Namen eingeben", data.examinees[e_id].name);
+			socket.send({"_m": "examinee", ...data.examinees[e_id], "name": new_name});
+			modal.close();
+		}),
+	]);
+
 	modal.show();
 }
 
@@ -692,6 +720,24 @@ function _openStationModal(s_id) {
 				})
 			),
 		]),
+	]);
+
+	modal.find(".modal-footer").append([
+		$("<button>").addClass(["btn", "btn-danger"]).toggle(s_id !== null && user.role == "admin").text("Löschen").click(function (e) {
+			e.preventDefault();
+
+			if (confirm("Achtung, das Löschen einer Station ist nicht umkehrbar und entfernt alle Zuweisungen!")) {
+				socket.send({"_m": "station_delete", "i": s_id});
+				modal.close();
+			}
+		}),
+		$("<button>").addClass(["btn", "btn-warning"]).toggle(s_id !== null && user.role == "admin").text("Umbenennen").click(function (e) {
+			e.preventDefault();
+
+			var new_name = prompt("Bitte den neuen Namen eingeben", data.stations[s_id].name);
+			socket.send({"_m": "station", ...data.stations[s_id], "name": new_name});
+			modal.close();
+		}),
 	]);
 
 	modal.show();
