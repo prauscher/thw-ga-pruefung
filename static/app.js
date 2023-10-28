@@ -490,6 +490,7 @@ function _openExamineeModal(e_id) {
 			durationContent.push($("<br>"));
 			durationContent.push($("<span>").toggleClass("text-danger", usage > 1).toggleClass("text-success", usage < 1).text((usage >= 1 ? "+" : "") + Math.round((usage - 1) * 100) + " %"));
 		}
+		var oldNow = now;
 		now = assignment.end;
 		if (assignment.result === "open" && assignment.end !== null) {
 			durationContent.push($("<br>"));
@@ -503,7 +504,7 @@ function _openExamineeModal(e_id) {
 					_openAssignmentModal(assignment.i);
 				}),
 			),
-			$("<td>").addClass("text-end").text(Math.round((assignment.start - now) / 60)),
+			$("<td>").addClass("text-end").text(Math.round((assignment.start - oldNow) / 60)),
 			$("<td>").addClass("text-end").append(durationContent),
 		]));
 	}
