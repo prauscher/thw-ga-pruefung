@@ -395,9 +395,9 @@ function render() {
 			examineesWaitingReturnTime[assignment.examinee] = Math.max(examineesWaitingReturnTime[assignment.examinee], assignment.end);
 		}
 		if (assignment.result == "done") {
-			var _i = examineesWaitingMissingStations.indexOf(assignment.station);
+			var _i = examineesWaitingMissingStations[assignment.examinee].indexOf(assignment.station);
 			if (_i >= 0) {
-				examineesWaitingMissingStations.splice(_i, 1);
+				examineesWaitingMissingStations[assignment.examinee].splice(_i, 1);
 			}
 		}
 	}
