@@ -529,6 +529,7 @@ function _openExamineeModal(e_id) {
 			$("<td>").addClass("text-end").text(Math.round((Date.now() / 1000 - now) / 60)),
 			$("<td>").addClass("text-end").text(" "),
 		]));
+		sums.waiting += (Date.now() / 1000 - now);
 	}
 
 	modal.elem.find(".modal-body").append([
