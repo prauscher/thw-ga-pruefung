@@ -155,7 +155,7 @@ $(function () {
 				render();
 			},
 			"station_delete": function (msg) {
-				data.assignments = Objects.fromEntries(Object.entries(data.assignments).filter(([k, assignment]) => assignment.station != msg.i));
+				data.assignments = Object.fromEntries(Object.entries(data.assignments).filter(([k, assignment]) => assignment.station != msg.i));
 				delete data.stations[msg.i];
 				render();
 			},
@@ -164,7 +164,7 @@ $(function () {
 				render();
 			},
 			"examinee_delete": function (msg) {
-				data.assignments = Objects.fromEntries(Object.entries(data.assignments).filter(([k, assignment]) => assignment.examinee != msg.i));
+				data.assignments = Object.fromEntries(Object.entries(data.assignments).filter(([k, assignment]) => assignment.examinee != msg.i));
 				delete data.examinees[msg.i];
 				render();
 			},
