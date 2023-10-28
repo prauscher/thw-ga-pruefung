@@ -478,6 +478,7 @@ function _openExamineeModal(e_id) {
 
 	var now = firstStart;
 	var assignmentBody = $("<tbody>");
+	var sums = {"waiting": 0, "station": 0};
 	for (const assignment of assignments) {
 		var name = assignment.station === null ? "Pause" : data.stations[assignment.station].name;
 		if (assignment.result === "canceled") {
@@ -507,6 +508,8 @@ function _openExamineeModal(e_id) {
 			$("<td>").addClass("text-end").text(Math.round((assignment.start - oldNow) / 60)),
 			$("<td>").addClass("text-end").append(durationContent),
 		]));
+		sums.waiting += (assignment.start - oldNow);
+		sums.station += duration;
 	}
 	if (now !== null) {
 		assignmentBody.append($("<tr>").append([
@@ -558,6 +561,13 @@ function _openExamineeModal(e_id) {
 				])
 			),
 			assignmentBody,
+			$("<tfoot>").append(
+				$("<tr>").append([
+					$("<th>").text("Summe"),
+					$("<td>").addClass("text-end").text(Math.round(sums.waiting / 60)),
+					$("<td>").addClass("text-end").text(Math.round(sums.station / 60)),
+				])
+			),
 		]),
 	]);
 
