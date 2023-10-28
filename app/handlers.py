@@ -177,9 +177,10 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
             self.reply(msg, {"_m": "_unauthorized"})
             return
 
+        current_user = self.current_user
         self.state.users.pop(msg["token"], "")
 
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |      | {self.current_user['name']:<10} | {msg['_cid']:<8} | Deleted user {msg.get('name')}")
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |      | {current_user['name']:<10} | {msg['_cid']:<8} | Deleted user {msg.get('name')}")
         self.reply(msg, {"_m": "_confirm"})
 
 
