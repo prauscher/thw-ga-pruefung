@@ -981,7 +981,7 @@ function _generatePage(assignment) {
 	page.append($("<table>").attr("width", "100%").append([
 		$("<tr>").append([
 			$("<th>").attr("width", "15%").text("Station"),
-			$("<td>").attr("width", "45%").text(data.stations[assignment.station].name),
+			$("<td>").css("overflow-wrap", "anywhere").attr("width", "45%").text(data.stations[assignment.station].name),
 			$("<td>").attr("rowspan", "3").css("text-align", "center").append([
 				codeContainer,
 				$("<div>").text("A-" + assignment.i)
@@ -989,7 +989,7 @@ function _generatePage(assignment) {
 		]),
 		$("<tr>").append([
 			$("<th>").text("Helfer"),
-			$("<td>").text(data.examinees[assignment.examinee].name),
+			$("<td>").css("overflow-wrap", "anywhere").text(data.examinees[assignment.examinee].name),
 		]),
 		$("<tr>").append([
 			$("<th>").text("Startzeit"),
