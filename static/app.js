@@ -631,7 +631,7 @@ function _openExamineeModal(e_id) {
 			e.preventDefault();
 
 			var new_name = prompt("Bitte den neuen Namen eingeben", data.examinees[e_id].name);
-			socket.send({"_m": "examinee", ...data.examinees[e_id], "name": new_name});
+			socket.send({"_m": "examinee", "i": e_id, ...data.examinees[e_id], "name": new_name});
 			modal.close();
 		}),
 	]);
@@ -735,7 +735,7 @@ function _openStationModal(s_id) {
 			e.preventDefault();
 
 			var new_name = prompt("Bitte den neuen Namen eingeben", data.stations[s_id].name);
-			socket.send({"_m": "station", ...data.stations[s_id], "name": new_name});
+			socket.send({"_m": "station", "i": s_id, ...data.stations[s_id], "name": new_name});
 			modal.close();
 		}),
 	]);
