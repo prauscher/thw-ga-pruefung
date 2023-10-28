@@ -479,11 +479,6 @@ function _openExamineeModal(e_id) {
 	var now = firstStart;
 	var assignmentBody = $("<tbody>");
 	for (const assignment of assignments) {
-		assignmentBody.append($("<tr>").append([
-			$("<td>").addClass("fst-italic").text("Bereitstellungsraum"),
-			$("<td>").addClass("text-end").text(Math.round((assignment.start - now) / 60)),
-		]));
-
 		var name = assignment.station === null ? "Pause" : data.stations[assignment.station].name;
 		if (assignment.result === "canceled") {
 			name = name + " (Abgebrochen)";
@@ -508,13 +503,15 @@ function _openExamineeModal(e_id) {
 					_openAssignmentModal(assignment.i);
 				}),
 			),
+			$("<td>").addClass("text-end").text(Math.round((assignment.start - now) / 60)),
 			$("<td>").addClass("text-end").append(durationContent),
 		]));
 	}
 	if (now !== null) {
 		assignmentBody.append($("<tr>").append([
-			$("<td>").addClass("fst-italic").text("Bereitstellungsraum"),
+			$("<td>").addClass("fst-italic").text(" "),
 			$("<td>").addClass("text-end").text(Math.round((Date.now() / 1000 - now) / 60)),
+			$("<td>").addClass("text-end").text(" "),
 		]));
 	}
 
@@ -555,6 +552,7 @@ function _openExamineeModal(e_id) {
 			$("<thead>").append(
 				$("<tr>").append([
 					$("<th>").text("Station"),
+					$("<th>").addClass("text-end").text("Wartezeit [min]"),
 					$("<th>").addClass("text-end").text("Dauer [min]"),
 				])
 			),
