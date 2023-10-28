@@ -503,16 +503,6 @@ function _openExamineeModal(e_id) {
 
 	modal.elem.find(".modal-body").append([
 		$("<p>").text(currentAssignmentText),
-		$("<h5>").text("Historie"),
-		$("<table>").addClass(["table", "table-striped"]).append([
-			$("<thead>").append(
-				$("<tr>").append([
-					$("<th>").text("Station"),
-					$("<th>").addClass("text-end").text("Dauer [min]"),
-				])
-			),
-			assignmentBody,
-		]),
 		$("<h5>").text("Offene Stationen"),
 		$("<table>").addClass(["table", "table-striped"]).append([
 			$("<thead>").append(
@@ -542,6 +532,16 @@ function _openExamineeModal(e_id) {
 					$("<th>").addClass("text-end").text(Math.round(Examinee.calculateRemainingTime(e_id) / 60))
 				]),
 			]),
+		]),
+		$("<h5>").text("Historie"),
+		$("<table>").addClass(["table", "table-striped"]).append([
+			$("<thead>").append(
+				$("<tr>").append([
+					$("<th>").text("Station"),
+					$("<th>").addClass("text-end").text("Dauer [min]"),
+				])
+			),
+			assignmentBody,
 		]),
 	]);
 
@@ -875,8 +875,8 @@ var Examinee = {
 		var ownTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, null]));
 		for (var assignment of Object.values(data.assignments)) {
 			if (assignment.result == "done" && assignment.station !== null) {
-				stationTimes[assignment.station].sum += (assignment.end - assignment.start)
-				stationTimes[assignment.station].count += 1
+				stationTimes[assignment.station].sum += (assignment.end - assignment.start);
+				stationTimes[assignment.station].count += 1;
 				if (assignment.examinee == e_id) {
 					ownTimes[assignment.station] += (assignment.end - assignment.start);
 				}
