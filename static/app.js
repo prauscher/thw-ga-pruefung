@@ -977,7 +977,7 @@ function _generateStation(i, name) {
 			]).append(assignments.map(function (a_id) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
 			})).append(
-				((data.stations[i].capacity || 1) < assignments.length) ? [] : Array.from(Array((data.stations[i].capacity || 1) - assignments.length)).map(function () {
+				(i === null || (data.stations[i].capacity || 1) < assignments.length) ? [] : Array.from(Array((data.stations[i].capacity || 1) - assignments.length)).map(function () {
 					return $("<li>").addClass(["list-group-item", examinees.length > 0 ? "text-danger" : "text-warning"]).text("(Unbesetzt)")
 				})
 			),
