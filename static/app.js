@@ -405,10 +405,10 @@ function render() {
 		// Make sure completed users are listed down below
 		if (examineesWaitingMissingStations[a].length != examineesWaitingMissingStations[b].length) {
 			if (examineesWaitingMissingStations[a] == 0) {
-				return -1;
+				return 1;
 			}
 			if (examineesWaitingMissingStations[b] == 0) {
-				return 1;
+				return -1;
 			}
 		}
 		if (examineesWaitingReturnTime[a] != examineesWaitingReturnTime[b]) {
