@@ -245,7 +245,7 @@ class MessageHandler(BroadcastWebSocketHandler):
         i = msg.get("i")
         self.state.assignments = {a_id: assignment
                                   for a_id, assignment in self.state.assignments.items()
-                                  if assignment.station != i}
+                                  if assignment.get("station") != i}
         self.state.stations.pop(i, None)
         self.broadcast(msg, {"_m": "station_delete", "i": i})
 
@@ -264,7 +264,7 @@ class MessageHandler(BroadcastWebSocketHandler):
         i = msg.get("i")
         self.state.assignments = {a_id: assignment
                                   for a_id, assignment in self.state.assignments.items()
-                                  if assignment.examinee != i}
+                                  if assignment.get("examinee") != i}
         self.state.examinees.pop(i, None)
         self.broadcast(msg, {"_m": "examinee_delete", "i": i})
 
