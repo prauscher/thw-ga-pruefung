@@ -754,14 +754,14 @@ function _openAssignmentModal(a_id) {
 	var options = [];
 
 	if (assignment.result == "open") {
-		options.push($("<button>").addClass(["btn", "btn-primary"]).text("Beenden").click(function () {
+		options.push($("<button>").addClass(["btn", "btn-primary"]).toggle(user.role == "operator").text("Beenden").click(function () {
 			socket.send({"_m": "return", "i": a_id, "result": "done"});
 			modal.close();
 		}));
 		options.push("&nbsp;");
 	}
 	if (assignment.result != "canceled") {
-		options.push($("<button>").addClass(["btn", "btn-warning"]).text("Abbrechen").click(function () {
+		options.push($("<button>").addClass(["btn", "btn-warning"]).toggle(user.role == "operator").text("Abbrechen").click(function () {
 			if (confirm("Sicher, dass die Station ohne Ergebnis abgebrochen werden soll?")) {
 				socket.send({"_m": "return", "i": a_id, "result": "canceled"});
 				modal.close();
