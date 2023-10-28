@@ -618,7 +618,7 @@ function _openExamineeModal(e_id) {
 		]),
 	]);
 
-	modal.find(".modal-footer").append([
+	modal.elem.find(".modal-footer").append([
 		$("<button>").addClass(["btn", "btn-danger"]).toggle(user.role == "admin").text("Löschen").click(function (e) {
 			e.preventDefault();
 
@@ -722,7 +722,7 @@ function _openStationModal(s_id) {
 		]),
 	]);
 
-	modal.find(".modal-footer").append([
+	modal.elem.find(".modal-footer").append([
 		$("<button>").addClass(["btn", "btn-danger"]).toggle(s_id !== null && user.role == "admin").text("Löschen").click(function (e) {
 			e.preventDefault();
 
