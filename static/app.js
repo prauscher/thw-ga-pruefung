@@ -34,6 +34,8 @@ $(function () {
 		location.hash = "";
 	}
 
+	var startModal = null;
+
 	socket = ReliableWebSocket({
 		on_close: function () {
 			$("#socketIndicator").text("Offline").addClass("bg-danger").removeClass("bg-success");
@@ -45,18 +47,23 @@ $(function () {
 		},
 		on_auth_required: function (data) {
 			if (data.first_login) {
-				var modal = Modal("Erstelle Benutzer");
+				// Do not open modal over modal
+				if (startModal !== null) {
+					return;
+				}
+
+				startModal = Modal("Erstelle Benutzer");
 				var token = _gen_id() + _gen_id();
 
 				function _submit(e) {
 					e.preventDefault();
-					var token = modal.elem.find("#token").val();
+					var token = startModal.elem.find("#token").val();
 					localStorage.setItem("app_token", token);
-					socket.send({"_m": "_create_user", "token": token, "name": modal.elem.find("#name").val(), "grant": true})
-					modal.close();
+					socket.send({"_m": "_create_user", "token": token, "name": startModal.elem.find("#name").val(), "grant": true})
+					startModal.close();
 				}
 
-				modal.elem.find(".modal-body").append([
+				startModal.elem.find(".modal-body").append([
 					$("<p>").text("Willkommen beim GA-Prüfungsmonitor. Dieses Tool soll bei der Durchführung der GA-Prüfung unterstützen. Da dies dein erster Aufruf ist, muss ein erster Administrator-Benutzer eingerichtet werden. Bitte vergebe hier einen Namen für diesen und notiere dir den hier angezeigten Token:"),
 					$("<form>").on("submit", _submit).append([
 						$("<div>").addClass("mb-3").append([
@@ -71,10 +78,13 @@ $(function () {
 				]);
 
 				var button = $("<button>").addClass(["btn", "btn-primary"]).text("Anlegen").click(_submit);
-				modal.elem.find(".modal-footer").append(button);
-				modal.show();
-				modal.elem.on("shown.bs.modal", function () {
-					modal.elem.find("#name").focus();
+				startModal.elem.find(".modal-footer").append(button);
+				startModal.show();
+				startModal.elem.on("hidden.bs.modal", function () {
+					startModal = null;
+				});
+				startModal.elem.on("shown.bs.modal", function () {
+					startModal.elem.find("#name").focus();
 				});
 			} else {
 				// remove invalid token from storage
@@ -88,18 +98,22 @@ $(function () {
 					return;
 				}
 
+				if (startModal !== null) {
+					return;
+				}
+
 				// need to show modal, possibly with message
-				var modal = Modal("Anmeldung");
+				startModal = Modal("Anmeldung");
 
 				function _submit(e) {
 					e.preventDefault();
-					var token = modal.elem.find("#token").val();
+					var token = startModal.elem.find("#token").val();
 					localStorage.setItem("app_token", token);
 					socket.send({"_m": "_login", "token": token});
-					modal.close();
+					startModal.close();
 				}
 
-				modal.elem.find(".modal-body").append([
+				startModal.elem.find(".modal-body").append([
 					$("<p>").text("Willkommen beim GA-Prüfungsmonitor. Dieses Tool soll bei der Durchführung der GA-Prüfung unterstützen. Bitte gebe den Token zur Authentifikation an:"),
 					$("<div>").attr("id", "alerts"),
 					$("<form>").on("submit", _submit).append([
@@ -111,14 +125,17 @@ $(function () {
 				]);
 
 				if ("message" in data) {
-					modal.elem.find("#alerts").append($("<div>").attr("role", "alert").addClass(["alert", "alert-danger"]).text(data.message));
+					startModal.elem.find("#alerts").append($("<div>").attr("role", "alert").addClass(["alert", "alert-danger"]).text(data.message));
 				}
 
 				var button = $("<button>").addClass(["btn", "btn-primary"]).text("Anmelden").click(_submit);
-				modal.elem.find(".modal-footer").append(button);
-				modal.show();
-				modal.elem.on("shown.bs.modal", function () {
-					modal.elem.find("#token").focus();
+				startModal.elem.find(".modal-footer").append(button);
+				startModal.show();
+				startModal.elem.on("hidden.bs.modal", function () {
+					startModal = null;
+				});
+				startModal.elem.on("shown.bs.modal", function () {
+					startModal.elem.find("#token").focus();
 				});
 			}
 		},
