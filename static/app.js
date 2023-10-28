@@ -947,6 +947,16 @@ function _generateStation(i, name) {
 		end = lastFinishedAssignment + (Object.keys(data.examinees).length - assignmentsFinished) * (lastFinishedAssignment - firstStartedAssignment) / assignmentsFinished;
 	}
 
+	var examinees = Object.keys(data.examinees);
+	for (var assignment of Object.values(data.assignments)) {
+		if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
+			var _i = examinees.indexOf(assignment.examinee);
+			if (_i >= 0) {
+				examinees.splice(_i, 1);
+			}
+		}
+	}
+
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").text(name).click(function () {
@@ -966,7 +976,11 @@ function _generateStation(i, name) {
 				]),
 			]).append(assignments.map(function (a_id) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
-			})),
+			})).append(
+				((data.stations[s_id].capacity || 1) < assignments.length) ? [] : Array.from(Array((data.stations[s_id].capacity || 1) - assignments.length)).map(function () {
+					return $("<li>").addClass(["list-group-item", examinees.length > 0 ? "text-danger" : "text-warning"]).text("(Unbesetzt)")
+				})
+			),
 			$("<div>").addClass("card-footer").append([
 				assignButton.toggle(user && user.role == "operator")
 			])
