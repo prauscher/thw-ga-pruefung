@@ -916,7 +916,7 @@ var Examinee = {
 			}
 		}
 		if (factorCount > 0) {
-			remaining *= (factorSum / factorCount);
+			remaining *= Math.max(0.8, Math.min(1.2, factorSum / factorCount));
 		}
 		return remaining;
 	}
