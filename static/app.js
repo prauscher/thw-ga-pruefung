@@ -846,7 +846,9 @@ function render() {
 	var examineesCompleted = Object.values(examineesWaitingMissingStations).filter((_stations) => _stations.length == 0).length;
 	$("#examinees").empty().append(
 		$("<li>").addClass("list-group-item").append(
-			$("<div>").addClass(["progress"]).append([
+			$("<div>").addClass(["progress"]).append(Object.keys(data.examinees).length == 0 ? [
+				$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", "100%").text(""),
+			] : [
 				$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (examineesCompleted / Object.keys(data.examinees).length) * 100 + "%").text(examineesCompleted),
 				$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", ((Object.keys(data.examinees).length - examineesCompleted) / Object.keys(data.examinees).length) * 100 + "%").text(Object.keys(data.examinees).length - examineesCompleted),
 			])
@@ -1395,7 +1397,9 @@ function _generateStation(i, name) {
 			}),
 			$("<ul>").addClass(["list-group", "list-group-flush", "examinees"]).append([
 				$("<li>").addClass("list-group-item").append(
-					$("<div>").addClass(["progress"]).append([
+					$("<div>").addClass(["progress"]).append(Object.keys(data.examinees).length == 0 ? [
+						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", "100%").text(""),
+					] : [
 						$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (assignmentsFinished / Object.keys(data.examinees).length) * 100 + "%").text(assignmentsFinished > 0 ? assignmentsFinished : ""),
 						$("<div>").addClass(["progress-bar", "bg-primary"]).css("width", (assignments.length / Object.keys(data.examinees).length) * 100 + "%").text(assignments.length > 0 ? assignments.length : ""),
 						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", ((Object.keys(data.examinees).length - assignmentsFinished - assignments.length) / Object.keys(data.examinees).length) * 100 + "%").text(Object.keys(data.examinees).length > assignmentsFinished + assignments.length ? Object.keys(data.examinees).length - assignmentsFinished - assignments.length : ""),
