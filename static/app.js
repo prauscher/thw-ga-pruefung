@@ -977,8 +977,8 @@ function _generateStation(i, name) {
 			]).append(assignments.map(function (a_id) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
 			})).append(
-				(i === null || (data.stations[i].capacity || 1) < assignments.length) ? [] : Array.from(Array((data.stations[i].capacity || 1) - assignments.length)).map(function () {
-					return $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > 0).toggleClass("text-muted", examinees.length <= 0).text("(Unbesetzt)")
+				(i === null || (data.stations[i].capacity || 1) < assignments.length) ? [] : Array.from(Array((data.stations[i].capacity || 1) - assignments.length)).map(function (_, j) {
+					return $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)")
 				})
 			),
 			$("<div>").addClass("card-footer").append([
