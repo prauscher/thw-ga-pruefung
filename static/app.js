@@ -265,41 +265,7 @@ $(function () {
 	});
 
 	$("#examinee-add").click(function () {
-		var modal = Modal("Prüflinge eintragen");
-
-		function _submit(e) {
-			e.preventDefault();
-
-			for (var name of modal.elem.find("#names").val().split("\n").values()) {
-				name = name.trim();
-				if (name != "") {
-					socket.send({"_m": "examinee", "i": _gen_id(), "name": name, "priority": modal.elem.find("#priority").val()});
-				}
-			}
-
-			modal.close();
-		}
-
-		modal.elem.find(".modal-body").append([
-			$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup) - die OV-Kürzel werden verwendet um möglichst verschiedene OVs zu einer Station zu entsenden. Die Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen):"),
-			$("<form>").on("submit", _submit).append([
-				$("<div>").addClass("mb-3").append([
-					$("<label>").attr("for", "priority").addClass("col-form-label").text("Priorität"),
-					$("<input>").attr("type", "number").addClass("form-control").attr("id", "priority").val("100")
-				]),
-				$("<div>").addClass("mb-3").append([
-					$("<label>").attr("for", "names").addClass("col-form-label").text("Namen"),
-					$("<textarea>").addClass("form-control").attr("rows", 15).attr("id", "names")
-				]),
-			]),
-		]);
-
-		var button = $("<button>").addClass(["btn", "btn-primary"]).text("Eintragen").click(_submit);
-		modal.elem.find(".modal-footer").append(button);
-		modal.show();
-		modal.elem.on("shown.bs.modal", function () {
-			modal.elem.find("#names").focus();
-		});
+		_openExamineeEditModal(null);
 	});
 
 	$("#station-add").click(function () {
@@ -307,8 +273,46 @@ $(function () {
 	});
 });
 
+function _openExamineeEditModal(e_id) {
+	var modal = Modal(e_id === null ? "Prüflinge eintragen" : "Prüfling " + data.examinees[e_id].name + " bearbeiten");
+
+	function _submit(e) {
+		e.preventDefault();
+
+		for (var name of modal.elem.find("#names").val().split("\n").values()) {
+			name = name.trim();
+			if (name != "") {
+				socket.send({"_m": "examinee", "i": e_id === null ? _gen_id() : e_id, "name": name, "priority": modal.elem.find("#priority").val()});
+			}
+		}
+
+		modal.close();
+	}
+
+	modal.elem.find(".modal-body").append([
+		$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup) - die OV-Kürzel werden verwendet um möglichst verschiedene OVs zu einer Station zu entsenden. Die Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen):"),
+		$("<form>").on("submit", _submit).append([
+			$("<div>").addClass("mb-3").append([
+				$("<label>").attr("for", "priority").addClass("col-form-label").text("Priorität"),
+				$("<input>").attr("type", "number").addClass("form-control").attr("id", "priority").val(e_id === null ? "100" : data.examinees[e_id].priority)
+			]),
+			$("<div>").addClass("mb-3").append([
+				$("<label>").attr("for", "names").addClass("col-form-label").text("Namen"),
+				e_id === null ? $("<textarea>").addClass("form-control").attr("rows", 15).attr("id", "names") : $("<input>").attr("type", "text").addClass("form-control").attr("id", "names").val(data.examinees[e_id].name),
+			]),
+		]),
+	]);
+
+	var button = $("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(_submit);
+	modal.elem.find(".modal-footer").append(button);
+	modal.show();
+	modal.elem.on("shown.bs.modal", function () {
+		modal.elem.find("#names").focus();
+	});
+}
+
 function _openStationEditModal(s_id) {
-	var modal = Modal("Station anlegen");
+	var modal = Modal(s_id === null ? "Station anlegen" : "Station " + data.stations[s_id].name + " bearbeiten");
 
 	function _submit(e) {
 		e.preventDefault();
@@ -1040,12 +1044,9 @@ function _openExamineeModal(e_id) {
 				modal.close();
 			}
 		}),
-		$("<button>").addClass(["btn", "btn-warning"]).toggle(user.role == "admin").text("Umbenennen").click(function (e) {
+		$("<button>").addClass(["btn", "btn-warning"]).toggle(user.role == "admin").text("Bearbeiten").click(function (e) {
 			e.preventDefault();
-
-			var new_name = prompt("Bitte den neuen Namen eingeben", data.examinees[e_id].name);
-			socket.send({"_m": "examinee", "i": e_id, ...data.examinees[e_id], "name": new_name});
-			modal.close();
+			_openExamineeEditModal(i);
 		}),
 	]);
 
