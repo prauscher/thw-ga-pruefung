@@ -79,6 +79,7 @@ function ReliableWebSocket(options) {
 			if (data._m === "_init") {
 				// Yay, we are logged in
 				auth = data.user;
+				(options.on_login || function (_user) {})(data.user);
 				if (last_snr === null) {
 					last_snr = data.state._snr;
 					(options.on_init || function (_state) {})(data.state);
@@ -91,8 +92,6 @@ function ReliableWebSocket(options) {
 				for (var i in send_queue) {
 					_send(send_queue[i]);
 				}
-
-				(options.on_login || function (_user) {})(data.user);
 				return;
 			}
 
