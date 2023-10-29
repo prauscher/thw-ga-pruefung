@@ -319,8 +319,10 @@ $(function () {
 						currentTask = null;
 					}
 				} else if (currentTask === null) {
-					// First line of a Task (name)
-					currentTask = {"name": line, "parts": []};
+					// First line of a Task (count of required parts & name)
+					var _words = line.split(" ");
+					var min_tasks = parseInt(_words.shift());
+					currentTask = {"name": _words.join(" "), "min_tasks": min_tasks, "parts": []};
 				} else {
 					// must be a singe task, prefixed with P or O
 					currentTask.parts.push({"name": line.substring(2), "mandatory": line.substring(0, 1) != "O"});
@@ -333,7 +335,7 @@ $(function () {
 		}
 
 		var predefinedTasks = $("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "predefined_tasks").append(
-			tasks.map((task) => $("<option>").data("preset", task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n")).text(task.name))
+			tasks.map((task) => $("<option>").data("preset", task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n")).text(task.name))
 		).change(function () {
 			var taskDescription = $(this).find("option:selected").map(function (_i, elem) {
 				return $(elem).data("preset");
@@ -369,18 +371,18 @@ $(function () {
 });
 
 var tasks = [
-	{"name": "Aufgabe 1", "parts": [
+	{"name": "Aufgabe 1", "min_tasks": 1, "parts": [
 		{"name": "Aufgabe gelesen", "mandatory": true},
 		{"name": "Aufgabe verstanden", "mandatory": false},
 	]},
-	{"name": "Aufgabe 2", "parts": [
+	{"name": "Aufgabe 2", "min_tasks": 1, "parts": [
 		{"name": "Test", "mandatory": true},
 	]},
-	{"name": "Aufgabe 3", "parts": [
+	{"name": "Aufgabe 3", "min_tasks": 1, "parts": [
 		{"name": "Aufgabe gelesen", "mandatory": true},
 		{"name": "Aufgabe verstanden", "mandatory": false},
 	]},
-	{"name": "Aufgabe 4", "parts": [
+	{"name": "Aufgabe 4", "min_tasks": 1, "parts": [
 		{"name": "Test", "mandatory": true},
 	]},
 ];
@@ -1077,7 +1079,7 @@ function _generatePage(assignment) {
 					$("<th>").css("text-align","left").attr("colspan", 3).text(task.name)
 				]),
 				$("<tr>").css("border-bottom", "1px dotted black").append([
-					$("<th>").attr("width", "70%").text(" "),
+					$("<th>").attr("width", "70%").text((task.min_tasks || task.parts.length) + " von " + task.parts.length),
 					$("<th>").attr("width", "15%").text("B"),
 					$("<th>").attr("width", "15%").text("n.B."),
 				])
