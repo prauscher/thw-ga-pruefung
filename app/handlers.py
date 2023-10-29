@@ -266,7 +266,11 @@ class MessageHandler(BroadcastWebSocketHandler):
              return
 
         i = msg.get("i")
-        self.state.examinees[i] = {"name": msg.get("name"), "priority": int(msg.get("priority"))}
+        self.state.examinees[i] = {
+            "name": msg.get("name"),
+            "priority": int(msg.get("priority")),
+            "flags": msg.get("flags", [])
+        }
         self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
 
     def process_examinee_delete(self, msg):

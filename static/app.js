@@ -1,5 +1,20 @@
 var data = {};
 var user = null;
+// Default colors
+var flag_colors = ["#007bff", "#dc3545", "#ffc107", "#28a745"];
+
+var circle = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+circle.setAttribute("width", 16);
+circle.setAttribute("height", 16);
+circle.setAttribute("fill", "currentColor");
+circle.setAttribute("viewBox", "0 0 16 16");
+var _circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+_circle.setAttribute("cx", 8);
+_circle.setAttribute("cy", 8);
+_circle.setAttribute("r", 8);
+circle.append(_circle);
+// Need jQuery-Object for cloning
+circle = $(circle);
 
 scannerChars = {173: "-", 13: "", 16: ""};
 
@@ -147,6 +162,16 @@ $(function () {
 		on_init: function (state) {
 			console.log("INIT", state);
 			data = state;
+			for (const examinee of Object.values(data.examinees)) {
+				if (! ("flags" in examinee)) {
+					continue;
+				}
+				for (const flag_color of examinee.flags) {
+					if (flag_colors.indexOf(flag_color) < 0) {
+						flag_colors.push(flag_color);
+					}
+				}
+			}
 			render();
 		},
 		handlers: {
@@ -161,6 +186,13 @@ $(function () {
 			},
 			"examinee": function (msg) {
 				data.examinees[msg.i] = msg;
+				if ("flags" in msg) {
+					for (const flag_color of msg.flags) {
+						if (flag_colors.indexOf(flag_color) < 0) {
+							flag_colors.push(flag_color);
+						}
+					}
+				}
 				render();
 			},
 			"examinee_delete": function (msg) {
@@ -280,14 +312,27 @@ function _openExamineeEditModal(e_id) {
 	function _submit(e) {
 		e.preventDefault();
 
+		var flags = modal.elem.find("#flags").find(".btn-outline-dark").map((_i, btn) => $(btn).data("color")).get();
+
 		for (var name of modal.elem.find("#names").val().split("\n").values()) {
 			name = name.trim();
 			if (name != "") {
-				socket.send({"_m": "examinee", "i": e_id === null ? _gen_id() : e_id, "name": name, "priority": modal.elem.find("#priority").val()});
+				socket.send({"_m": "examinee", "i": e_id === null ? _gen_id() : e_id, "name": name, "priority": modal.elem.find("#priority").val(), "flags": flags});
 			}
 		}
 
 		modal.close();
+	}
+
+	function _generateFlagButton(color) {
+		var checked = false;
+		if (e_id !== null && "flags" in data.examinees[e_id]) {
+			checked = data.examinees[e_id].flags.indexOf(color) >= 0;
+		}
+
+		return $("<button>").attr("type", "button").addClass("btn").data("color", color).css("color", color).toggleClass("btn-outline-dark", checked).append(circle.clone()).click(function () {
+			$(this).toggleClass("btn-outline-dark", ! $(this).hasClass("btn-outline-dark"));
+		})
 	}
 
 	modal.elem.find(".modal-body").append([
@@ -296,6 +341,21 @@ function _openExamineeEditModal(e_id) {
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "priority").addClass("col-form-label").text("Priorität"),
 				$("<input>").attr("type", "number").addClass("form-control").attr("id", "priority").val(e_id === null ? "100" : data.examinees[e_id].priority)
+			]),
+			$("<div>").addClass("mb-3").append([
+				$("<label>").attr("for", "flags").addClass("col-form-label").text("Markierungen"),
+				$("<div>").append([
+					$("<span>").attr("id", "flags").append(
+						flag_colors.map(_generateFlagButton)
+					),
+					$("<span>").addClass("ms-3").append([
+						$("<input>").attr("type", "color").addClass(["form-control", "form-control-color", "d-inline-block"]).attr("id", "flag-add-color"),
+						$("<button>").addClass(["btn", "btn-primary"]).text("+").click(function (e) {
+							e.preventDefault();
+							modal.elem.find("#flags").append(_generateFlagButton(modal.elem.find("#flag-add-color").val()))
+						}),
+					]),
+				]),
 			]),
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "names").addClass("col-form-label").text("Namen"),
@@ -878,7 +938,7 @@ function render() {
 }
 
 function _buildExamineeItem(e_id, a_id) {
-	return $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]).text(data.examinees[e_id].name).click(function () {
+	return $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]).append(data.examinees[e_id].name).append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []).click(function () {
 		if (a_id !== null) {
 			_openAssignmentModal(a_id);
 		} else {
