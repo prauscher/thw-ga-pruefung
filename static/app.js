@@ -1055,7 +1055,7 @@ function _openExamineeModal(e_id) {
 		sums.waiting += (assignment.start - oldNow);
 		sums.station += duration;
 	}
-	if (now !== null) {
+	if (now !== null && missingStations.length > 0) {
 		assignmentBody.append($("<tr>").append([
 			$("<td>").addClass("fst-italic").text(" "),
 			$("<td>").addClass("text-end").text(Math.round((Date.now() / 1000 - now) / 60)),
