@@ -149,8 +149,8 @@ function ReliableWebSocket(options) {
 	return {
 		"send": _send,
 		"reconnect": function () {
-			(options.on_close || function () {})();
-			connect();
+			// Reconnect will be triggered
+			ws.close();
 		},
 	};
 }
