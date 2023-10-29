@@ -304,6 +304,12 @@ $(function () {
 	$("#station-add").click(function () {
 		_openStationEditModal(null);
 	});
+
+	setInterval(function () {
+		$(".best-before").each(function (_i, elem) {
+			$(elem).toggleClass(["text-danger"], Date.now() / 1000 > $(elem).data("best-before"));
+		});
+	}, 1000);
 });
 
 function _openExamineeEditModal(e_id) {
@@ -938,13 +944,33 @@ function render() {
 }
 
 function _buildExamineeItem(e_id, a_id) {
-	return $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]).append(data.examinees[e_id].name).append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []).click(function () {
+	var node = $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]).append(data.examinees[e_id].name).append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []).click(function () {
 		if (a_id !== null) {
 			_openAssignmentModal(a_id);
 		} else {
 			_openExamineeModal(e_id);
 		}
 	});
+
+	var expectedTimeout = null;
+	if (a_id !== null) {
+		if (data.assignments[a_id].end !== null) {
+			expectedTimeout = data.assignment[a_id].end;
+		} else {
+			var expectedDuration = Examinee.estimateStationDuration(data.assignments[a_id].examinee, data.assignments[a_id].station);
+			if (expectedDuration !== null) {
+				expectedTimeout = data.assignments[a_id].start + expectedDuration;
+			}
+		}
+
+		if (expectedTimeout === null) {
+			node.addClass("text-warning");
+		} else {
+			node.addClass("best-before").toggleClass(["text-danger"], Date.now() / 1000 > expectedTimeout).data("best-before", expectedTimeout);
+		}
+	}
+
+	return node;
 }
 
 function _openExamineeModal(e_id) {
@@ -968,7 +994,7 @@ function _openExamineeModal(e_id) {
 		}
 
 		if (assignment.examinee == e_id) {
-			if (assignment.result != "canceled") {
+			if (assignment.result == "done") {
 				var _i = missingStations.indexOf(assignment.station);
 				if (_i >= 0) {
 					missingStations.splice(_i, 1);
@@ -983,13 +1009,7 @@ function _openExamineeModal(e_id) {
 	assignments.sort(function (a, b) {
 		return a.start - b.start;
 	});
-	for (const s_id of Object.keys(stationTimes)) {
-		if (stationTimes[s_id].count > 0) {
-			stationTimes[s_id] = stationTimes[s_id].sum / stationTimes[s_id].count;
-		} else {
-			stationTimes[s_id] = null;
-		}
-	}
+	stationTimes = Object.fromEntries(Object.entries(stationTimes).map(([s_id, _times]) => [s_id, (_times.count > 0 ? _times.sum / _times.count : null)]));
 
 	var currentAssignmentText;
 	if (currentAssignment === null) {
@@ -1068,7 +1088,7 @@ function _openExamineeModal(e_id) {
 			$("<tfoot>").append([
 				$("<tr>").append([
 					$("<th>").text("Gesamt"),
-					$("<th>").addClass("text-end").text(Math.round(missingStations.reduce((sum, s_id) => sum + stationTimes[s_id] || 0, 0) / 60))
+					$("<th>").addClass("text-end").text(Math.round(missingStations.reduce((sum, s_id) => sum + (stationTimes[s_id] === null ? 0 : stationTimes[s_id]), 0) / 60))
 				]),
 				$("<tr>").append([
 					$("<th>").text("Schätzung für Prüfling"),
@@ -1243,8 +1263,24 @@ function _openAssignmentModal(a_id) {
 	}
 
 	var ende = [$("<span>").text(assignment.end === null ? "-" : formatTimestamp(assignment.end))];
-	if (assignment.end !== null && assignment.end > Date.now() / 1000) {
-		ende.push($("<span>").addClass("fst-italic").text(" (noch " + Math.round((assignment.end - Date.now() / 1000) / 60) + " Minuten)"));
+	if (assignment.end !== null) {
+		if (assignment.end > Date.now() / 1000) {
+			ende.push($("<span>").addClass("fst-italic").text(" (noch " + Math.round((assignment.end - Date.now() / 1000) / 60) + " min)"));
+		} else {
+			ende.push($("<span>").addClass("fst-italic").text(" (nach " + Math.round((assignment.end - assignment.start) / 60) + " min)"));
+		}
+	} else {
+		var expectedDuration = Examinee.estimateStationDuration(assignment.examinee, assignment.station);
+		if (expectedDuration === null) {
+			ende.push($("<span>").addClass(["fst-italic", "text-warning"]).text(" (keine Abschätzung möglich)"));
+		} else {
+			var estimatedRemaining = assignment.start + expectedDuration - Date.now() / 1000;
+			if (estimatedRemaining > 0) {
+				ende.push($("<span>").addClass("fst-italic").text(" (voraussichtlich noch " + Math.round(estimatedRemaining / 60) + " min)"));
+			} else {
+				ende.push($("<span>").addClass(["fst-italic", "text-danger"]).text(" (" + Math.round(-estimatedRemaining / 60) + " min überfällig)"));
+			}
+		}
 	}
 
 	modal.elem.find(".modal-body").append([
@@ -1275,7 +1311,10 @@ function _openAssignmentModal(a_id) {
 				]),
 				$("<tr>").append([
 					$("<th>").text("Anfang"),
-					$("<td>").text(formatTimestamp(assignment.start)),
+					$("<td>").append([
+						$("<span>").text(formatTimestamp(assignment.start)),
+						$("<span>").addClass("fst-italic").text(" (vor " + Math.round((Date.now() / 1000 - assignment.start) / 60) + " min)"),
+					]),
 				]),
 				$("<tr>").append([
 					$("<th>").text("Ende"),
@@ -1500,7 +1539,6 @@ function _generateStation(i, name) {
 var Examinee = {
 	calculateRemainingTime: function (e_id) {
 		var examinee = data.examinees[e_id];
-		var remaining = 0;
 		var stationTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, {"sum": 0, "count": 0}]));
 		var ownTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, null]));
 		for (var assignment of Object.values(data.assignments)) {
@@ -1514,13 +1552,9 @@ var Examinee = {
 		}
 		var factorCount = 0;
 		var factorSum = 0;
+		var remaining = 0;
 		for (var s_id in ownTimes) {
-			var avgStationTime;
-			if (stationTimes[s_id].count > 0) {
-				avgStationTime = stationTimes[s_id].sum / stationTimes[s_id].count;
-			} else {
-				avgStationTime = 0;
-			}
+			var avgStationTime = (stationTimes[s_id].count > 0) ? (stationTimes[s_id].sum / stationTimes[s_id].count) : 0;
 
 			if (ownTimes[s_id] === null) {
 				remaining += avgStationTime;
@@ -1533,7 +1567,35 @@ var Examinee = {
 			remaining *= Math.max(0.8, Math.min(1.2, factorSum / factorCount));
 		}
 		return remaining;
-	}
+	},
+	estimateStationDuration: function (e_id, s_id) {
+		var stationTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, []]));
+		var ownTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, null]));
+
+		// find expected Timeout from assignment history
+		for (const assignment of Object.values(data.assignments)) {
+			if (assignment.result == "done" && assignment.end !== null && assignment.station !== null) {
+				if (assignment.examinee == e_id) {
+					ownTimes[assignment.station] = assignment.end - assignment.start;
+				}
+				stationTimes[assignment.station].push(assignment.end - assignment.start);
+			}
+		}
+
+		var factors = [];
+		stationTimes = Object.fromEntries(Object.entries(stationTimes).map(([_s_id, _times]) => [_s_id, _times.length == 0 ? null : _times.reduce((_c, _v) => _v + _c, 0) / _times.length]));
+		for (const _s_id of Object.keys(data.stations)) {
+			if (ownTimes[_s_id] !== null && stationTimes[_s_id] !== null) {
+				factors.push(ownTimes[_s_id] / stationTimes[_s_id]);
+			}
+		}
+
+		// Finally try to get expectedDuration
+		if (factors.length > 0 && stationTimes[s_id] !== null) {
+			return stationTimes[s_id] * (factors.reduce((_c, _v) => _v + _c, 0) / factors.length);
+		}
+		return null;
+	},
 }
 
 function _generatePage(assignment) {
