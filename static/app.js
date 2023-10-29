@@ -983,7 +983,7 @@ function _generateStation(i, name) {
 			),
 			$("<div>").addClass("card-footer").append([
 				i === null ? "" : $("<div>").addClass("btn-group").toggle(user && user.role == "operator").append([
-					$("<button>").addClass(["btn", "btn-secondary"]).text("-").toggle((data.stations[i].capacity || 1) > 1).click(function () {
+					$("<button>").addClass(["btn", "btn-secondary"]).text("-").toggle((data.stations[i].capacity || 1) > 0).click(function () {
 						socket.send({"_m": "station_capacity", "i": i, "capacity": (data.stations[i].capacity || 1) - 1});
 					}),
 					$("<button>").addClass(["btn", "btn-outline-secondary"]).text(data.stations[i].capacity || 1),
