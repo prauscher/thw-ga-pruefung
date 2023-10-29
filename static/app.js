@@ -1455,6 +1455,7 @@ function _generatePage(assignment) {
 	var code = BARCode("A-" + assignment.i);
 	var codeContainer = document.createElement("div");
 	codeContainer.appendChild(code);
+	var barcode = "data:image/svg+xml;base64," + window.btoa(codeContainer.innerHTML);
 
 	var start = Date.now() / 1000;
 
@@ -1464,7 +1465,7 @@ function _generatePage(assignment) {
 			$("<th>").attr("width", "15%").text("Station"),
 			$("<td>").css("overflow-wrap", "anywhere").attr("width", "45%").text(data.stations[assignment.station].name),
 			$("<td>").attr("rowspan", "3").css("text-align", "center").append([
-				codeContainer,
+				$("<img>").attr("src", barcode),
 				$("<div>").text("A-" + assignment.i)
 			])
 		]),
