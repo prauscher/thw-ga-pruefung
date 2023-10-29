@@ -46,9 +46,7 @@ function ReliableWebSocket(options) {
 		ws.onclose = function (event) {
 			(options.on_close || function () {})();
 			// Try to reconnect
-			console.log("Connection closed, reconnecting in 2 Seconds");
-			ws.close();
-			window.setTimeout(connect, 2000);
+			console.log("Connection closed");
 		}
 		ws.onopen = function(event) {
 			console.log("Connection established");
@@ -135,6 +133,16 @@ function ReliableWebSocket(options) {
 			}
 		}
 	}
+
+	window.setInterval(function () {
+		if (ws === null || ws.readyState !== WebSocket.OPEN) {
+			console.log("Found invalid connection, reconnecting...");
+			if (ws !== null) {
+				ws.close();
+			}
+			connect();
+		}
+	}, 2000);
 
 	connect();
 
