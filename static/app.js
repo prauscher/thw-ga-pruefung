@@ -978,7 +978,7 @@ function _generateStation(i, name) {
 			]).append(assignments.map(function (a_id) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
 			})).append(
-				(i === null || (capacity < assignments.length) ? [] : Array.from(Array(capacity - assignments.length)).map(function (_, j) {
+				(i === null || capacity < assignments.length) ? [] : Array.from(Array(capacity - assignments.length)).map(function (_, j) {
 					return $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)")
 				})
 			),
@@ -993,7 +993,7 @@ function _generateStation(i, name) {
 					}),
 				]),
 				" ",
-				assignButton.toggle(user && user.role == "operator")
+				assignButton.toggle(user && user.role == "operator"),
 			])
 		])
 	);
