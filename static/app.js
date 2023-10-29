@@ -460,7 +460,7 @@ function render() {
 }
 
 function _buildExamineeItem(e_id, a_id) {
-	return $("<li>").addClass(["list-group-item", "examinee-" + e_id]).text(data.examinees[e_id].name).click(function () {
+	return $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]).text(data.examinees[e_id].name).click(function () {
 		if (a_id !== null) {
 			_openAssignmentModal(a_id);
 		} else {
@@ -683,7 +683,7 @@ function _openStationModal(s_id) {
 						duration.push($("<span>").text(Math.round((assignment.end - assignment.start) / 60)));
 					}
 
-					var name = $("<span>").text(data.examinees[assignment.examinee].name);
+					var name = $("<span>").addClass("text-truncate").text(data.examinees[assignment.examinee].name);
 					if (assignment.result == "canceled") {
 						name.addClass("fst-italic");
 						name.text(name.text() + " (abgebrochen)");
@@ -712,7 +712,7 @@ function _openStationModal(s_id) {
 			$("<tbody>").append(
 				missingExaminees.map(function (e_id) {
 					return $("<tr>").append([
-						$("<td>").append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
+						$("<td>").addClass("text-truncate").append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
 							e.preventDefault();
 							_openExamineeModal(e_id);
 						})),
@@ -978,7 +978,7 @@ function _generateStation(i, name) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
 			})).append(
 				(i === null || (data.stations[i].capacity || 1) < assignments.length) ? [] : Array.from(Array((data.stations[i].capacity || 1) - assignments.length)).map(function () {
-					return $("<li>").addClass(["list-group-item", examinees.length > 0 ? "text-danger" : "text-warning"]).text("(Unbesetzt)")
+					return $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > 0).toggleClass("text-muted", examinees.length <= 0).text("(Unbesetzt)")
 				})
 			),
 			$("<div>").addClass("card-footer").append([
