@@ -1161,6 +1161,24 @@ function _openStationModal(s_id) {
 
 	modal.elem.find(".modal-body").append([
 		$("<p>").text("Hier kann die Auslastung einer Station eingesehen werden."),
+		$("<h5>").text("Offene Prüflinge"),
+			$("<table>").addClass(["table", "table-striped"]).append([
+			$("<thead>").append(
+				$("<tr>").append([
+					$("<th>").text("Prüfling"),
+				])
+			),
+			$("<tbody>").append(
+				missingExaminees.map(function (e_id) {
+					return $("<tr>").append([
+						$("<td>").addClass("text-truncate").append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
+							e.preventDefault();
+							_openExamineeModal(e_id);
+						})),
+					]);
+				})
+			),
+		]),
 		$("<h5>").text("Historie"),
 		$("<table>").addClass(["table", "table-striped"]).append([
 			$("<thead>").append(
@@ -1195,24 +1213,6 @@ function _openStationModal(s_id) {
 					$("<th>").text("Durchschnitt"),
 					$("<th>").addClass("text-end").text(durationCount == 0 ? "unbekannt" : Math.round((durationSum / durationCount) / 60)),
 				])
-			),
-		]),
-		$("<h5>").text("Offene Prüflinge"),
-			$("<table>").addClass(["table", "table-striped"]).append([
-			$("<thead>").append(
-				$("<tr>").append([
-					$("<th>").text("Prüfling"),
-				])
-			),
-			$("<tbody>").append(
-				missingExaminees.map(function (e_id) {
-					return $("<tr>").append([
-						$("<td>").addClass("text-truncate").append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
-							e.preventDefault();
-							_openExamineeModal(e_id);
-						})),
-					]);
-				})
 			),
 		]),
 	]);
