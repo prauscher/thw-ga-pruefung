@@ -371,19 +371,415 @@ $(function () {
 });
 
 var tasks = [
-	{"name": "Aufgabe 1", "min_tasks": 1, "parts": [
-		{"name": "Aufgabe gelesen", "mandatory": true},
-		{"name": "Aufgabe verstanden", "mandatory": false},
+	{"name": "3.1 Verbinden zweier Leinen mit dem Doppelstich", "min_tasks": 2, "parts": [
+		{"name": "Doppelstich richtig ausgeführt", "mandatory": true},
+		{"name": "Überhang der freien Leinenenden mindestens 10x Leinendurchmesser", "mandatory": false},
+		{"name": "Auf parallele Leinenführung ist zu achten", "mandatory": false},
 	]},
-	{"name": "Aufgabe 2", "min_tasks": 1, "parts": [
-		{"name": "Test", "mandatory": true},
+	{"name": "3.2 Aufschießen einer Arbeitsleine", "min_tasks": 4, "parts": [
+		{"name": "Freies Leinenende etwas kürzer als der normale Schlag", "mandatory": false},
+		{"name": "Drallfrei aufgeschossen", "mandatory": false},
+		{"name": "Mit mindestens drei Schlägen quer umwickelt", "mandatory": false},
+		{"name": "Schläge eng und fest gewickelt", "mandatory": false},
+		{"name": "Überstehendes Leinenende hat mindetens 10x Leinendurchmesser", "mandatory": false},
 	]},
-	{"name": "Aufgabe 3", "min_tasks": 1, "parts": [
-		{"name": "Aufgabe gelesen", "mandatory": true},
-		{"name": "Aufgabe verstanden", "mandatory": false},
+	{"name": "3.3 Verbinden zweier Rundhölzer mit einem Kreuzbund (Beginn mit Mastwurf)", "min_tasks": 4, "parts": [
+		{"name": "Mit Mastwurf und Halbschlag begonnen", "mandatory": true},
+		{"name": "Wechselschlag richtig angesetzt", "mandatory": true},
+		{"name": "Mindestens drei Schläge in jede Richtung", "mandatory": true},
+		{"name": "Kreuzbund mit Rosette festgezogen", "mandatory": true},
 	]},
-	{"name": "Aufgabe 4", "min_tasks": 1, "parts": [
-		{"name": "Test", "mandatory": true},
+	{"name": "3.4 Binden eines Mastwurfs an einem Rundholz", "min_tasks": 2, "parts": [
+		{"name": "Mastwurf richtig gebunden", "mandatory": true},
+		{"name": "Mastwurf durch Halbschlag gesichert", "mandatory": true},
+		{"name": "Überhang des freien Leinenendes hat mindestens 10x Leinendurchmesser", "mandatory": false},
+	]},
+	{"name": "3.5 Binden eines einfachen Ankerstichs an einem Rundholz mit einer Arbeitsleine; die Leine ist mit einem halben Schlag zu sichern", "min_tasks": 2, "parts": [
+		{"name": "\"Verloren fest\" um Rundholz gelegt", "mandatory": true},
+		{"name": "Ankerstich richtig ausgeführt", "mandatory": true},
+	]},
+	{"name": "3.6 Binden eines Dreibockbundes", "min_tasks": 5, "parts": [
+		{"name": "Stammenden auf gleiche Höhe gelegt", "mandatory": false},
+		{"name": "Abstände der Hölzer auf 3/4 des Durchmessers eingehalten", "mandatory": false},
+		{"name": "Bund ca. 50cm unterhalb des kürzesten Zopfendes begonnen", "mandatory": false},
+		{"name": "Arbeitsleine (lang) für Dreibockbund verwendet", "mandatory": true},
+		{"name": "Mindestens 6 Achterschläge ausgeführt", "mandatory": true},
+		{"name": "Mastwürfe (mit Halbschlag) liegen unterhalb der Achterschläge", "mandatory": true},
+		{"name": "Würgeschlag ist ausgeführt", "mandatory": true},
+	]},
+	{"name": "3.7 Herstellen eines Bockschnürbunds mit einer Arbeitsleine (kurz)", "min_tasks": 4, "parts": [
+		{"name": "Am \"tragenden\" Holz mit Mastwurf begonnen (bei Beginn mit Zopfende zusätzlicher Halbschlag ausgeführt)", "mandatory": true},
+		{"name": "Leinenüberhang mindestens 10x Leinendurchmesser", "mandatory": false},
+		{"name": "Eng und fest gebunden", "mandatory": true},
+		{"name": "Entgegen der Lastrichtung, d.h. nach oben gebunden", "mandatory": true},
+		{"name": "Abschluss am waagerechten Holz mit Mastwurf (bei Abschluss mit Zopfende zusätzlichen Halbschlag ausgeführt)", "mandatory": false},
+	]},
+	{"name": "3.8 Anschlagen einer Anschlagkette an einem liegenden Baum, um ihn wegzuziehen", "min_tasks": 2, "parts": [
+		{"name": "Hakensicherung kontrolliert", "mandatory": true},
+		{"name": "Kette am Baum fest angezogen", "mandatory": false},
+		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true},
+	]},
+	{"name": "3.9 Verbinden zweier Kettenenden mit einem Schäkel", "min_tasks": 4, "parts": [
+		{"name": "Kettenstränge drallfrei ausgelegt", "mandatory": true},
+		{"name": "Kettenenden mit Schäkel verbunden", "mandatory": true},
+		{"name": "Schäkelbolzen vollständig eingedreht", "mandatory": true},
+		{"name": "Schäkelbolzen gegen Herausdrehen gesichert", "mandatory": false},
+		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true},
+	]},
+	{"name": "4.1 Zusammenstecken zweier Steckleiterteile", "min_tasks": 3, "parts": [
+		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": false},
+		{"name": "Leiterteile ineinander geschoben", "mandatory": true},
+		{"name": "Vor der Zugprobe geprüft, dass die Federsperrbolzen geschlossen sind", "mandatory": true},
+		{"name": "Zugprobe durchgeführt", "mandatory": true},
+	]},
+	{"name": "4.2 Aufrichten einer Steckleiter, bestehend aus zwei Steckleiterteilen - über Sprosse", "min_tasks": 3, "parts": [
+		{"name": "Stationshelfer/in für Fußpunktsicherung oder zur Hilfestellung beim Aufrichten angewiesen", "mandatory": true},
+		{"name": "Leiter gesichert über Sprosse aufgerichtet und angelegt", "mandatory": true},
+		{"name": "Anstellwinkel überprüft und ggf. korrigiert (65° - 75°)", "mandatory": true},
+	]},
+	{"name": "4.3 Aufrichten einer Steckleiter, bestehend aus zwei Steckleiterteilen - über Holm", "min_tasks": 3, "parts": [
+		{"name": "Leiter seitlich auf einen Holm gelegt", "mandatory": false},
+		{"name": "Leiter am Holm bis zur Schulterhöhe angehoben und dann umgegriffen", "mandatory": false},
+		{"name": "Leiter gesichert über Holm aufgerichtet und angelegt", "mandatory": true},
+		{"name": "Anstellwinkel übrprüft und ggf. korrigiert (65° - 75°)", "mandatory": true},
+	]},
+	{"name": "4.4 Aufrichten einer Steckleiter, bestehend aus zwei Steckleiterteilen - über Widerlager", "min_tasks": 3, "parts": [
+		{"name": "Leiter mit dem Fußende vor das Widerlager gelegt", "mandatory": true},
+		{"name": "Leiter über Sprosse gesichert aufgerichtet und angelegt", "mandatory": true},
+		{"name": "Anstellwinkel überprüft und ggf. korrigiert (65° - 75°)", "mandatory": true},
+	]},
+	{"name": "4.5 Herstellen eines Widerlagers (Kanthölzer) zum Aufrichten einer Steckleiter", "min_tasks": 2, "parts": [
+		{"name": "Ebenen Untergrund ausgewählt oder hergerichtet", "mandatory": false},
+		{"name": "Widerlager richtig (90°) zum Objekt hergestellt", "mandatory": true},
+		{"name": "Widerlager richtig befestigt (Bauklammern)", "mandatory": true},
+	]},
+	{"name": "4.6 Herstellen einer Fußpunktsicherung mit Querriegel und Arbeitsleine", "min_tasks": 3, "parts": [
+		{"name": "Die gebundenen Mastwürfe sind mit einem halben Schlag gesichert", "mandatory": false},
+		{"name": "Bei beiden Mastwürfen am Holm ist die Sprosse eingebunden", "mandatory": true},
+		{"name": "Leine am Querriegel \"verloren fest\"", "mandatory": true},
+		{"name": "Beide Seiten der Leine sind gleichmäßig gespannt", "mandatory": true},
+	]},
+	{"name": "4.7 Herstellen einer Kopfpunktsicherung mit Querriegel und Arbeitsleine", "min_tasks": 4, "parts": [
+		{"name": "Arbeitsleine am Querriegel mittels Mastwurf festgelegt", "mandatory": true},
+		{"name": "Abgehendes Leinenende um den Holm und über eine Sprosse zum Querriegel zurückgeführt", "mandatory": true},
+		{"name": "Leine mit mindestens drei Schlägen um Sprosse und Querriegel geführt", "mandatory": true},
+		{"name": "Leine um den zweiten Holm herumgelegt und mit Mastwurf und Halbschlag am Querriegel festgelegt", "mandatory": true},
+	]},
+	{"name": "4.8 Besteigen einer Steckleiter - mit dynamischer Fußpunktsicherung", "min_tasks": 3, "parts": [
+		{"name": "Anstellwinkel geprüft und ggf. korrigiert (65°-75°)", "mandatory": true},
+		{"name": "Stationshelfer/in zur Leitersicherung herangezogen", "mandatory": true},
+		{"name": "An Sprossen festgehalten (nicht am Holm)", "mandatory": true},
+	]},
+	{"name": "5.1 Aufbau einer mobilen Stromversorgung mit Beleuchtung", "min_tasks": 9, "parts": [
+		{"name": "Stativbeine maximal gespreizt, senkrecht/lotrecht ausgerichtet und Flügelschrauben angezogen", "mandatory": true},
+		{"name": "Flutlichtleuchte aufgesteckt, ausgerichtet und gesichert", "mandatory": true},
+		{"name": "Teleskoprohre (mit Stationshelfer/in) auf maximale Höhe herausgezogen und gesichert", "mandatory": true},
+		{"name": "Beim Herausziehen der Teleskoprohre THW-Einsatzhandschuhe getragen", "mandatory": true},
+		{"name": "Stativ ordnungsgemäß (dreiseitig und einheitlich) abgespannt", "mandatory": true},
+		{"name": "Abspannseile mit Absperrband (Flatterband) gekennzeichnet", "mandatory": false},
+		{"name": "Leitung auf Beschädigung geprüft", "mandatory": false},
+		{"name": "Leitung vollständig abgerollt", "mandatory": true},
+		{"name": "Überschüssige Leitung in großen Buchten stolperfrei verlegt", "mandatory": true},
+		{"name": "Schutzdeckel und Schutzkappen verbunden", "mandatory": false},
+		{"name": "Vom Verbraucher zum Erzeuger aufgebaut", "mandatory": false},
+	]},
+	{"name": "5.2 Inbetriebnahme eines tragbaren Stromerzeugers", "min_tasks": 7, "parts": [
+		{"name": "Abgasschlauch angeschlossen", "mandatory": true},
+		{"name": "Kraftstofffüllstand geprüft", "mandatory": false},
+		{"name": "Ölstand überprüft", "mandatory": false},
+		{"name": "Chokezug herausgezogen (bei warmen Motor nur erklären)", "mandatory": true},
+		{"name": "Kraftstoffhahn geöffnet", "mandatory": true},
+		{"name": "Verbraucher erst angeschlossen, wenn der Motor mit Nenndrehzahl läuft", "mandatory": true},
+		{"name": "Überwurfringglocke der Anschlussleitung an der Steckdose des tragbaren Stromerzeugers verriegelt", "mandatory": false},
+		{"name": "Die Reihenfolge der Bedienschritte ist eingehalten. (Ausnahme: Reihenfolge der Überprüfung Kraftstoff und Ölstand)", "mandatory": true},
+	]},
+	{"name": "6.1.1 Zeigen von Werkzeugen für die Holzbearbeitung", "min_tasks": 6, "parts": [
+		{"name": "Bügelsäge", "mandatory": false},
+		{"name": "Fuchsschwanz", "mandatory": false},
+		{"name": "Stichsäge", "mandatory": false},
+		{"name": "Lochbeitel", "mandatory": false},
+		{"name": "Handbeil", "mandatory": false},
+		{"name": "Holzaxt", "mandatory": false},
+		{"name": "Kistenbeitel", "mandatory": false},
+		{"name": "Zugmesser", "mandatory": false},
+	]},
+	{"name": "6.1.2 Benennen von Werkzeugen für die Holzbearbeitung", "min_tasks": 7, "parts": [
+		{"name": "Zugmesser", "mandatory": false},
+		{"name": "Lochbeitel", "mandatory": false},
+		{"name": "Schreinerklüpfel", "mandatory": false},
+		{"name": "Halbrund-Raspel", "mandatory": false},
+		{"name": "Bohrsäge (Stichling)", "mandatory": false},
+		{"name": "Stangen-Schlangenbohrer", "mandatory": false},
+		{"name": "Latthammer", "mandatory": false},
+		{"name": "Fuchsschwanz", "mandatory": false},
+		{"name": "Schlegel", "mandatory": false},
+	]},
+	{"name": "6.1.3 Zeigen von Mess- und Anreißwerkzeugen für die Holzbearbeitung", "min_tasks": 4, "parts": [
+		{"name": "Gliedermaßstab (Zollstock)", "mandatory": false},
+		{"name": "Zimmermannswinkel", "mandatory": false},
+		{"name": "Bandmaß", "mandatory": false},
+		{"name": "Stellwinkel (Schmiege)", "mandatory": false},
+		{"name": "Wasserwaage", "mandatory": false},
+	]},
+	{"name": "6.1.4 Rechwinkliges Ablängen eines Kantholzes mit der Bügelsäge", "min_tasks": 3, "parts": [
+		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true},
+		{"name": "Für den Anschnitt Führungsholz verwendet", "mandatory": true},
+		{"name": "Sägeblattlänge voll ausgenutzt", "mandatory": false},
+		{"name": "Sägeschnitt gerade und rechtwinklig (Sichtkontrolle von Helfer/in durchgeführt)", "mandatory": false},
+	]},
+	{"name": "6.1.5 Herstellen einer rechtwinkligen Holzverbindung mittels Lochblech", "min_tasks": 3, "parts": [
+		{"name": "Kamm-/Ankernägel ausgewählt", "mandatory": true},
+		{"name": "Beide Lochbleche mittig angesetzt", "mandatory": true},
+		{"name": "mind. 4 Nägel fachgerecht gesetzt und eingeschlagen und weitere Ausführung mündlich erklärt", "mandatory": true},
+	]},
+	{"name": "6.1.6 Einfaches Kreuzen zweier Kanthölzer durch Verbinden mittels Gewindestange", "min_tasks": 4, "parts": [
+		{"name": "Löcher mittig angerissen", "mandatory": true},
+		{"name": "Löcher rechtwinklig gebohrt", "mandatory": true},
+		{"name": "Kanthölzer mit Gewindestange verbunden", "mandatory": true},
+		{"name": "Unterlegscheiben (quadratisch) verwendet", "mandatory": true},
+		{"name": "Sechskantmuttern festgezogen", "mandatory": false},
+	]},
+	{"name": "6.2.1 Inbetriebnahme des Bohr- und Aufbrechhammers und Bohren eines Lochs in Senkrechter Richtung", "min_tasks": 4, "parts": [
+		{"name": "Bohr- und Aufbrechhammer auf \"Bohren\" gestellt", "mandatory": true},
+		{"name": "Bohrer eingesetzt und arretiert", "mandatory": true},
+		{"name": "Bohr- und Aufbrechhammer erst am Objekt angesetzt und dann in Betrieb genommen", "mandatory": true},
+		{"name": "Schutzbrille/Visier und Kapselgehörschutz ordnungsgemäß getragen", "mandatory": true},
+		{"name": "Nutzung/nicht Nutzung von THW-Einsatzhandschuhen mündlich erläutert", "mandatory": false},
+	]},
+	{"name": "6.2.2 Inbetriebnahme des Bohr- und Aufbrechhammers und Arbeiten mit dem Spitzmeißel in senkrechter Richtung", "min_tasks": 5, "parts": [
+		{"name": "Bohr- und Aufbrechhammer auf \"Schlagen\" gestellt", "mandatory": true},
+		{"name": "Spitzmeißel eingesetzt und arretiert", "mandatory": true},
+		{"name": "Bohr- und Aufbrechhammer erst am Objekt angesetzt und dann in Betrieb genommen", "mandatory": true},
+		{"name": "Schutzbrille/Visier und Kapselgehörschutz ordnungsgemäß getragen", "mandatory": true},
+		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true},
+	]},
+	{"name": "6.2.3 In- und Außerbetriebnahme eines Trennschleifers (mit Verbrennungsmotor) sowie Ablängen eines Ton- Steinzeug- oder Betonrohres", "min_tasks": 9, "parts": [
+		{"name": "Geeignete Trennscheibe benutzt", "mandatory": true},
+		{"name": "Druckscheibe richtig eingesetzt", "mandatory": true},
+		{"name": "Trennscheibe zentriert und angezogen", "mandatory": true},
+		{"name": "Für Startvorgang muss das Gerät sicher auf dem Boden stehen", "mandatory": true},
+		{"name": "Auf sicheren Stand geachtet und Gerät seitlich am Körper vorbei geführt", "mandatory": true},
+		{"name": "Schleif-/Trennscheibenschutz richtig eingestellt (Werkstoffpartikel werden vom/von der Benutzer/in und Gerät weggelenkt", "mandatory": true},
+		{"name": "Mit Höchstdrehzahl am Werkstück angesetzt", "mandatory": true},
+		{"name": "Vor Ablegen des Trennschleifers Stillstand der Scheibe abgewartet", "mandatory": true},
+		{"name": "Schutzausstattung zzgl. Staubschutzmaske getragen", "mandatory": true},
+	]},
+	{"name": "6.3.1 Ablängen einer Gewindestange mit der Metallbügelsäge", "min_tasks": 4, "parts": [
+		{"name": "Gewindestange mit Gewindeschutz im Schraubstock eingespannt", "mandatory": true},
+		{"name": "Gewindestange auf Maß abgelängt", "mandatory": true},
+		{"name": "Schnitt rechtwinklig ausgeführt (Sichtkontrolle)", "mandatory": false},
+		{"name": "Schnittfläche geebnet und entgratet", "mandatory": true},
+		{"name": "Auf Gewindegängigkeit geprüft", "mandatory": true},
+	]},
+	{"name": "6.3.2 Ablängen eines Rohrstückes mit der Metallbügelsäge", "min_tasks": 4, "parts": [
+		{"name": "Sägeblatt so in den Sägebügel eingesetzt, dass die Stoßzähnung vom Griff weg weist", "mandatory": true},
+		{"name": "Sägeblatt gespannt (Flügelmutter von Hand festgezogen)", "mandatory": true},
+		{"name": "Sägeblatt während des Sägens nicht verkantet", "mandatory": false},
+		{"name": "Sägeblatt auf ganzer Länge genutzt", "mandatory": false},
+		{"name": "Schnitt nahe der Spannbacken dess Schraubstocks durchgeführt", "mandatory": true},
+		{"name": "Schnitt rechtwinklig zur Rohrachse ausgeführt (Sichtkontrolle)", "mandatory": false},
+	]},
+	{"name": "6.3.3 Inbetriebnahme der Säbelsäge und Ablängen eines Rohrstückes", "min_tasks": 5, "parts": [
+		{"name": "THW-Einsatzhandschuhe, Kapselgehörschutz und Schutzbrille getragen", "mandatory": true},
+		{"name": "Stromverbindung erst nach Montage hergestellt", "mandatory": true},
+		{"name": "Metallsägeblatt verwendet", "mandatory": true},
+		{"name": "Schnitt rechtwinklig zur Rohrachse durchgeführt (Sichtkontrolle)", "mandatory": false},
+		{"name": "Sägeblatt nicht verkantet", "mandatory": true},
+		{"name": "Leitungsführung beachtet", "mandatory": true},
+	]},
+	{"name": "6.3.4 In- und Außerbetriebnahme eines Trennschleifers (mit Elektromotor) sowie Durchtrennen eines Metallrohres", "min_tasks": 8, "parts": [
+		{"name": "Geeignete Trennscheibe benutzt", "mandatory": true},
+		{"name": "Stromverbindung erst nach Montage hergestellt", "mandatory": true},
+		{"name": "Auf sicheren Stand geachtet und Maschine seitlich am Körper vorbei geführt", "mandatory": true},
+		{"name": "Schleif-/Trennscheibenschutz richtig eingestellt (Werkstoffpartikel werden vom/von der Benutzer/in und Gerät weggelenkt", "mandatory": true},
+		{"name": "Flansch richtig eingesetzt", "mandatory": true},
+		{"name": "Trennscheibe zentriert und angezogen", "mandatory": true},
+		{"name": "Mit Höchstdrehzahl am Werkstück angesetzt", "mandatory": true},
+		{"name": "Vor Ablegen des Trennschleifers Stillstand der Scheibe abgewartet", "mandatory": true},
+	]},
+	{"name": "6.3.5 Gebrauch der Schutzausstattung beim Betrieb eines Trennschleifers", "min_tasks": 5, "parts": [
+		{"name": "Schutzbrille und Kapselgehörschutz getragen", "mandatory": true},
+		{"name": "Lederschutzhandschuhe getragen", "mandatory": true},
+		{"name": "Lederschürze angelegt", "mandatory": true},
+		{"name": "Jacke komplett geschlossen", "mandatory": true},
+		{"name": "Hose über Stiefel getragen", "mandatory": true},
+	]},
+	{"name": "6.3.6 Arbeitsschutzmaßnahmen bei Arbeiten mit dem Trennschleifer anwenden", "min_tasks": 3, "parts": [
+		{"name": "Kein Aufenthalt von Personen im Bereich des Funkenfluges", "mandatory": true},
+		{"name": "Löschmittel bereitgestellt", "mandatory": true},
+		{"name": "Keine brennbaren Gegenstände im Bereich des Funkenfluges", "mandatory": true},
+	]},
+	{"name": "7.1 Einseitiges Anheben einer Last mit der Brechstange und Unterbauen der Last", "min_tasks": 4, "parts": [
+		{"name": "Brechstange beim Anheben nicht abgerutscht", "mandatory": true},
+		{"name": "Auflagefläche unter dem Hebeldrehpunkt aus bruchsicherem Material", "mandatory": true},
+		{"name": "Last nach dem Anheben unterbaut", "mandatory": true},
+		{"name": "Nicht unter die angehobene Last gegriffen", "mandatory": true},
+	]},
+	{"name": "7.2 Anheben einer Last mit Zahnstangenwinde/hydraulischem Heber und Unterbauen der Last", "min_tasks": 6, "parts": [
+		{"name": "Last gegen Verschieben gesichert", "mandatory": true},
+		{"name": "Anhebeklaue rechtwinklig zur Last angesetzt", "mandatory": true},
+		{"name": "Fußplatte vollflächig auf bruchsicheren/druckfesten Untergrund aufgesetzt", "mandatory": true},
+		{"name": "Anhebeklaue vollflächig unter der Last angesetzt", "mandatory": true},
+		{"name": "Last nach Anheben unterbaut", "mandatory": true},
+		{"name": "Nicht unter die angehobene Last gegriffen", "mandatoy": true},
+	]},
+	{"name": "7.3 Vorbereiten des Hebe-/Pressgeräts, hydraulisch", "min_tasks": 4, "parts": [
+		{"name": "Höchstdruckschlauch drall- und knickfrei ausgelegt", "mandatory": true},
+		{"name": "Kupplungen auf Sauberkeit überprüft und bei Bedarf gereinigt", "mandatory": true},
+		{"name": "Verschlüsse und Verschlusskappen zusammengesteckt/verschraubt", "mandatory": false},
+		{"name": "Fußplatte angeschraubt/eingesetzt", "mandatory": true},
+		{"name": "Geeignetes Kopfstück verwendet", "mandatory": true},
+	]},
+	{"name": "7.4 Anheben einer Last mit Hebe-/Pressgerät, hydraulisch, Erklären des Schnellstopps und Ablassen der Last", "min_tasks": 5, "parts": [
+		{"name": "Pressenkörper rechtwinklig zur Last angesetzt", "mandatory": true},
+		{"name": "Last gegen Verschieben gesichert", "mandatory": true},
+		{"name": "Funktion des \"Schnellstopps\" erklärt", "mandatory": true},
+		{"name": "Last angehoben und mit Keilen und Unterleghölzern gesichert", "mandatory": true},
+		{"name": "Last sicher abgelassen", "mandatory": true},
+	]},
+	{"name": "7.5 Inbetriebnahme eines Zuggeräts und Ziehen einer Last im direkten Zug", "min_tasks": 8, "parts": [
+		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true},
+		{"name": "Zuggerät an geeignetem Festpunkt angeschlagen", "mandatory": true},
+		{"name": "Schaltgriff zurückgezogen und eingerastet", "mandatory": false},
+		{"name": "Rückzughebel bis zum Anschlag nach hinten gedrückt", "mandatory": false},
+		{"name": "Drahtzugseil am Mundstück eingeführt und durchgeschoben", "mandatory": true},
+		{"name": "Schaltgriff gelöst", "mandatory": false},
+		{"name": "Sicherheitsabstände eingehalten (keine Personen im Gefahrenbereich)", "mandatory": true},
+		{"name": "Anschlagverbindungen des Zuggeräts bzw. des Drahtzugseils gesichert", "mandatory": true},
+		{"name": "Hebelrohr ausgezogen und gesichert", "mandatory": true},
+		{"name": "Hebelrohr auf Vorschubhebel gesteckt und gesichert", "mandatory": false},
+	]},
+	{"name": "7.6 Außerbetriebnahme des Zuggeräts", "min_tasks": 4, "parts": [
+		{"name": "Drahtzugseil entspannt", "mandatory": true},
+		{"name": "Rückzughebel betätigt", "mandatory": true},
+		{"name": "Drahtzugseil- und Zughaken von den Verankerungen gelöst", "mandatory": false},
+		{"name": "Schaltgriff zurückgezogen und eingerastet", "mandatory": true},
+		{"name": "Drahtzugseil herausgezogen", "mandatory": false},
+		{"name": "Schaltgriff gelöst", "mandatory": false},
+	]},
+	{"name": "7.7 Einsatzbereitschaft des Hebekissensatzes mit zwei Hebekissen herstellen", "min_tasks": 8, "parts": [
+		{"name": "Gesichtsschutz mit Voll-Visier getragen", "mandatory": true},
+		{"name": "Absperrhahn des Druckminderers geschlossen", "mandatory": true},
+		{"name": "Druckminderer an der Druckluftflasche angeschlossen", "mandatory": true},
+		{"name": "Flaschenventil geöffnet", "mandatory": false},
+		{"name": "Hinterdruck mit Regulierknebel eingestellt", "mandatory": true},
+		{"name": "Schlauch des Druckminderers am Doppelsteuerorgan angeschlossen", "mandatory": false},
+		{"name": "Kupplungen auf Sauberkeit geprüft und bei Bedarf gereinigt", "mandatory": true},
+		{"name": "Kupplungen und Nippel soweit zusammengdrückt bis der Kupplungsring sichtbar einrastet", "mandatory": false},
+		{"name": "Füllschläuche an Kissen und Doppelsteuerorgan seitenrichtig angeschlossen", "mandatory": true},
+	]},
+	{"name": "7.8 Einseitiges Anheben einer Last mit einem Hebekissen um min. 10 cm und Ablassen der Last", "min_tasks": 7, "parts": [
+		{"name": "Hebekissen gemäß den Herstellervorgaben unter die Last geschoben", "mandatory": true},
+		{"name": "Gesichtsschutz mit Voll-Visier getragen", "mandatory": true},
+		{"name": "Kissen unter der Last befüllt", "mandatory": false},
+		{"name": "Last durch Keile und Unterleghölzer gesichert", "mandatory": true},
+		{"name": "Nicht unter die Last gegriffen", "mandatory": true},
+		{"name": "Kissen nicht ruckartig befüllt", "mandatory": true},
+		{"name": "Last langsam abgelassen", "mandatory": false},
+		{"name": "Kissen vor scharfen Kanten/spitzen Gegenständen geschützt", "mandatory": true},
+	]},
+	{"name": "8.1 Füllen und Verlegen von Sandsägen (zugebunden)", "min_tasks": 3, "parts": [
+		{"name": "Sandsack ca. 2/3 (max 12kg) mit Sand gefüllt und zugebunden", "mandatory": true},
+		{"name": "Sandsäcke flach auf den Boden gelegt", "mandatory": false},
+		{"name": "Einfüllöffnung zeigt landwärts", "mandatory": false},
+		{"name": "Sandsäcke zum dichten Verbund gelegt", "mandatory": false},
+	]},
+	{"name": "8.2 Inbetriebnahme einer Tauchpumpe und Verwendung eines Strahlrohres", "min_tasks": 6, "parts": [
+		{"name": "Tauchpumpe mit Arbeitsleine durch einfachen Ankerstich gesichert", "mandatory": true},
+		{"name": "Druckschlauch fest angekuppelt", "mandatory": false},
+		{"name": "Elektrische Verbindung hergestellt", "mandatory": true},
+		{"name": "Strahlrohr am Druckschlauch fest angekuppelt", "mandatory": true},
+		{"name": "Pumpe an der Arbeitsleine in das Wasser gelassen", "mandatory": true},
+		{"name": "Strahlrohr durch Stationshelfer/in gesichert und Sprühstahl eingestellt", "mandatory": true},
+		{"name": "Druckschlauch nicht über scharfe Kanten gezogen", "mandatory": false},
+	]},
+	{"name": "8.3 Inbetriebnahme einer Tauchpumpe", "min_tasks": 4, "parts": [
+		{"name": "Tauchpumpe mit Arbeitsleine durch einfachen Ankerstich gesichert", "mandatory": true},
+		{"name": "Druckschlauch angekuppelt und Ende festgelegt mit einer Schlauchbrücke bei freiem Auslauf", "mandatory": true},
+		{"name": "Elektrische Verbindung hergestellt und Pumpe eingeschaltet", "mandatory": true},
+		{"name": "Pumpe an der Arbeitsleine in das Wasser gelassen", "mandatory": true},
+	]},
+	{"name": "8.4 Verlegen von Druckschläuchen über einen Verkehrsweg", "min_tasks": 3, "parts": [
+		{"name": "Druckschläuche drall- und knickfrei verlegt", "mandatory": true},
+		{"name": "Schluchbrücken verwendet", "mandatory": true},
+		{"name": "Straßenquerung mit Verkehrsleitkegel gesichert", "mandatory": true},
+		{"name": "Stationshelfer/in als Sicherungsposten eingeteilt", "mandatory": false},
+	]},
+	{"name": "8.5 Anlegen und Erklären der THW-Rettungsweste", "min_tasks": 3, "parts": [
+		{"name": "Auf oberflächliche Beschädigungen überprüft", "mandatory": false},
+		{"name": "Aufblasvorrichtung kontrolliert", "mandatory": true},
+		{"name": "Handauslöseleine nach außen geführt", "mandatory": true},
+		{"name": "THW-Rettungsweste korrekt angelegt und geschlossen", "mandatory": true},
+	]},
+	{"name": "9.1 Absicherung einer Einsatzstelle im öffentlichen Verkehrsraum zur Eigensicherung", "min_tasks": 5, "parts": [
+		{"name": "Angemessenen Abstand zur Schadenstelle eingehalten", "mandatory": true},
+		{"name": "Warnweste angelegt und verschlossen", "mandatory": true},
+		{"name": "Den Verkehrsweg nicht unnötig überquert", "mandatory": true},
+		{"name": "Verkehrsleitkegel mit Warnblitzleuchten, für den Verkehr abweisend entlang der Straße, aufgestellt und eingeschaltet", "mandatory": true},
+		{"name": "Warnschilder aufgestellt", "mandatory": true},
+		{"name": "Meldung an den/die direkte/n Vorgesetzte/n abgegeben", "mandatory": false},
+	]},
+	{"name": "9.2 Absetzen einer Meldung an eine/n Vorgesetzten", "min_tasks": 3, "parts": [
+		{"name": "Richtige/n Ansprechpartner/in ausgewählt", "mandatory": true},
+		{"name": "Einsatzsituation mit zutreffenden Stichworten wiedergegeben", "mandatory": true},
+		{"name": "Meldung kurz und verständlich formuliert", "mandatory": true},
+		{"name": "Der/die Empfänger/in der Meldung wird direkt und persönlich angesprochen", "mandatory": false},
+	]},
+	{"name": "10.1 Transportsicherung auf einer Krankentrage für den Transport auf unebenem Gelände", "min_tasks": 7, "parts": [
+		{"name": "Arbeitsleinen mit Doppelstich verbunden", "mandatory": true},
+		{"name": "Leinenführung nach Vorgabe fest am Körper", "mandatory": true},
+		{"name": "Person in der Einbindungszeit betreut, Handgriffe erklärt und angesprochen", "mandatory": true},
+		{"name": "Hüft- und Brustgurt geschlossen", "mandatory": true},
+		{"name": "Arbeitsleine kopfseitig mit Mastwurf und Halbschlag am Tragegriff und mit Halbschlag am Tragebein gesichert (beidseitig)", "mandatory": true},
+		{"name": "Achterschlag an den Füßen korrekt ausgeführt", "mandatory": true},
+		{"name": "Arbeitsleine fußseitig jeweils mit Halbschlag am Tragegriff und am Tragebein gesichert (beidseitig)", "mandatory": true},
+	]},
+	{"name": "10.2 Zuordnung von Löschmitteln", "min_tasks": 4, "parts": [
+		{"name": "Elektroanlagen - Kohlendioxidlöscher", "mandatory": true},
+		{"name": "Holz - Wasser", "mandatory": true},
+		{"name": "Metallspäne - Sand", "mandatory": true},
+		{"name": "Kraftstoffe - ABC-Löschpulver", "mandatory": true},
+	]},
+	{"name": "10.3 Einsatzbereitschaft des hydraulischen Rettungssatzes herstellen", "min_tasks": 5, "parts": [
+		{"name": "Höchstdruckschlauch 5m gelb am Antriebsaggregat/Umschaltventil verwendet", "mandatory": true},
+		{"name": "Externes Umschaltventil in Mittelstellung gebracht", "mandatory": true},
+		{"name": "Höchstdruckschlauch 10m gelb am Umschaltventil bzw. Aggregat/Spreizer verwendet", "mandatory": false},
+		{"name": "Höchstdruckschlauch 10m rot am Umschaltventil bzw. Aggregat/Schere verwendet", "mandatory": false},
+		{"name": "Höchstdruckschläuche drall- und knickfrei ausgelegt", "mandatory": true},
+		{"name": "Kupplungen auf Sauberkeit überprüft und bei Bedarf gereinigt", "mandatory": true},
+		{"name": "Kupplungen und Verschlüsse zusammengesteckt", "mandatory": false},
+	]},
+	{"name": "10.4 Gebrauch der Schutzausstattung beim Betrieb des hydraulischen Rettungssatzes", "min_tasks": 3, "parts": [
+		{"name": "Helm mit geschlossenem Visier getragen", "mandatory": true},
+		{"name": "Lederschutzhandschuhe getragen", "mandatory": true},
+		{"name": "Jacke komplett geschlossen", "mandatory": true},
+	]},
+	{"name": "10.5 Ablängen eines Metallrohres mit der hydraulischen Schere", "min_tasks": 5, "parts": [
+		{"name": "Stationshelfer/in am Umschaltventil positioniert", "mandatory": false},
+		{"name": "Handventil geschlossen", "mandatory": true},
+		{"name": "Motor gestartet", "mandatory": true},
+		{"name": "Auf sicheren Stand geachtet", "mandatory": false},
+		{"name": "Ablängen eines Metallrohres mit Schere", "mandatory": true},
+		{"name": "Scherenmesser leicht überlappend geschlossen", "mandatory": true},
+	]},
+	{"name": "10.6 Spreizen zweier Metallstäbe mit dem hydraulischen Spreizer", "min_tasks": 5, "parts": [
+		{"name": "Handventil geschlossen", "mandatory": true},
+		{"name": "Motor gestartet", "mandatory": true},
+		{"name": "Stationshelfer/in am Umschaltventil positioniert", "mandatory": false},
+		{"name": "Auf sicheren Stand geachtet", "mandatory": false},
+		{"name": "Metallstäbe gespreizt", "mandatory": false}
+		{"name": "Spreizer nicht komplett geschlossen", "mandatory": true},
+	]},
+	{"name": "10.7 Anlegen der persönlichen Schutzusstattung gegen Absturz (PSAgA)", "min_tasks": 7, "parts": [
+		{"name": "Keine Gegenstände in den Taschen des Multifunktionalen Einsatzanzuges (MEA)", "mandatory": true},
+		{"name": "Sichtprüfung durchgeführt, um mögliche Verunreinigungen, Beschädigungen oder Risse feststellen zu können", "mandatory": true},
+		{"name": "Auffanggurt an der Rückenöse aufgenommen", "mandatory": false},
+		{"name": "Auffanggurt mit Hilfe des Stationshelfers/der Stationshelferin wie eine Jacke angelegt", "mandatory": false},
+		{"name": "Beide Beinriemen geschlossen", "mandatory": true},
+		{"name": "Brustgurt geschlossen", "mandatory": true},
+		{"name": "Hüftgurt geschlossen", "mandatory": true},
+		{"name": "Kontrolle durch Stationshelfer/in durchgeführt", "mandatory": true},
+		{"name": "Sitzprobe mit Unterstützung des Stationshelfers/der Stationshelferin durchgeführt", "mandatory": true},
 	]},
 ];
 
@@ -1051,7 +1447,8 @@ function _generatePage(assignment) {
 
 	var start = Date.now() / 1000;
 
-	page.append($("<table>").attr("width", "100%").append([
+	var header = $("<div>").css("position", "fixed").css("top", "0")
+	header.append($("<table>").attr("width", "100%").append([
 		$("<tr>").append([
 			$("<th>").attr("width", "15%").text("Station"),
 			$("<td>").css("overflow-wrap", "anywhere").attr("width", "45%").text(data.stations[assignment.station].name),
@@ -1070,10 +1467,13 @@ function _generatePage(assignment) {
 		]),
 	]));
 
-	page.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt. Bitte setze für jeden Prüfungspunkt <b>entweder</b> eine Kreuz in der Spalte &quot;B&quot; wie Bestanden oder &quot;n.B.&quot; für nicht Bestanden."));
+	header.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt. Bitte setze für jeden Prüfungspunkt <b>entweder</b> eine Kreuz in der Spalte &quot;B&quot; wie Bestanden oder &quot;n.B.&quot; für nicht Bestanden."));
+	page.append(header);
+
+	var body = $("<div>").css("columns", "2 auto");
 
 	for (var task of data.stations[assignment.station].tasks) {
-		page.append($("<div>").css("float", "left").css("padding", "10px").css("width", "45%").append([
+		body.append($("<div>").css("padding", "10px").css("break-inside", "avoid").append([
 			$("<table>").css("width", "100%").css("border", "1px dotted black").css("border-collapse", "collapse").append([
 				$("<tr>").append([
 					$("<th>").css("text-align","left").attr("colspan", 3).text(task.name)
@@ -1098,9 +1498,31 @@ function _generatePage(assignment) {
 					$("<td>").append(field.clone()),
 					$("<td>").append(field.clone()),
 				]);
-			}))
+			})).append(
+				$("<tr>").css("border-top", "1px dotted black").append([
+					$("<th>").text("Gesamt"),
+					$("<th>").append(
+						$("<div>").text(" ").css({
+							"margin": "auto",
+							"width": "15px",
+							"height": "15px",
+							"border": "3px solid black",
+						})
+					),
+					$("<th>").append(
+						$("<div>").text(" ").css({
+							"margin": "auto",
+							"width": "15px",
+							"height": "15px",
+							"border": "3px solid black",
+						})
+					),
+				])
+			)
 		]));
 	}
+
+	page.append(body);
 
 	return page.html();
 }
