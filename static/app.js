@@ -1458,7 +1458,7 @@ function _generatePage(assignment) {
 
 	var start = Date.now() / 1000;
 
-	var header = $("<div>").css("position", "fixed").css("top", "0")
+	var header = $("<div>");
 	header.append($("<table>").attr("width", "100%").append([
 		$("<tr>").append([
 			$("<th>").attr("width", "15%").text("Station"),
@@ -1479,7 +1479,6 @@ function _generatePage(assignment) {
 	]));
 
 	header.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt. Bitte setze für jeden Prüfungspunkt <b>entweder</b> eine Kreuz in der Spalte &quot;B&quot; wie Bestanden oder &quot;n.B.&quot; für nicht Bestanden."));
-	page.append(header);
 
 	var body = $("<div>").css("columns", "2 auto");
 
@@ -1533,7 +1532,18 @@ function _generatePage(assignment) {
 		]));
 	}
 
-	page.append(body);
+	page.append($("<table>").append([
+		$("<thead>").css("position", "sticky").append(
+			$("<tr>").append(
+				$("<td>").append(header)
+			)
+		),
+		$("<tbody>").css("inset-block-start", "0").append(
+			$("<tr>").append(
+				$("<td>").append(body)
+			)
+		),
+	]));
 
 	return page.html();
 }
