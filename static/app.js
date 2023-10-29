@@ -64,6 +64,7 @@ $(function () {
 			$("#examinee-add").toggle(user.role == "admin");
 			$("#station-add").toggle(user.role == "admin");
 			$(".assign-examinee").toggle(user.role == "operator");
+			$("nav.navbar").toggleClass("bg-dark", user.role != "admin").toggleClass("bg-danger", user.role == "admin");
 		},
 		on_auth_required: function (data) {
 			if (data.first_login) {
@@ -160,7 +161,6 @@ $(function () {
 			}
 		},
 		on_init: function (state) {
-			console.log("INIT", state);
 			data = state;
 			for (const examinee of Object.values(data.examinees)) {
 				if (! ("flags" in examinee)) {
