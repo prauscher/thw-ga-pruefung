@@ -955,7 +955,7 @@ function _buildExamineeItem(e_id, a_id) {
 	var expectedTimeout = null;
 	if (a_id !== null) {
 		if (data.assignments[a_id].end !== null) {
-			expectedTimeout = data.assignment[a_id].end;
+			expectedTimeout = data.assignments[a_id].end;
 		} else {
 			var expectedDuration = Examinee.estimateStationDuration(data.assignments[a_id].examinee, data.assignments[a_id].station);
 			if (expectedDuration !== null) {
@@ -1370,7 +1370,7 @@ function _generateStation(i, name) {
 				}
 			} else {
 				for (var assignment of assignments) {
-					window.frames[frame_id].document.write("<div style=\"page-break-after:always;\">" + _generatePage(assignment) + "</div>");
+					window.frames[frame_id].document.write("<div style=\"page-break-after:right;\">" + _generatePage(assignment) + "</div>");
 				}
 			}
 			window.frames[frame_id].document.close();
@@ -1469,8 +1469,6 @@ function _generateStation(i, name) {
 		}
 	}
 
-	assignButton.prop("disabled", Object.keys(data.examinees).length <= assignmentsFinished + assignments.length);
-
 	assignments.sort(function (a, b) {
 		return b.start - a.start;
 	});
@@ -1489,6 +1487,8 @@ function _generateStation(i, name) {
 			}
 		}
 	}
+
+	assignButton.prop("disabled", examinees.length == 0);
 
 	const capacity = (i === null) ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
 	elem = $("<div>").addClass("col").append(
