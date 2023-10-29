@@ -17,6 +17,10 @@ function ReliableWebSocket(options) {
 	}
 
 	function _send(data) {
+		if (data._m == "_login") {
+			data.last_snr = last_snr;
+		}
+
 		// Iff _cid is already in msg, the msg is already in send_queue
 		if (!("_cid" in data)) {
 			data._cid = _gen_id();
@@ -78,12 +82,11 @@ function ReliableWebSocket(options) {
 				// Yay, we are logged in
 				auth = data.user;
 				(options.on_login || function (_user) {})(data.user);
-				if (last_snr === null) {
+
+				// Server told us new data
+				if ("state" in data) {
 					last_snr = data.state._snr;
 					(options.on_init || function (_state) {})(data.state);
-				} else if (data.state._snr != last_snr) {
-					// after reconnect just ask for missed messages
-					_send({"_m": "_fetch", "since_snr": last_snr})
 				}
 
 				// Try send_queue immediatly to speed things up

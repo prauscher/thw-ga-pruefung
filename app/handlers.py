@@ -24,6 +24,18 @@ class BroadcastState:
     _storage = Path("data.json")
     _loaded = False
 
+    def iterate_cache_since(self, since_snr):
+        msgs = []
+        for cached_msg in reversed(self.message_cache):
+            if since_snr == cached_msg["_snr"]:
+                break
+            msgs.append(cached_msg)
+        else:
+            raise IndexError
+
+        for cached_msg in reversed(msgs):
+            yield cached_msg
+
     def startup(self):
         # Startup is called on each new connection, but should only run on first
         if self._loaded:
@@ -130,21 +142,28 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
         self.auth = token
 
         self._clients.add(self)
+
+        if msg.get("last_snr") is not None:
+            # Try to only send delta to avoid huge messages
+            try:
+                for cached_msg in self.state.iterate_cache_since(msg["last_snr"]):
+                    self.send(cached_msg)
+                self.reply(msg, {"_m": "_init", "user": user})
+                return
+            except IndexError:
+                # Message not found in cache, send full state
+                pass
+
         self.reply(msg, {"_m": "_init", "user": user, "state": self.state.to_client()})
 
     def process__fetch(self, msg):
-        msgs = []
-        for cached_msg in reversed(self.state.message_cache):
-            if msg["since_snr"] == cached_msg["_snr"]:
-                break
-            msgs.append(cached_msg)
-        else:
+        try:
+            for cached_msg in self.state.iterate_cache_since(msg["since_snr"]):
+                self.send(cached_msg)
+        except IndexError:
             # Could not find the message in cache, force reload
             self.reply(msg, {"_m": "_reload"})
             return
-
-        for cached_msg in reversed(msgs):
-            self.send(cached_msg)
 
         self.reply(msg, {"_m": "_fetch_complete"})
 
