@@ -957,6 +957,7 @@ function _generateStation(i, name) {
 		}
 	}
 
+	const capacity = (i === null) ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").text(name).click(function () {
@@ -977,18 +978,18 @@ function _generateStation(i, name) {
 			]).append(assignments.map(function (a_id) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
 			})).append(
-				(i === null || (data.stations[i].capacity || 1) < assignments.length) ? [] : Array.from(Array((data.stations[i].capacity || 1) - assignments.length)).map(function (_, j) {
+				(i === null || (capacity < assignments.length) ? [] : Array.from(Array(capacity - assignments.length)).map(function (_, j) {
 					return $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)")
 				})
 			),
 			$("<div>").addClass("card-footer").append([
 				i === null ? "" : $("<div>").addClass("btn-group").toggle(user && user.role == "operator").append([
-					$("<button>").addClass(["btn", "btn-secondary"]).text("-").toggle((data.stations[i].capacity || 1) > 0).click(function () {
-						socket.send({"_m": "station_capacity", "i": i, "capacity": (data.stations[i].capacity || 1) - 1});
+					$("<button>").addClass(["btn", "btn-secondary"]).text("-").toggle(capacity > 0).click(function () {
+						socket.send({"_m": "station_capacity", "i": i, "capacity": capacity - 1});
 					}),
-					$("<button>").addClass(["btn", "btn-outline-secondary"]).text(data.stations[i].capacity || 1),
+					$("<button>").addClass(["btn", "btn-outline-secondary"]).text(capacity),
 					$("<button>").addClass(["btn", "btn-secondary"]).text("+").click(function () {
-						socket.send({"_m": "station_capacity", "i": i, "capacity": (data.stations[i].capacity || 1) + 1});
+						socket.send({"_m": "station_capacity", "i": i, "capacity": capacity + 1});
 					}),
 				]),
 				" ",
