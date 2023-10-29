@@ -303,72 +303,85 @@ $(function () {
 	});
 
 	$("#station-add").click(function () {
-		var modal = Modal("Station anlegen");
-
-		function _submit(e) {
-			e.preventDefault();
-
-			var tasks = [];
-			var currentTask = null;
-			for (var line of (modal.elem.find("#tasks").val() + "\n").split("\n")) {
-				line = line.trim();
-				if (line == "") {
-					// blank line, add current task if existant
-					if (currentTask !== null) {
-						tasks.push(currentTask);
-						currentTask = null;
-					}
-				} else if (currentTask === null) {
-					// First line of a Task (count of required parts & name)
-					var _words = line.split(" ");
-					var min_tasks = parseInt(_words.shift());
-					currentTask = {"name": _words.join(" "), "min_tasks": min_tasks, "parts": []};
-				} else {
-					// must be a singe task, prefixed with P or O
-					currentTask.parts.push({"name": line.substring(2), "mandatory": line.substring(0, 1) != "O"});
-				}
-			}
-
-			socket.send({"_m": "station", "i": _gen_id(), "name": modal.elem.find("#name").val(), "tasks": tasks});
-
-			modal.close();
-		}
-
-		var predefinedTasks = $("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "predefined_tasks").append(
-			tasks.map((task) => $("<option>").data("preset", task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n")).text(task.name))
-		).change(function () {
-			var taskDescription = $(this).find("option:selected").map(function (_i, elem) {
-				return $(elem).data("preset");
-			}).get().join("\n\n");
-			modal.elem.find("#tasks").val(taskDescription);
-		});
-
-		modal.elem.find(".modal-body").append([
-			$("<p>").text("An Prüfungsstationen werden die praktischen Prüfungsaufgaben bearbeitet. Jeder Prüfling muss jede Station alleine bearbeiten. Die Aufgaben werden verwendet um die Laufzettel zu befüllen: Aus einer Vorauswahl können Einträge ausgewählt werden oder eine eigene Definition kann eingegeben werden."),
-			$("<form>").on("submit", _submit).append([
-				$("<div>").addClass("mb-3").append([
-					$("<label>").attr("for", "name").addClass("col-form-label").text("Name"),
-					$("<input>").attr("type", "text").addClass("form-control").attr("id", "name")
-				]),
-				$("<div>").addClass("mb-3").append([
-					$("<label>").attr("for", "predefined_tasks").addClass("col-form-label").text("Vordefinierte Aufgaben"),
-					predefinedTasks
-				]),
-				$("<div>").addClass("mb-3").append([
-					$("<label>").attr("for", "tasks").addClass("col-form-label").text("Aufgaben"),
-					$("<textarea>").attr("rows", 7).addClass("form-control").attr("id", "tasks"),
-				]),
-			]),
-		]);
-
-		var button = $("<button>").addClass(["btn", "btn-primary"]).text("Eintragen").click(_submit);
-		modal.elem.find(".modal-footer").append(button);
-		modal.show();
-		modal.elem.on("shown.bs.modal", function () {
-			modal.elem.find("#name").focus();
-		});
+		_openStationEditModal(null);
 	});
 });
+
+function _openStationEditModal(s_id) {
+	var modal = Modal("Station anlegen");
+
+	function _submit(e) {
+		e.preventDefault();
+
+		var tasks = [];
+		var currentTask = null;
+		for (var line of (modal.elem.find("#tasks").val() + "\n").split("\n")) {
+			line = line.trim();
+			if (line == "") {
+				// blank line, add current task if existant
+				if (currentTask !== null) {
+					tasks.push(currentTask);
+					currentTask = null;
+				}
+			} else if (currentTask === null) {
+				// First line of a Task (count of required parts & name)
+				var _words = line.split(" ");
+				var min_tasks = parseInt(_words.shift());
+				currentTask = {"name": _words.join(" "), "min_tasks": min_tasks, "parts": []};
+			} else {
+				// must be a singe task, prefixed with P or O
+				currentTask.parts.push({"name": line.substring(2), "mandatory": line.substring(0, 1) != "O"});
+			}
+		}
+
+		socket.send({"_m": "station", "i": s_id || _gen_id(), "name": modal.elem.find("#name").val(), "tasks": tasks});
+
+		modal.close();
+	}
+
+	var _tasks = "";
+	if (s_id !== null) {
+		var task_definitions = data.stations[s_id].tasks.map((task) => task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n"));
+		_tasks = task_definitions.join("\n\n");
+	}
+
+	var predefinedTasks = $("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "predefined_tasks").append(
+		tasks.map(function (task) {
+			var _preset = task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n");
+			return $("<option>").data("preset", _preset).text(task.name);
+		})
+	).change(function () {
+		var taskDescription = $(this).find("option:selected").map(function (_i, elem) {
+			return $(elem).data("preset");
+		}).get().join("\n\n");
+		modal.elem.find("#tasks").val(taskDescription);
+	});
+
+	modal.elem.find(".modal-body").append([
+		$("<p>").text("An Prüfungsstationen werden die praktischen Prüfungsaufgaben bearbeitet. Jeder Prüfling muss jede Station alleine bearbeiten. Die Aufgaben werden verwendet um die Laufzettel zu befüllen: Aus einer Vorauswahl können Einträge ausgewählt werden oder eine eigene Definition kann eingegeben werden."),
+		$("<form>").on("submit", _submit).append([
+			$("<div>").addClass("mb-3").append([
+				$("<label>").attr("for", "name").addClass("col-form-label").text("Name"),
+				$("<input>").attr("type", "text").addClass("form-control").attr("id", "name").val(s_id === null ? "" : data.stations[s_id].name)
+			]),
+			$("<div>").addClass("mb-3").append([
+				$("<label>").attr("for", "predefined_tasks").addClass("col-form-label").text("Vordefinierte Aufgaben"),
+				predefinedTasks
+			]),
+			$("<div>").addClass("mb-3").append([
+				$("<label>").attr("for", "tasks").addClass("col-form-label").text("Aufgaben"),
+				$("<textarea>").attr("rows", 7).addClass("form-control").attr("id", "tasks").val(_tasks),
+			]),
+		]),
+	]);
+
+	var button = $("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(_submit);
+	modal.elem.find(".modal-footer").append(button);
+	modal.show();
+	modal.elem.on("shown.bs.modal", function () {
+		modal.elem.find("#name").focus();
+	});
+}
 
 var tasks = [
 	{"name": "3.1 Verbinden zweier Leinen mit dem Doppelstich", "min_tasks": 2, "parts": [
@@ -767,7 +780,7 @@ var tasks = [
 		{"name": "Motor gestartet", "mandatory": true},
 		{"name": "Stationshelfer/in am Umschaltventil positioniert", "mandatory": false},
 		{"name": "Auf sicheren Stand geachtet", "mandatory": false},
-		{"name": "Metallstäbe gespreizt", "mandatory": false}
+		{"name": "Metallstäbe gespreizt", "mandatory": false},
 		{"name": "Spreizer nicht komplett geschlossen", "mandatory": true},
 	]},
 	{"name": "10.7 Anlegen der persönlichen Schutzusstattung gegen Absturz (PSAgA)", "min_tasks": 7, "parts": [
@@ -1129,12 +1142,10 @@ function _openStationModal(s_id) {
 				modal.close();
 			}
 		}),
-		$("<button>").addClass(["btn", "btn-warning"]).toggle(s_id !== null && user.role == "admin").text("Umbenennen").click(function (e) {
+		$("<button>").addClass(["btn", "btn-warning"]).toggle(s_id !== null && user.role == "admin").text("Bearbeiten").click(function (e) {
 			e.preventDefault();
 
-			var new_name = prompt("Bitte den neuen Namen eingeben", data.stations[s_id].name);
-			socket.send({"_m": "station", "i": s_id, ...data.stations[s_id], "name": new_name});
-			modal.close();
+			_openStationEditModal(s_id);
 		}),
 	]);
 
