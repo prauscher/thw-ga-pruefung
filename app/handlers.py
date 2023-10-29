@@ -251,6 +251,15 @@ class MessageHandler(BroadcastWebSocketHandler):
         self.state.stations.pop(i, None)
         self.broadcast(msg, {"_m": "station_delete", "i": i})
 
+    def process_station_capacity(self, msg):
+        if self.current_user.get("role", "") != "operator":
+             self.reply(msg, {"_m": "unauthorized"})
+             return
+
+        i = msg.get("i")
+        self.state.stations[i].update({"capacity": msg["capacity"]})
+        self.broadcast(msg, {"_m": "station", "i": i, **self.state.stations[i]})
+
     def process_examinee(self, msg):
         if self.current_user.get("role", "") != "admin":
              self.reply(msg, {"_m": "unauthorized"})
