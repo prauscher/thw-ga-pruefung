@@ -227,7 +227,7 @@ function ReliableWebSocket(options) {
 	}
 
 	window.setInterval(function () {
-		if (ws === null || ws.readyState !== WebSocket.OPEN) {
+		if (ws === null || ws.readyState === WebSocket.CLOSING || ws.readyState === WebSocket.CLOSED) {
 			console.log("Found invalid connection, reconnecting...");
 			if (ws !== null) {
 				ws.close();
