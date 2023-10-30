@@ -33,6 +33,27 @@ function ReliableWebSocket(options) {
 		}
 	}
 
+	function _showLoadingScreen(content) {
+		$("body").append(
+			$("<div>").attr("id", "loading").css({
+				backgroundColor: "rgba(255,255,255,0.5)",
+				position: "fixed",
+				left: 0,
+				top: 0,
+				right: 0,
+				bottom: 0,
+				zIndex: 99,
+				width: "100%",
+				height: "100%",
+				display: "table",
+			}).append(
+				$("<div>").css({display: "table-cell", verticalAlign: "middle"}).append(
+					content
+				)
+			)
+		);
+	}
+
 	// Retry send_queue constantly
 	window.setInterval(function () {
 		for (var i in send_queue) {
@@ -84,6 +105,8 @@ function ReliableWebSocket(options) {
 				auth = data.user;
 				(options.on_login || function (_user) {})(data.user);
 
+				$("#loading").remove();
+
 				// Server told us new data
 				if ("state" in data) {
 					last_snr = data.state._snr;
@@ -94,24 +117,9 @@ function ReliableWebSocket(options) {
 				if ("chunks" in data) {
 					state_chunks = {"count": data.chunks, "data": []};
 					// Open waiting dialog
-					$("body").append(
-						$("<div>").attr("id", "loading").css({
-							backgroundColor: "rgba(255,255,255,0.5)",
-							position: "fixed",
-							left: 0,
-							top: 0,
-							right: 0,
-							bottom: 0,
-							zIndex: 99,
-							width: "100%",
-							height: "100%",
-							display: "table",
-						}).append(
-							$("<div>").css({display: "table-cell", verticalAlign: "middle"}).append(
-								$("<div>").addClass("progress").css("width", "30%").css("margin", "auto").append(
-									$("<div>").addClass(["progress-bar", "progress-bar-striped"]).css("width", "0%")
-								)
-							)
+					_showLoadingScreen(
+						$("<div>").addClass("progress").css("width", "30%").css("margin", "auto").append(
+							$("<div>").addClass(["progress-bar", "progress-bar-striped"]).css("width", "0%")
 						)
 					);
 				}
@@ -125,8 +133,14 @@ function ReliableWebSocket(options) {
 
 			if (data._m === "_state") {
 				// Receiving application state in chunks
-				if (state_chunks === null || data.num != state_chunks.data.length) {
-					// Failed to read, reloading
+
+				if (state_chunks === null) {
+					// Ignore possible duplicate init-rounds
+					return;
+				}
+
+				if (data.num != state_chunks.data.length) {
+					// Counting error, reloading
 					location.reload();
 					return;
 				}
@@ -135,6 +149,7 @@ function ReliableWebSocket(options) {
 				if (state_chunks.data.length === state_chunks.count) {
 					$("#loading").remove();
 					state = JSON.parse(state_chunks.data.join(""));
+					state_chunks = null;
 					last_snr = state._snr;
 					(options.on_init || function (_state) {})(state);
 				} else {
@@ -192,6 +207,12 @@ function ReliableWebSocket(options) {
 			connect();
 		}
 	}, 2000);
+
+	_showLoadingScreen(
+		$("<div>").css("text-align", "center").append(
+			$("<div>").addClass("spinner-border").css("width", "3em").css("height", "3em")
+		)
+	);
 
 	connect();
 
