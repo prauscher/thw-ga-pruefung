@@ -41,6 +41,7 @@ function ReliableWebSocket(options) {
 	}, 5000);
 
 	var auth = null;
+	var state_chunks = null;
 
 	function connect() {
 		ws = new WebSocket(((location.protocol === "https:") ? "wss://" : "ws://") + location.hostname + (((location.port != 80) && (location.port != 443)) ? ":" + location.port : "") + "/socket");
@@ -89,11 +90,56 @@ function ReliableWebSocket(options) {
 					(options.on_init || function (_state) {})(data.state);
 				}
 
+				// Server will send us data in chunks
+				if ("chunks" in data) {
+					state_chunks = {"count": data.chunks, "data": []};
+					// Open waiting dialog
+					$("body").append(
+						$("<div>").attr("id", "loading").css({
+							backgroundColor: "rgba(255,255,255,0.5)",
+							position: "fixed",
+							left: 0,
+							top: 0,
+							right: 0,
+							bottom: 0,
+							zIndex: 99,
+							width: "100%",
+							height: "100%",
+							display: "table",
+						}).append(
+							$("<div>").css({display: "table-cell", verticalAlign: "middle"}).append(
+								$("<div>").addClass("progress").css("width", "30%").css("margin", "auto").append(
+									$("<div>").addClass(["progress-bar", "progress-bar-striped"]).css("width", "0%")
+								)
+							)
+						)
+					);
+				}
+
 				// Try send_queue immediatly to speed things up
 				for (var i in send_queue) {
 					_send(send_queue[i]);
 				}
 				return;
+			}
+
+			if (data._m === "_state") {
+				// Receiving application state in chunks
+				if (state_chunks === null || data.num != state_chunks.data.length) {
+					// Failed to read, reloading
+					location.reload();
+					return;
+				}
+
+				state_chunks.data.push(data.c);
+				if (state_chunks.data.length === state_chunks.count) {
+					$("#loading").remove();
+					state = JSON.parse(state_chunks.data.join(""));
+					last_snr = state._snr;
+					(options.on_init || function (_state) {})(state);
+				} else {
+					$("#loading").find(".progress-bar").css("width", Math.round(data.num / state_chunks.count * 100) + "%");
+				}
 			}
 
 			if (data._m === "_reload") {

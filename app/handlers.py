@@ -154,7 +154,13 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
                 # Message not found in cache, send full state
                 pass
 
-        self.reply(msg, {"_m": "_init", "user": user, "state": self.state.to_client()})
+        # send
+        state = json.dumps(self.state.to_client())
+        chunk_len = 256
+        chunk_count = -(len(state) // -chunk_len)
+        self.reply(msg, {"_m": "_init", "user": user, "chunks": chunk_count})
+        for i in range(chunk_count):
+            self.reply(msg, {"_m": "_state", "num": i, "c": state[i * chunk_len:(i + 1) * chunk_len]})
 
     def process__fetch(self, msg):
         try:
