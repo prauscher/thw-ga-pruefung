@@ -16,8 +16,18 @@ function ReliableWebSocket(options) {
 		options = {};
 	}
 
+	var login_timeout = null;
+
 	function _send(data) {
 		if (data._m == "_login") {
+			// Supress resend of login
+			if (login_timeout !== null) {
+				return;
+			}
+			login_timeout = setTimeout(function () {
+				location.reload();
+			}, 10000);
+
 			data.last_snr = last_snr;
 		}
 
@@ -63,6 +73,7 @@ function ReliableWebSocket(options) {
 
 	var auth = null;
 	var state_chunks = null;
+	var reload_timeout = null;
 
 	function connect() {
 		ws = new WebSocket(((location.protocol === "https:") ? "wss://" : "ws://") + location.hostname + (((location.port != 80) && (location.port != 443)) ? ":" + location.port : "") + "/socket");
@@ -105,6 +116,10 @@ function ReliableWebSocket(options) {
 				auth = data.user;
 				(options.on_login || function (_user) {})(data.user);
 
+				if (login_timeout !== null) {
+					clearTimeout(login_timeout);
+					login_timeout = null;
+				}
 				$("#loading").remove();
 
 				// Server told us new data
