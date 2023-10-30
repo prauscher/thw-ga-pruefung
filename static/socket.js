@@ -166,6 +166,7 @@ function ReliableWebSocket(options) {
 
 				if (login_timeout !== null) {
 					clearTimeout(login_timeout);
+					login_timeout = null;
 				}
 
 				state_chunks.data.push(data.c);
