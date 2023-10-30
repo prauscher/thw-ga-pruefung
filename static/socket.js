@@ -137,6 +137,10 @@ function ReliableWebSocket(options) {
 							$("<div>").addClass(["progress-bar", "progress-bar-striped"]).css("width", "0%")
 						)
 					);
+
+					login_timeout = setTimeout(function () {
+						location.reload()
+					}, 10000);
 				}
 
 				// Try send_queue immediatly to speed things up
@@ -160,6 +164,10 @@ function ReliableWebSocket(options) {
 					return;
 				}
 
+				if (login_timeout !== null) {
+					clearTimeout(login_timeout);
+				}
+
 				state_chunks.data.push(data.c);
 				if (state_chunks.data.length === state_chunks.count) {
 					$("#loading").remove();
@@ -169,6 +177,10 @@ function ReliableWebSocket(options) {
 					(options.on_init || function (_state) {})(state);
 				} else {
 					$("#loading").find(".progress-bar").css("width", Math.round(data.num / state_chunks.count * 100) + "%");
+
+					login_timeout = setTimeout(function () {
+						location.reload()
+					}, 10000);
 				}
 			}
 
