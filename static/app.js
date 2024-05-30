@@ -342,7 +342,7 @@ function _openExamineeEditModal(e_id) {
 	}
 
 	modal.elem.find(".modal-body").append([
-		$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup) - die OV-Kürzel werden verwendet um möglichst verschiedene OVs zu einer Station zu entsenden. Die Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen):"),
+		$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup) - die OV-Kürzel werden verwendet um möglichst verschiedene OVs zu einer Station zu entsenden. Eine höhere Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen):"),
 		$("<form>").on("submit", _submit).append([
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "priority").addClass("col-form-label").text("Priorität"),
@@ -1613,7 +1613,7 @@ function _generatePage(assignment) {
 		$("<tr>").append([
 			$("<th>").attr("width", "15%").text("Station"),
 			$("<td>").css("overflow-wrap", "anywhere").attr("width", "45%").text(data.stations[assignment.station].name),
-			$("<td>").attr("rowspan", "3").css("text-align", "center").append([
+			$("<td>").attr("rowspan", "4").css("text-align", "center").append([
 				$("<img>").attr("src", barcode),
 				$("<div>").text("A-" + assignment.i)
 			])
@@ -1626,9 +1626,13 @@ function _generatePage(assignment) {
 			$("<th>").text("Startzeit"),
 			$("<td>").text(formatTimestamp(start)),
 		]),
+		$("<tr>").append([
+			$("<th>").text("Prüfer*in (und Unterschrift)"),
+			$("<td>").text("_".repeat(30)),
+		]),
 	]));
 
-	header.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt. Bitte setze für jeden Prüfungspunkt <b>entweder</b> eine Kreuz in der Spalte &quot;B&quot; wie Bestanden oder &quot;n.B.&quot; für nicht Bestanden."));
+	header.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt. Bitte setze für jeden Prüfungspunkt in das zugehörige Feld einen Haken (✓) für erfüllte Punkte oder ein Kreuz (❌) für nicht erfüllte Punkte."));
 
 	var body = $("<div>").css("columns", "2 auto");
 
@@ -1636,12 +1640,12 @@ function _generatePage(assignment) {
 		body.append($("<div>").css("padding", "10px").css("break-inside", "avoid").append([
 			$("<table>").css("width", "100%").css("border", "1px dotted black").css("border-collapse", "collapse").append([
 				$("<tr>").append([
-					$("<th>").css("text-align","left").attr("colspan", 3).text(task.name)
+					$("<th>").css("text-align","left").attr("colspan", 2).text(task.name)
 				]),
 				$("<tr>").css("border-bottom", "1px dotted black").append([
-					$("<th>").attr("width", "70%").text((task.min_tasks || task.parts.length) + " von " + task.parts.length),
-					$("<th>").attr("width", "15%").text("B"),
-					$("<th>").attr("width", "15%").text("n.B."),
+					$("<th>").attr("width", "70%").attr("colspan", 2).text((task.min_tasks || task.parts.length) + " von " + task.parts.length),
+//					$("<th>").attr("width", "15%").text("E."),
+//					$("<th>").attr("width", "15%").text("n.E."),
 				])
 			]).append(task.parts.map(function (part) {
 				var field = $("<div>").text(" ").css({
@@ -1654,31 +1658,11 @@ function _generatePage(assignment) {
 					field.css("border-radius", "20px");
 				}
 				return $("<tr>").append([
-					$("<td>").text(part.name),
+					$("<td>").attr("width", "70%").text(part.name),
 					$("<td>").append(field.clone()),
-					$("<td>").append(field.clone()),
+//					$("<td>").append(field.clone()),
 				]);
-			})).append(
-				$("<tr>").css("border-top", "1px dotted black").append([
-					$("<th>").text("Gesamt"),
-					$("<th>").append(
-						$("<div>").text(" ").css({
-							"margin": "auto",
-							"width": "15px",
-							"height": "15px",
-							"border": "3px solid black",
-						})
-					),
-					$("<th>").append(
-						$("<div>").text(" ").css({
-							"margin": "auto",
-							"width": "15px",
-							"height": "15px",
-							"border": "3px solid black",
-						})
-					),
-				])
-			)
+			}))
 		]));
 	}
 
