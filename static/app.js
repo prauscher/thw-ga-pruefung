@@ -1643,7 +1643,7 @@ function _generatePage(assignment) {
 					$("<th>").css("text-align","left").attr("colspan", 2).text(task.name)
 				]),
 				$("<tr>").css("border-bottom", "1px dotted black").append([
-					$("<th>").attr("width", "80%").attr("colspan", 2).text((task.min_tasks || task.parts.length) + " von " + task.parts.length),
+					$("<th>").attr("width", "80%").attr("colspan", 2).css("text-align", "right").text((task.min_tasks || task.parts.length) + " von " + task.parts.length),
 //					$("<th>").attr("width", "15%").text("E."),
 //					$("<th>").attr("width", "15%").text("n.E."),
 				])
