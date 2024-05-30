@@ -1627,7 +1627,7 @@ function _generatePage(assignment) {
 			$("<td>").text(formatTimestamp(start)),
 		]),
 		$("<tr>").append([
-			$("<th>").text("Prüfer*in (und Unterschrift)"),
+			$("<th>").text("Prüfer*in (Name und Unterschrift)"),
 			$("<td>").text("_".repeat(30)),
 		]),
 	]));
@@ -1643,7 +1643,7 @@ function _generatePage(assignment) {
 					$("<th>").css("text-align","left").attr("colspan", 2).text(task.name)
 				]),
 				$("<tr>").css("border-bottom", "1px dotted black").append([
-					$("<th>").attr("width", "70%").attr("colspan", 2).text((task.min_tasks || task.parts.length) + " von " + task.parts.length),
+					$("<th>").attr("width", "80%").attr("colspan", 2).text((task.min_tasks || task.parts.length) + " von " + task.parts.length),
 //					$("<th>").attr("width", "15%").text("E."),
 //					$("<th>").attr("width", "15%").text("n.E."),
 				])
