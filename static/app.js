@@ -1611,7 +1611,7 @@ function _generatePage(assignment) {
 	var header = $("<div>");
 	header.append($("<table>").attr("width", "100%").append([
 		$("<tr>").append([
-			$("<th>").attr("width", "15%").text("Station"),
+			$("<th>").attr("width", "25%").text("Station"),
 			$("<td>").css("overflow-wrap", "anywhere").attr("width", "45%").text(data.stations[assignment.station].name),
 			$("<td>").attr("rowspan", "4").css("text-align", "center").append([
 				$("<img>").attr("src", barcode),
@@ -1632,7 +1632,7 @@ function _generatePage(assignment) {
 		]),
 	]));
 
-	header.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt. Bitte setze für jeden Prüfungspunkt in das zugehörige Feld einen Haken (✓) für erfüllte Punkte oder ein Kreuz (❌) für nicht erfüllte Punkte."));
+	header.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt. Bitte setze für jeden Prüfungspunkt in das zugehörige Feld einen Haken (✓) für erfüllte Punkte oder ein Kreuz (—) für nicht erfüllte Punkte."));
 
 	var body = $("<div>").css("columns", "2 auto");
 
