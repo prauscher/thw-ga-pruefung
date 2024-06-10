@@ -1665,11 +1665,11 @@ function _generatePage(assignment) {
 					$("<td>").attr("width", "70%").text(part.name),
 					$("<td>").append(field.clone()),
 				]);
-			}).append((task.notes || []).map(function (note) {
+			})).append((task.notes || []).map(function (note) {
 				return $("<tr>").append([
 					$("<td>").attr("colspan", 2).text(note)
 				]);
-			})))
+			}))
 		]));
 	}
 
