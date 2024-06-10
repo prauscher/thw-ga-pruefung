@@ -483,7 +483,7 @@ var tasks = [
 		{"name": "Mastwurf richtig gebunden *", "mandatory": true},
 		{"name": "Mastwurf durch Halbschlag gesichert", "mandatory": true},
 		{"name": "Überhang des freien Leinenendes hat mindestens 10x Leinendurchmesser", "mandatory": false},
-	], "notes": "* Anmerkung für den/die Prüfer/in: Die Lastrichtung ist vorzugeben."},
+	], "notes": ["* Anmerkung für den/die Prüfer/in: Die Lastrichtung ist vorzugeben."]},
 	{"name": "3.5 Binden eines einfachen Ankerstichs an einem Rundholz mit einer Arbeitsleine; die Leine ist mit einem halben Schlag zu sichern", "min_tasks": 2, "parts": [
 		{"name": "\"Verloren fest\" um Rundholz gelegt", "mandatory": true},
 		{"name": "Ankerstich richtig ausgeführt", "mandatory": true},
