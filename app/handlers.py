@@ -261,7 +261,7 @@ class MessageHandler(BroadcastWebSocketHandler):
              return
 
         i = msg.get("i")
-        self.state.stations[i] = {"name": msg.get("name"), "tasks": msg.get("tasks")}
+        self.state.stations[i] = {"name": msg.get("name"), "name_pdf": msg.get("name_pdf"), "tasks": msg.get("tasks")}
         self.broadcast(msg, {"_m": "station", "i": i, **self.state.stations[i]})
 
     def process_station_delete(self, msg):
