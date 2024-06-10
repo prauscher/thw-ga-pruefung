@@ -418,13 +418,13 @@ function _openStationEditModal(s_id) {
 
 	var _tasks = "";
 	if (s_id !== null) {
-		var task_definitions = data.stations[s_id].tasks.map((task) => task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n") + (task.notes || []).join("\n"));
+		var task_definitions = data.stations[s_id].tasks.map((task) => task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).concat(task.notes || []).join("\n"));
 		_tasks = task_definitions.join("\n\n");
 	}
 
 	var predefinedTasks = $("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "predefined_tasks").append(
 		tasks.map(function (task) {
-			var _preset = task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n") + (task.notes || []).join("\n");
+			var _preset = task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).concat(task.notes || []).join("\n");
 			return $("<option>").data("preset", _preset).text(task.name);
 		})
 	).change(function () {
