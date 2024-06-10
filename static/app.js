@@ -411,7 +411,7 @@ function _openStationEditModal(s_id) {
 			}
 		}
 
-		socket.send({"_m": "station", "i": s_id || _gen_id(), "name": modal.elem.find("#name").val(), "tasks": tasks});
+		socket.send({"_m": "station", "i": s_id || _gen_id(), "name": modal.elem.find("#name").val(), "name_pdf": modal.elem.find("#name_pdf").val(), "tasks": tasks});
 
 		modal.close();
 	}
@@ -440,6 +440,10 @@ function _openStationEditModal(s_id) {
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "name").addClass("col-form-label").text("Name"),
 				$("<input>").attr("type", "text").addClass("form-control").attr("id", "name").val(s_id === null ? "" : data.stations[s_id].name)
+			]),
+			$("<div>").addClass("mb-3").append([
+				$("<label>").attr("for", "name_pdf").addClass("col-form-label").text("Stationsnummer (römisch)"),
+				$("<input>").attr("type", "text").addClass("form-control").attr("id", "name_pdf").val(s_id === null ? "" : data.stations[s_id].name_pdf)
 			]),
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "predefined_tasks").addClass("col-form-label").text("Vordefinierte Aufgaben"),
@@ -943,7 +947,7 @@ function render() {
 		return 0;
 	});
 	$("#stations").empty().append(station_ids.map(function (s_id) {
-		return _generateStation(s_id, data.stations[s_id].name);
+		return _generateStation(s_id, data.stations[s_id].name + " (" + data.stations[s_id].name_pdf + ")");
 	}));
 
 	$("#pause-container").empty().append(_generateStation(null, "Pause"));
@@ -1023,7 +1027,7 @@ function _openExamineeModal(e_id) {
 	} else if (currentAssignment.station === null) {
 		currentAssignmentText = "Der*die Prüfling befindet sich bis " + formatTimestamp(currentAssignment.end) + " in Pause";
 	} else {
-		currentAssignmentText = "Der*die Prüfling befindet sich seit " + formatTimestamp(currentAssignment.start) + " an Station " + data.stations[currentAssignment.station].name;
+		currentAssignmentText = "Der*die Prüfling befindet sich seit " + formatTimestamp(currentAssignment.start) + " an Station " + data.stations[currentAssignment.station].name + "( " + data.stations[currentAssignment.station].name_pdf + ")";
 	}
 
 	var now = firstStart;
@@ -1618,7 +1622,7 @@ function _generatePage(assignment) {
 	header.append($("<table>").attr("width", "100%").append([
 		$("<tr>").append([
 			$("<th>").attr("width", "25%").text("Station"),
-			$("<td>").css("overflow-wrap", "anywhere").attr("width", "45%").text(data.stations[assignment.station].name),
+			$("<td>").css("overflow-wrap", "anywhere").attr("width", "45%").text(data.stations[assignment.station].name_pdf || data.stations[assignment.station].name),
 			$("<td>").attr("rowspan", "4").css("text-align", "center").append([
 				$("<img>").attr("src", barcode),
 				$("<div>").text("A-" + assignment.i)
