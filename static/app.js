@@ -530,7 +530,7 @@ var tasks = [
 		{"name": "Stationshelfer/in für Fußpunktsicherung oder zur Hilfestellung beim Aufrichten angewiesen", "mandatory": true},
 		{"name": "Leiter gesichert über Sprosse aufgerichtet und angelegt", "mandatory": true},
 		{"name": "Anstellwinkel überprüft und ggf. korrigiert (65° - 75°)", "mandatory": true},
-	]},
+	], "notes": ["* Anmerkung für den/die Prüfer/in: Ein/e Stationshelfer/in führt Fußpunktsicherung aus."]},
 	{"name": "4.3 Aufrichten einer Steckleiter, bestehend aus zwei Steckleiterteilen - über Holm", "min_tasks": 3, "parts": [
 		{"name": "Leiter seitlich auf einen Holm gelegt", "mandatory": false},
 		{"name": "Leiter am Holm bis zur Schulterhöhe angehoben und dann umgegriffen", "mandatory": false},
@@ -586,7 +586,7 @@ var tasks = [
 		{"name": "Verbraucher erst angeschlossen, wenn der Motor mit Nenndrehzahl läuft", "mandatory": true},
 		{"name": "Überwurfringglocke der Anschlussleitung an der Steckdose des tragbaren Stromerzeugers verriegelt", "mandatory": false},
 		{"name": "Die Reihenfolge der Bedienschritte ist eingehalten. (Ausnahme: Reihenfolge der Überprüfung Kraftstoff und Ölstand)", "mandatory": true},
-	]},
+	], "notes": ["* Anmerkung für den/die Prüfer/in: Der Sicherungsautomat bleibt permanent auf Stellung „Ein“ und wird NIE als Schalter benutzt!"]},
 	{"name": "6.1.1 Zeigen von Werkzeugen für die Holzbearbeitung", "min_tasks": 6, "parts": [
 		{"name": "Bügelsäge", "mandatory": false},
 		{"name": "Fuchsschwanz", "mandatory": false},
@@ -620,7 +620,7 @@ var tasks = [
 		{"name": "Für den Anschnitt Führungsholz verwendet", "mandatory": true},
 		{"name": "Sägeblattlänge voll ausgenutzt", "mandatory": false},
 		{"name": "Sägeschnitt gerade und rechtwinklig (Sichtkontrolle von Helfer/in durchgeführt)", "mandatory": false},
-	]},
+	], "notes": ["* Anmerkung für den/die Prüfer/in: Kantholz ist vor Prüfungsbeginn auf den Arbeitsböcken gegen Verschieben zu sichern!"]},
 	{"name": "6.1.5 Herstellen einer rechtwinkligen Holzverbindung mittels Lochblech", "min_tasks": 3, "parts": [
 		{"name": "Kamm-/Ankernägel ausgewählt", "mandatory": true},
 		{"name": "Beide Lochbleche mittig angesetzt", "mandatory": true},
@@ -646,7 +646,7 @@ var tasks = [
 		{"name": "Bohr- und Aufbrechhammer erst am Objekt angesetzt und dann in Betrieb genommen", "mandatory": true},
 		{"name": "Schutzbrille/Visier und Kapselgehörschutz ordnungsgemäß getragen", "mandatory": true},
 		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true},
-	]},
+	], "notes": ["* Anmerkung für den/die Prüfer/in: Nach jeder Prüfung ist der Bohr- und Aufbrechhammer (je nach Bedienungsanleitung) wieder auf „Bohren“ zu stellen. Sollte das eingesetzte Gerät keine Umschaltfunktion (Bohren <--> Schlagen) haben, so gilt das entsprechende Bewertungskriterium als erfüllt."]},
 	{"name": "6.2.3 In- und Außerbetriebnahme eines Trennschleifers (mit Verbrennungsmotor) sowie Ablängen eines Ton- Steinzeug- oder Betonrohres", "min_tasks": 9, "parts": [
 		{"name": "Geeignete Trennscheibe benutzt", "mandatory": true},
 		{"name": "Druckscheibe richtig eingesetzt", "mandatory": true},
@@ -708,7 +708,7 @@ var tasks = [
 		{"name": "Auflagefläche unter dem Hebeldrehpunkt aus bruchsicherem Material", "mandatory": true},
 		{"name": "Last nach dem Anheben unterbaut", "mandatory": true},
 		{"name": "Nicht unter die angehobene Last gegriffen", "mandatory": true},
-	]},
+	], "notes": ["* Anmerkung für den/die Prüfer/in: Das Unterbauen ist durch den/die Prüfungsteilnehmende/n mündlich zu erklären."]},
 	{"name": "7.2 Anheben einer Last mit Zahnstangenwinde/hydraulischem Heber und Unterbauen der Last", "min_tasks": 6, "parts": [
 		{"name": "Last gegen Verschieben gesichert", "mandatory": true},
 		{"name": "Anhebeklaue rechtwinklig zur Last angesetzt", "mandatory": true},
@@ -814,10 +814,13 @@ var tasks = [
 		{"name": "Meldung an den/die direkte/n Vorgesetzte/n abgegeben", "mandatory": false},
 	]},
 	{"name": "9.2 Absetzen einer Meldung an eine/n Vorgesetzten", "min_tasks": 3, "parts": [
-		{"name": "Richtige/n Ansprechpartner/in ausgewählt", "mandatory": true},
+		{"name": "Richtige/n Ansprechpartner/in ausgewählt *", "mandatory": true},
 		{"name": "Einsatzsituation mit zutreffenden Stichworten wiedergegeben", "mandatory": true},
 		{"name": "Meldung kurz und verständlich formuliert", "mandatory": true},
-		{"name": "Der/die Empfänger/in der Meldung wird direkt und persönlich angesprochen", "mandatory": false},
+		{"name": "Der/die Empfänger/in der Meldung wird direkt und persönlich angesprochen **", "mandatory": false},
+	], "notes": [
+		"** Prüfer/in dient als Ansprechpartner/Empfänger der Meldung.",
+		"* Anmerkung für den/die Prüfer/in: siehe Ansprechpartner-Tafeln in der Materialliste. Folgende Fakten sollen vorkommen: Zugunglück, Zug in Haus, Zugunfall; Haus/Gebäude beschädigt; möglicherweise Einsturzgefahr; möglicherweise verletzte Personen",
 	]},
 	{"name": "10.1 Transportsicherung auf einer Krankentrage für den Transport auf unebenem Gelände", "min_tasks": 7, "parts": [
 		{"name": "Arbeitsleinen mit Doppelstich verbunden", "mandatory": true},
@@ -835,13 +838,17 @@ var tasks = [
 		{"name": "Kraftstoffe - ABC-Löschpulver", "mandatory": true},
 	]},
 	{"name": "10.3 Einsatzbereitschaft des hydraulischen Rettungssatzes herstellen", "min_tasks": 5, "parts": [
-		{"name": "Höchstdruckschlauch 5m gelb am Antriebsaggregat/Umschaltventil verwendet", "mandatory": true},
-		{"name": "Externes Umschaltventil in Mittelstellung gebracht", "mandatory": true},
-		{"name": "Höchstdruckschlauch 10m gelb am Umschaltventil bzw. Aggregat/Spreizer verwendet", "mandatory": false},
-		{"name": "Höchstdruckschlauch 10m rot am Umschaltventil bzw. Aggregat/Schere verwendet", "mandatory": false},
+		{"name": "Höchstdruckschlauch 5m gelb am Antriebsaggregat/Umschaltventil verwendet **", "mandatory": true},
+		{"name": "Externes Umschaltventil in Mittelstellung gebracht **", "mandatory": true},
+		{"name": "Höchstdruckschlauch 10m gelb am Umschaltventil bzw. Aggregat/Spreizer verwendet ***", "mandatory": false},
+		{"name": "Höchstdruckschlauch 10m rot am Umschaltventil bzw. Aggregat/Schere verwendet ***", "mandatory": false},
 		{"name": "Höchstdruckschläuche drall- und knickfrei ausgelegt", "mandatory": true},
 		{"name": "Kupplungen auf Sauberkeit überprüft und bei Bedarf gereinigt", "mandatory": true},
 		{"name": "Kupplungen und Verschlüsse zusammengesteckt", "mandatory": false},
+	], "notes": [
+		"* Anmerkung für den/die Prüfer/in: Die Aufgabe ist an das örtlich verfügbare Gerät anzupassen.",
+		"** Verfügt der jeweilige Gerätetyp über kein Umschaltventil, ist das Kriterium als erfüllt zu werten.",
+		"*** Verfügt der jeweilige Gerätetyp über kein Umschaltventil, muss der Höchstdruckschlauch direkt am Aggregat angeschlossen werden.",
 	]},
 	{"name": "10.4 Gebrauch der Schutzausstattung beim Betrieb des hydraulischen Rettungssatzes", "min_tasks": 3, "parts": [
 		{"name": "Helm mit geschlossenem Visier getragen", "mandatory": true},
@@ -849,12 +856,15 @@ var tasks = [
 		{"name": "Jacke komplett geschlossen", "mandatory": true},
 	]},
 	{"name": "10.5 Ablängen eines Metallrohres mit der hydraulischen Schere", "min_tasks": 5, "parts": [
-		{"name": "Stationshelfer/in am Umschaltventil positioniert", "mandatory": false},
+		{"name": "Stationshelfer/in am Umschaltventil positioniert **", "mandatory": false},
 		{"name": "Handventil geschlossen", "mandatory": true},
 		{"name": "Motor gestartet", "mandatory": true},
 		{"name": "Auf sicheren Stand geachtet", "mandatory": false},
 		{"name": "Ablängen eines Metallrohres mit Schere", "mandatory": true},
 		{"name": "Scherenmesser leicht überlappend geschlossen", "mandatory": true},
+	], "notes": [
+		"* Anmerkung für den/die Prüfer/in: Nach jeder Prüfung ist das Handventil auf Stellung „Offen“ zu stellen. Die Aufgabe ist an das örtlich verfügbare Gerät anzupassen.",
+		"** Verfügt der jeweilige Gerätetyp über kein Umschaltventil, ist das Kriterium als erfüllt zu werten."
 	]},
 	{"name": "10.6 Spreizen zweier Metallstäbe mit dem hydraulischen Spreizer", "min_tasks": 5, "parts": [
 		{"name": "Handventil geschlossen", "mandatory": true},
