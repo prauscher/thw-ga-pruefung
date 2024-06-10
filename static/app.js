@@ -1638,7 +1638,7 @@ function _generatePage(assignment) {
 		]),
 	]));
 
-	header.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt."));
+	header.append($("<p>").html("Bitte setze für jeden Prüfungspunkt in das zugehörige Feld einen Haken (✓) für erfüllte Punkte oder ein Strich (—) für nicht erfüllte Punkte."));
 
 	var body = $("<div>").css("columns", "2 auto");
 
@@ -1667,7 +1667,7 @@ function _generatePage(assignment) {
 				]);
 			})).append((task.notes || []).map(function (note) {
 				return $("<tr>").append([
-					$("<td>").attr("colspan", 2).text(note)
+					$("<td>").attr("colspan", 2).css("font-weight", "bold").css("font-style", "italic").text(note)
 				]);
 			}))
 		]));
