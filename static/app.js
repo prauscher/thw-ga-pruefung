@@ -398,10 +398,16 @@ function _openStationEditModal(s_id) {
 				// First line of a Task (count of required parts & name)
 				var _words = line.split(" ");
 				var min_tasks = parseInt(_words.shift());
-				currentTask = {"name": _words.join(" "), "min_tasks": min_tasks, "parts": []};
-			} else {
-				// must be a singe task, prefixed with P or O
-				currentTask.parts.push({"name": line.substring(2), "mandatory": line.substring(0, 1) != "O"});
+				currentTask = {"name": _words.join(" "), "min_tasks": min_tasks, "parts": [], "notes": []};
+			} else if (line.substring(0, 1) == "P") {
+				// single mandatory task
+				currentTask.parts.push({"name": line.substring(2), "mandatory": true});
+			} else if (line.substring(0, 1) == "O") {
+				// single optional task
+				currentTask.parts.push({"name": line.substring(2), "mandatory": false});
+			} else if (line.substring(0, 1) == "*") {
+				// note
+				currentTask.notes.push(line);
 			}
 		}
 
@@ -412,13 +418,13 @@ function _openStationEditModal(s_id) {
 
 	var _tasks = "";
 	if (s_id !== null) {
-		var task_definitions = data.stations[s_id].tasks.map((task) => task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n"));
+		var task_definitions = data.stations[s_id].tasks.map((task) => task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n") + (task.notes || []).join("\n"));
 		_tasks = task_definitions.join("\n\n");
 	}
 
 	var predefinedTasks = $("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "predefined_tasks").append(
 		tasks.map(function (task) {
-			var _preset = task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n");
+			var _preset = task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).join("\n") + (task.notes || []).join("\n");
 			return $("<option>").data("preset", _preset).text(task.name);
 		})
 	).change(function () {
@@ -474,10 +480,10 @@ var tasks = [
 		{"name": "Kreuzbund mit Rosette festgezogen", "mandatory": true},
 	]},
 	{"name": "3.4 Binden eines Mastwurfs an einem Rundholz", "min_tasks": 2, "parts": [
-		{"name": "Mastwurf richtig gebunden", "mandatory": true},
+		{"name": "Mastwurf richtig gebunden *", "mandatory": true},
 		{"name": "Mastwurf durch Halbschlag gesichert", "mandatory": true},
 		{"name": "Überhang des freien Leinenendes hat mindestens 10x Leinendurchmesser", "mandatory": false},
-	]},
+	], "notes": "* Anmerkung für den/die Prüfer/in: Die Lastrichtung ist vorzugeben."},
 	{"name": "3.5 Binden eines einfachen Ankerstichs an einem Rundholz mit einer Arbeitsleine; die Leine ist mit einem halben Schlag zu sichern", "min_tasks": 2, "parts": [
 		{"name": "\"Verloren fest\" um Rundholz gelegt", "mandatory": true},
 		{"name": "Ankerstich richtig ausgeführt", "mandatory": true},
@@ -1632,7 +1638,7 @@ function _generatePage(assignment) {
 		]),
 	]));
 
-	header.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt. Bitte setze für jeden Prüfungspunkt in das zugehörige Feld einen Haken (✓) für erfüllte Punkte oder ein Strich (—) für nicht erfüllte Punkte."));
+	header.append($("<p>").html("Der Bewertungsbogen spiegelt die Leistung des Prüflings separiert nach den einzelnen Aufgaben wieder. Erforderliche Prüfungspunkte sind als <b>Rechteck</b>, optionale Prüfungspunkte als <b>Kreis</b> dargestellt."));
 
 	var body = $("<div>").css("columns", "2 auto");
 
@@ -1644,8 +1650,6 @@ function _generatePage(assignment) {
 				]),
 				$("<tr>").css("border-bottom", "1px dotted black").append([
 					$("<th>").attr("width", "80%").attr("colspan", 2).css("text-align", "right").text((task.min_tasks || task.parts.length) + " von " + task.parts.length),
-//					$("<th>").attr("width", "15%").text("E."),
-//					$("<th>").attr("width", "15%").text("n.E."),
 				])
 			]).append(task.parts.map(function (part) {
 				var field = $("<div>").text(" ").css({
@@ -1660,9 +1664,12 @@ function _generatePage(assignment) {
 				return $("<tr>").append([
 					$("<td>").attr("width", "70%").text(part.name),
 					$("<td>").append(field.clone()),
-//					$("<td>").append(field.clone()),
 				]);
-			}))
+			}).append((task.notes || []).map(function (note) {
+				return $("<tr>").append([
+					$("<td>").attr("colspan", 2).text(note)
+				]);
+			})))
 		]));
 	}
 
