@@ -649,11 +649,12 @@ var tasks = [
 	], "notes": ["* Anmerkung für den/die Prüfer/in: Nach jeder Prüfung ist der Bohr- und Aufbrechhammer (je nach Bedienungsanleitung) wieder auf „Bohren“ zu stellen. Sollte das eingesetzte Gerät keine Umschaltfunktion (Bohren <--> Schlagen) haben, so gilt das entsprechende Bewertungskriterium als erfüllt."]},
 	{"name": "6.2.3 In- und Außerbetriebnahme eines Trennschleifers (mit Verbrennungsmotor) sowie Ablängen eines Ton- Steinzeug- oder Betonrohres", "min_tasks": 9, "parts": [
 		{"name": "Geeignete Trennscheibe benutzt", "mandatory": true},
+		{"name": "Stromverbindung erst nach Montage hergestellt", "mandatory": true},
 		{"name": "Druckscheibe richtig eingesetzt", "mandatory": true},
 		{"name": "Trennscheibe zentriert und angezogen", "mandatory": true},
 		{"name": "Für Startvorgang muss das Gerät sicher auf dem Boden stehen", "mandatory": true},
 		{"name": "Auf sicheren Stand geachtet und Gerät seitlich am Körper vorbei geführt", "mandatory": true},
-		{"name": "Schleif-/Trennscheibenschutz richtig eingestellt (Werkstoffpartikel werden vom/von der Benutzer/in und Gerät weggelenkt", "mandatory": true},
+		{"name": "Schleif-/Trennscheibenschutz richtig eingestellt (Werkstoffpartikel werden vom/von der Benutzer/in und Gerät weggelenkt)", "mandatory": true},
 		{"name": "Mit Höchstdrehzahl am Werkstück angesetzt", "mandatory": true},
 		{"name": "Vor Ablegen des Trennschleifers Stillstand der Scheibe abgewartet", "mandatory": true},
 		{"name": "Schutzausstattung zzgl. Staubschutzmaske getragen", "mandatory": true},
@@ -772,7 +773,7 @@ var tasks = [
 		{"name": "Last langsam abgelassen", "mandatory": false},
 		{"name": "Kissen vor scharfen Kanten/spitzen Gegenständen geschützt", "mandatory": true},
 	]},
-	{"name": "8.1 Füllen und Verlegen von Sandsägen (zugebunden)", "min_tasks": 3, "parts": [
+	{"name": "8.1 Füllen und Verlegen von Sandsäcken (zugebunden)", "min_tasks": 3, "parts": [
 		{"name": "Sandsack ca. 2/3 (max 12kg) mit Sand gefüllt und zugebunden", "mandatory": true},
 		{"name": "Sandsäcke flach auf den Boden gelegt", "mandatory": false},
 		{"name": "Einfüllöffnung zeigt landwärts", "mandatory": false},
