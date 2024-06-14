@@ -1239,6 +1239,13 @@ function _openStationModal(s_id) {
 	]);
 
 	modal.elem.find(".modal-footer").append([
+		$("<button>").addClass(["btn", "btn-info"]).toggle(s_id !== null).text("Vorschau").click(function (e) {
+			e.preventDefault();
+
+			var print = new PrintOutput();
+			print.write("<div style=\"page-break-after:right;\">" + _generatePage({"i": "----", "station": s_id}) + "</div>");
+			print.print();
+		}),
 		$("<button>").addClass(["btn", "btn-danger"]).toggle(s_id !== null && user.role == "admin").text("Löschen").click(function (e) {
 			e.preventDefault();
 
@@ -1635,7 +1642,7 @@ function _generatePage(assignment) {
 		]),
 		$("<tr>").append([
 			$("<th>").text("Prüfling"),
-			$("<td>").css("overflow-wrap", "anywhere").text(data.examinees[assignment.examinee].name),
+			$("<td>").css("overflow-wrap", "anywhere").text(assignment.examinee === unknown ? "(Vorschau)" : data.examinees[assignment.examinee].name),
 		]),
 		$("<tr>").append([
 			$("<th>").text("Startzeit"),
