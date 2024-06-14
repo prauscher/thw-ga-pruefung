@@ -1377,29 +1377,23 @@ function _generateStation(i, name) {
 			}
 
 			// Open print dialog
-			var frame_id = "print-" + _gen_id();
-			$("body").append($("<iframe>").addClass("d-none").attr("id", frame_id).attr("name", frame_id));
+			var print = new PrintOutput();
 			if (i === null) {
-				window.frames[frame_id].document.write("<h2>Pausenankündigung</h2>");
-				window.frames[frame_id].document.write("<p>Beginn: " + formatTimestamp(Date.now() / 1000) + "</p>");
+				print.write("<h2>Pausenankündigung</h2>");
+				print.write("<p>Beginn: " + formatTimestamp(Date.now() / 1000) + "</p>");
 				for (var assignment of assignments) {
 					var label = data.examinees[assignment.examinee].name;
 					if ("autoEnd" in assignment) {
 						label = label + " (" + Math.round(assignment.autoEnd / 60) + " Minuten)";
 					}
-					window.frames[frame_id].document.write("<li>" + label + "</li>");
+					print.write("<li>" + label + "</li>");
 				}
 			} else {
 				for (var assignment of assignments) {
-					window.frames[frame_id].document.write("<div style=\"page-break-after:right;\">" + _generatePage(assignment) + "</div>");
+					print.write("<div style=\"page-break-after:right;\">" + _generatePage(assignment) + "</div>");
 				}
 			}
-			window.frames[frame_id].document.close();
-			setTimeout(function () {
-				window.frames[frame_id].print();
-				$("#" + frame_id).remove();
-			}, 0);
-
+			print.print();
 			modal.close();
 		}
 
@@ -1712,6 +1706,25 @@ function formatTimestamp(timestamp) {
 		date.getFullYear() + " " +
 		(date.getHours() < 10 ? "0" : "") + date.getHours() + ":" +
 		(date.getMinutes() < 10 ? "0" : "") + date.getMinutes());
+}
+
+function PrintOutput() {
+	var frame_id = "print-" + _gen_id();
+	$("body").append($("<iframe>").addClass("d-none").attr("id", frame_id).attr("name", frame_id));
+
+	return {
+		"frame_id": frame_id,
+		"write": function (content) {
+			window.frames[frame_id].document.write(content);
+		},
+		"print": function () {
+			window.frames[frame_id].document.close();
+			setTimeout(function () {
+				window.frames[frame_id].print();
+				$("#" + frame_id).remove();
+			}, 0);
+		},
+	};
 }
 
 function Modal(title) {
