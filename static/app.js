@@ -1642,7 +1642,7 @@ function _generatePage(assignment) {
 		]),
 		$("<tr>").append([
 			$("<th>").text("Prüfling"),
-			$("<td>").css("overflow-wrap", "anywhere").text(assignment.examinee === unknown ? "(Vorschau)" : data.examinees[assignment.examinee].name),
+			$("<td>").css("overflow-wrap", "anywhere").text(assignment.examinee === undefined ? "(Vorschau)" : data.examinees[assignment.examinee].name),
 		]),
 		$("<tr>").append([
 			$("<th>").text("Startzeit"),
