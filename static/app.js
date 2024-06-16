@@ -950,7 +950,7 @@ function render() {
 	}));
 	if (examineesWaiting.length == 0) {
 		$("#examinees").append(
-			$("<li>").addClass(["list-group-item", "text-italic"]).append("(leer)")
+			$("<li>").addClass(["list-group-item", "text-italic"]).append("(Leer)")
 		);
 	}
 
@@ -1047,7 +1047,7 @@ function _openExamineeModal(e_id) {
 	}
 
 	var now = firstStart;
-	var assignmentBody = $("<tbody>");
+	var assignmentEntries = [];
 	var sums = {"waiting": 0, "station": 0};
 	for (const assignment of assignments) {
 		var name = assignment.station === null ? "Pause" : data.stations[assignment.station].name;
@@ -1068,7 +1068,7 @@ function _openExamineeModal(e_id) {
 			durationContent.push($("<span>").addClass("fst-italic").text("noch " + Math.round((now - Date.now() / 1000) / 60) + " verbleibend"));
 			now = null;
 		}
-		assignmentBody.append($("<tr>").append([
+		assignmentEntries.push($("<tr>").append([
 			$("<td>").toggleClass("fst-italic", assignment.station === null || assignment.result == "canceled").append(
 				$("<a>").attr("href", "#").text(name).click(function (e) {
 					e.preventDefault();
@@ -1082,7 +1082,7 @@ function _openExamineeModal(e_id) {
 		sums.station += duration;
 	}
 	if (now !== null && missingStations.length > 0) {
-		assignmentBody.append($("<tr>").append([
+		assignmentEntries.push($("<tr>").append([
 			$("<td>").addClass("fst-italic").text(" "),
 			$("<td>").addClass("text-end").text(Math.round((Date.now() / 1000 - now) / 60)),
 			$("<td>").addClass("text-end").text(" "),
@@ -1142,9 +1142,12 @@ function _openExamineeModal(e_id) {
 						$("<th>").addClass("text-end").text("Dauer [min]"),
 					])
 				),
-				assignmentBody,
+				$("<tbody>").append(assignmentEntries),
 				$("<tfoot>").append(
-					$("<tr>").append([
+					$("<tr>").toggle(assignmentEntries.length == 0).append(
+						$("<th>").attr("colspan", 3).text("(Leer)")
+					),
+					$("<tr>").toggle(assignmentEntries.length > 0).append([
 						$("<th>").text("Summe"),
 						$("<td>").addClass("text-end").text(Math.round(sums.waiting / 60)),
 						$("<td>").addClass("text-end").text(Math.round(sums.station / 60)),
@@ -1266,7 +1269,10 @@ function _openStationModal(s_id) {
 					})
 				),
 				$("<tfoot>").append(
-					$("<tr>").append([
+					$("<tr>").toggle(assignments.length == 0).append(
+						$("<th>").attr("colspan", 2).text("(Leer)")
+					),
+					$("<tr>").toggle(assignments.length > 0).append([
 						$("<th>").text("Durchschnitt"),
 						$("<th>").addClass("text-end").text(durationCount == 0 ? "unbekannt" : Math.round((durationSum / durationCount) / 60)),
 					])
