@@ -948,6 +948,11 @@ function render() {
 	).append(examineesWaiting.map(function (e_id) {
 		return _buildExamineeItem(e_id, null).toggleClass("text-muted", examineesWaitingMissingStations[e_id].length == 0);
 	}));
+	if (examineesWaiting.length == 0) {
+		$("#examinees").append(
+			$("<li>").addClass(["list-group-item", "text-italic"]).append("(leer)")
+		);
+	}
 
 	var station_ids = Object.keys(data.stations);
 	station_ids.sort(function (a, b) {
@@ -1113,11 +1118,14 @@ function _openExamineeModal(e_id) {
 					})
 				),
 				$("<tfoot>").append([
-					$("<tr>").append([
+					$("<tr>").toggle(missingStations.length == 0).append([
+						$("<th>").attr("colspan", 2).text("(keine Stationen offen)")
+					]),
+					$("<tr>").toggle(missingStations.length > 0).append([
 						$("<th>").text("Gesamt"),
 						$("<th>").addClass("text-end").text(Math.round(missingStations.reduce((sum, s_id) => sum + (stationTimes[s_id] === null ? 0 : stationTimes[s_id]), 0) / 60))
 					]),
-					$("<tr>").append([
+					$("<tr>").toggle(missingStations.length > 0).append([
 						$("<th>").text("Schätzung für Prüfling"),
 						$("<th>").addClass("text-end").text(Math.round(Examinee.calculateRemainingTime(e_id) / 60))
 					]),
@@ -1240,17 +1248,19 @@ function _openStationModal(s_id) {
 							duration.push($("<span>").text(Math.round((assignment.end - assignment.start) / 60)));
 						}
 
-						var name = $("<span>").addClass("text-truncate").text(data.examinees[assignment.examinee].name);
+						var name = $("<span>").append(
+							$("<a>").addClass("text-truncate").text(data.examinees[assignment.examinee].name).attr("href", "#").click(function (e) {
+								e.preventDefault();
+								_openAssignmentModal(assignment.i);
+							}),
+						);
 						if (assignment.result == "canceled") {
 							name.addClass("fst-italic");
-							name.text(name.text() + " (abgebrochen)");
+							name.append(" (abgebrochen)");
 						}
 						name.toggleClass("fw-bold", assignment.result == "open");
 						return $("<tr>").toggleClass("fw-bold", assignment.result == "open").append([
-							$("<td>").append($("<a>").attr("href", "#").text(name).click(function (e) {
-								e.preventDefault();
-								_openAssignmentModal(assignment.i);
-							})),
+							$("<td>").append(name),
 							$("<td>").addClass("text-end").append(duration)
 						]);
 					})
