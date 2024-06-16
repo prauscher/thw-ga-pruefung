@@ -1123,23 +1123,25 @@ function _openExamineeModal(e_id) {
 			]),
 		]),
 		$("<h5>").text("Historie"),
-		$("<table>").addClass(["table", "table-striped"]).append([
-			$("<thead>").append(
-				$("<tr>").append([
-					$("<th>").text("Station"),
-					$("<th>").addClass("text-end").text("Wartezeit [min]"),
-					$("<th>").addClass("text-end").text("Dauer [min]"),
-				])
-			),
-			assignmentBody,
-			$("<tfoot>").append(
-				$("<tr>").append([
-					$("<th>").text("Summe"),
-					$("<td>").addClass("text-end").text(Math.round(sums.waiting / 60)),
-					$("<td>").addClass("text-end").text(Math.round(sums.station / 60)),
-				])
-			),
-		]),
+		$("<div>").addClass("table-responsive").append(
+			$("<table>").addClass(["table", "table-striped"]).append([
+				$("<thead>").append(
+					$("<tr>").append([
+						$("<th>").text("Station"),
+						$("<th>").addClass("text-end").text("Wartezeit [min]"),
+						$("<th>").addClass("text-end").text("Dauer [min]"),
+					])
+				),
+				assignmentBody,
+				$("<tfoot>").append(
+					$("<tr>").append([
+						$("<th>").text("Summe"),
+						$("<td>").addClass("text-end").text(Math.round(sums.waiting / 60)),
+						$("<td>").addClass("text-end").text(Math.round(sums.station / 60)),
+					])
+				),
+			]),
+		),
 	]);
 
 	modal.elem.find(".modal-footer").append([
