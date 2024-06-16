@@ -1097,11 +1097,16 @@ function _openExamineeModal(e_id) {
 			),
 			$("<tbody>").append(
 				missingStations.map(function (s_id) {
+					var stationCell = $("<td>").append($("<a>").attr("href", "#").text(data.stations[s_id].name).click(function (e) {
+						e.preventDefault();
+						_openStationModal(s_id);
+					}));
+					if (currentAssignment !== null && currentAssignment.station == s_id) {
+						stationCell.append(" (aktuell an Station)");
+					}
+
 					return $("<tr>").append([
-						$("<td>").append($("<a>").attr("href", "#").text(data.stations[s_id].name).click(function (e) {
-							e.preventDefault();
-							_openStationModal(s_id);
-						})),
+						stationCell,
 						$("<td>").addClass("text-end").text(stationTimes[s_id] === null ? "unbekannt" : Math.round(stationTimes[s_id] / 60)),
 					]);
 				})
@@ -1159,6 +1164,7 @@ function _openStationModal(s_id) {
 	var modal = new Modal("Station " + (s_id === null ? "Pause" : data.stations[s_id].name));
 
 	var missingExaminees = Object.keys(data.examinees);
+	var currentExaminees = [];
 	var assignments = [];
 	var durationSum = 0;
 	var durationCount = 0;
@@ -1176,6 +1182,8 @@ function _openStationModal(s_id) {
 				if (_i >= 0) {
 					missingExaminees.splice(_i, 1);
 				}
+			} else if (assignment.result == "open") {
+				currentExaminees.push(assignment.examinee);
 			}
 		}
 	}
@@ -1191,12 +1199,17 @@ function _openStationModal(s_id) {
 			),
 			$("<tbody>").append(
 				missingExaminees.map(function (e_id) {
-					return $("<tr>").append([
-						$("<td>").addClass("text-truncate").append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
-							e.preventDefault();
-							_openExamineeModal(e_id);
-						})),
-					]);
+					var cell = $("<td>").addClass("text-truncate");
+					cell.append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
+						e.preventDefault();
+						_openExamineeModal(e_id);
+					}));
+
+					if (currentExaminees.indexOf(e_id) >= 0) {
+						cell.append(" (aktuell an Station)");
+					}
+
+					return $("<tr>").append(cell);
 				})
 			),
 		]),
