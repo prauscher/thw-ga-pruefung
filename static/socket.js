@@ -232,6 +232,7 @@ function ReliableWebSocket(options) {
 			if (ws !== null) {
 				ws.close();
 			}
+			ws = null;
 			connect();
 		}
 	}, 2000);
