@@ -73,7 +73,7 @@ $(function () {
 					return;
 				}
 
-				startModal = Modal("Erstelle Benutzer");
+				startModal = new Modal("Erstelle Benutzer");
 				var token = _gen_id() + _gen_id();
 
 				function _submit(e) {
@@ -124,7 +124,7 @@ $(function () {
 				}
 
 				// need to show modal, possibly with message
-				startModal = Modal("Anmeldung");
+				startModal = new Modal("Anmeldung");
 
 				function _submit(e) {
 					e.preventDefault();
@@ -206,7 +206,7 @@ $(function () {
 				$(".examinee-" + msg.examinee).hide().slideDown(1000);
 			},
 			"users": function (msg) {
-				var modal = Modal("Benutzerverwaltung");
+				var modal = new Modal("Benutzerverwaltung");
 
 				function _create(e) {
 					e.preventDefault();
@@ -313,7 +313,7 @@ $(function () {
 });
 
 function _openExamineeEditModal(e_id) {
-	var modal = Modal(e_id === null ? "Prüflinge eintragen" : "Prüfling " + data.examinees[e_id].name + " bearbeiten");
+	var modal = new Modal(e_id === null ? "Prüflinge eintragen" : "Prüfling " + data.examinees[e_id].name + " bearbeiten");
 
 	function _submit(e) {
 		e.preventDefault();
@@ -379,7 +379,7 @@ function _openExamineeEditModal(e_id) {
 }
 
 function _openStationEditModal(s_id) {
-	var modal = Modal(s_id === null ? "Station anlegen" : "Station " + data.stations[s_id].name + " bearbeiten");
+	var modal = new Modal(s_id === null ? "Station anlegen" : "Station " + data.stations[s_id].name + " bearbeiten");
 
 	function _submit(e) {
 		e.preventDefault();
@@ -996,7 +996,7 @@ function _buildExamineeItem(e_id, a_id) {
 
 function _openExamineeModal(e_id) {
 	const examinee = data.examinees[e_id];
-	var modal = Modal("Prüfling " + examinee.name);
+	var modal = new Modal("Prüfling " + examinee.name);
 
 	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, {"sum": 0, "count": 0}]));
 	var assignments = [];
@@ -1381,7 +1381,7 @@ function _generateStation(i, name) {
 	var assignButton = $("<button>").addClass(["btn", "btn-success", "assign-examinee"]).text("Zuweisen").click(function (e) {
 		e.preventDefault();
 
-		var modal = Modal("Prüflinge zuweisen");
+		var modal = new Modal("Prüflinge zuweisen");
 
 		function _submit(e) {
 			e.preventDefault();
@@ -1757,22 +1757,21 @@ function PrintOutput() {
 
 function Modal(title) {
 	var wrap = _buildModal(title);
-	var bsModal = bootstrap.Modal.getOrCreateInstance(wrap);
+	var _elem = $(wrap);
 
-	ret = {
-		"elem": $(wrap),
-		"show": function () {
-			bsModal.show();
-		},
-		"close": function () {
-			bsModal.hide();
-		},
+	this._bsModal = bootstrap.Modal.getOrCreateInstance(wrap);
+	this.elem = _elem;
+	this.show = function () {
+		this._bsModal.show();
 	}
-	$("body").append(ret.elem);
-	ret.elem.on("hidden.bs.modal", function () {
-		ret.elem.remove();
+	this.close = function () {
+		this._bsModal.hide();
+	}
+
+	$("body").append(_elem);
+	_elem.on("hidden.bs.modal", function () {
+		_elem.remove();
 	});
-	return ret;
 }
 
 function _buildModal(title) {
