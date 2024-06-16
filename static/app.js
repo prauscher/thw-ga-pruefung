@@ -1217,6 +1217,9 @@ function _openStationModal(s_id) {
 						return $("<tr>").append(cell);
 					})
 				),
+				$("<tfoot>").toggle(missingExaminees.length == 0).append(
+					$("<tr>").append($("<th>").text("(Keine Prüflinge mehr offen)")),
+				),
 			]),
 		),
 		$("<h5>").text("Historie"),
@@ -1244,7 +1247,10 @@ function _openStationModal(s_id) {
 						}
 						name.toggleClass("fw-bold", assignment.result == "open");
 						return $("<tr>").toggleClass("fw-bold", assignment.result == "open").append([
-							$("<td>").append(name),
+							$("<td>").append($("<a>").attr("href", "#").text(name).click(function (e) {
+								e.preventDefault();
+								_openAssignmentModal(assignment.i);
+							})),
 							$("<td>").addClass("text-end").append(duration)
 						]);
 					})
