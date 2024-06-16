@@ -1088,40 +1088,42 @@ function _openExamineeModal(e_id) {
 	modal.elem.find(".modal-body").append([
 		$("<p>").text(currentAssignmentText),
 		$("<h5>").text("Offene Stationen"),
-		$("<table>").addClass(["table", "table-striped"]).append([
-			$("<thead>").append(
-				$("<tr>").append([
-					$("<th>").text("Station"),
-					$("<th>").addClass("text-end").text("⌀ Dauer [min]"),
-				])
-			),
-			$("<tbody>").append(
-				missingStations.map(function (s_id) {
-					var stationCell = $("<td>").append($("<a>").attr("href", "#").text(data.stations[s_id].name).click(function (e) {
-						e.preventDefault();
-						_openStationModal(s_id);
-					}));
-					if (currentAssignment !== null && currentAssignment.station == s_id) {
-						stationCell.append(" (aktuell an Station)");
-					}
+		$("<div>").addClass("table-responsive").append(
+			$("<table>").addClass(["table", "table-striped"]).append([
+				$("<thead>").append(
+					$("<tr>").append([
+						$("<th>").text("Station"),
+						$("<th>").addClass("text-end").text("⌀ Dauer [min]"),
+					])
+				),
+				$("<tbody>").append(
+					missingStations.map(function (s_id) {
+						var stationCell = $("<td>").append($("<a>").attr("href", "#").text(data.stations[s_id].name).click(function (e) {
+							e.preventDefault();
+							_openStationModal(s_id);
+						}));
+						if (currentAssignment !== null && currentAssignment.station == s_id) {
+							stationCell.append(" (aktuell an Station)");
+						}
 
-					return $("<tr>").append([
-						stationCell,
-						$("<td>").addClass("text-end").text(stationTimes[s_id] === null ? "unbekannt" : Math.round(stationTimes[s_id] / 60)),
-					]);
-				})
-			),
-			$("<tfoot>").append([
-				$("<tr>").append([
-					$("<th>").text("Gesamt"),
-					$("<th>").addClass("text-end").text(Math.round(missingStations.reduce((sum, s_id) => sum + (stationTimes[s_id] === null ? 0 : stationTimes[s_id]), 0) / 60))
-				]),
-				$("<tr>").append([
-					$("<th>").text("Schätzung für Prüfling"),
-					$("<th>").addClass("text-end").text(Math.round(Examinee.calculateRemainingTime(e_id) / 60))
+						return $("<tr>").append([
+							stationCell,
+							$("<td>").addClass("text-end").text(stationTimes[s_id] === null ? "unbekannt" : Math.round(stationTimes[s_id] / 60)),
+						]);
+					})
+				),
+				$("<tfoot>").append([
+					$("<tr>").append([
+						$("<th>").text("Gesamt"),
+						$("<th>").addClass("text-end").text(Math.round(missingStations.reduce((sum, s_id) => sum + (stationTimes[s_id] === null ? 0 : stationTimes[s_id]), 0) / 60))
+					]),
+					$("<tr>").append([
+						$("<th>").text("Schätzung für Prüfling"),
+						$("<th>").addClass("text-end").text(Math.round(Examinee.calculateRemainingTime(e_id) / 60))
+					]),
 				]),
 			]),
-		]),
+		),
 		$("<h5>").text("Historie"),
 		$("<div>").addClass("table-responsive").append(
 			$("<table>").addClass(["table", "table-striped"]).append([
@@ -1193,64 +1195,68 @@ function _openStationModal(s_id) {
 	modal.elem.find(".modal-body").append([
 		$("<p>").text("Hier kann die Auslastung einer Station eingesehen werden."),
 		$("<h5>").text("Offene Prüflinge"),
+		$("<div>").addClass("table-responsive").append(
 			$("<table>").addClass(["table", "table-striped"]).append([
-			$("<thead>").append(
-				$("<tr>").append([
-					$("<th>").text("Prüfling"),
-				])
-			),
-			$("<tbody>").append(
-				missingExaminees.map(function (e_id) {
-					var cell = $("<td>").addClass("text-truncate");
-					cell.append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
-						e.preventDefault();
-						_openExamineeModal(e_id);
-					}));
+				$("<thead>").append(
+					$("<tr>").append([
+						$("<th>").text("Prüfling"),
+					])
+				),
+				$("<tbody>").append(
+					missingExaminees.map(function (e_id) {
+						var cell = $("<td>").addClass("text-truncate");
+						cell.append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
+							e.preventDefault();
+							_openExamineeModal(e_id);
+						}));
 
-					if (currentExaminees.indexOf(e_id) >= 0) {
-						cell.append(" (aktuell an Station)");
-					}
+						if (currentExaminees.indexOf(e_id) >= 0) {
+							cell.append(" (aktuell an Station)");
+						}
 
-					return $("<tr>").append(cell);
-				})
-			),
-		]),
+						return $("<tr>").append(cell);
+					})
+				),
+			]),
+		),
 		$("<h5>").text("Historie"),
-		$("<table>").addClass(["table", "table-striped"]).append([
-			$("<thead>").append(
-				$("<tr>").append([
-					$("<th>").text("Prüfling"),
-					$("<th>").addClass("text-end").text("Dauer [min]"),
-				])
-			),
-			$("<tbody>").append(
-				assignments.map(function (assignment) {
-					var duration = [];
-					if (assignment.end === null) {
-						duration.push($("<span>").text("bisher " + Math.round((Date.now() / 1000 - assignment.start) / 60)));
-					} else {
-						duration.push($("<span>").text(Math.round((assignment.end - assignment.start) / 60)));
-					}
+		$("<div>").addClass("table-responsive").append(
+			$("<table>").addClass(["table", "table-striped"]).append([
+				$("<thead>").append(
+					$("<tr>").append([
+						$("<th>").text("Prüfling"),
+						$("<th>").addClass("text-end").text("Dauer [min]"),
+					])
+				),
+				$("<tbody>").append(
+					assignments.map(function (assignment) {
+						var duration = [];
+						if (assignment.end === null) {
+							duration.push($("<span>").text("bisher " + Math.round((Date.now() / 1000 - assignment.start) / 60)));
+						} else {
+							duration.push($("<span>").text(Math.round((assignment.end - assignment.start) / 60)));
+						}
 
-					var name = $("<span>").addClass("text-truncate").text(data.examinees[assignment.examinee].name);
-					if (assignment.result == "canceled") {
-						name.addClass("fst-italic");
-						name.text(name.text() + " (abgebrochen)");
-					}
-					name.toggleClass("fw-bold", assignment.result == "open");
-					return $("<tr>").toggleClass("fw-bold", assignment.result == "open").append([
-						$("<td>").append(name),
-						$("<td>").addClass("text-end").append(duration)
-					]);
-				})
-			),
-			$("<tfoot>").append(
-				$("<tr>").append([
-					$("<th>").text("Durchschnitt"),
-					$("<th>").addClass("text-end").text(durationCount == 0 ? "unbekannt" : Math.round((durationSum / durationCount) / 60)),
-				])
-			),
-		]),
+						var name = $("<span>").addClass("text-truncate").text(data.examinees[assignment.examinee].name);
+						if (assignment.result == "canceled") {
+							name.addClass("fst-italic");
+							name.text(name.text() + " (abgebrochen)");
+						}
+						name.toggleClass("fw-bold", assignment.result == "open");
+						return $("<tr>").toggleClass("fw-bold", assignment.result == "open").append([
+							$("<td>").append(name),
+							$("<td>").addClass("text-end").append(duration)
+						]);
+					})
+				),
+				$("<tfoot>").append(
+					$("<tr>").append([
+						$("<th>").text("Durchschnitt"),
+						$("<th>").addClass("text-end").text(durationCount == 0 ? "unbekannt" : Math.round((durationSum / durationCount) / 60)),
+					])
+				),
+			]),
+		),
 	]);
 
 	modal.elem.find(".modal-footer").append([
