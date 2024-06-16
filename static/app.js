@@ -1286,7 +1286,7 @@ function _openStationModal(s_id) {
 }
 
 function _openAssignmentModal(a_id) {
-	var modal = Modal("Zuweisung");
+	var modal = new Modal("Zuweisung");
 	const assignment = data.assignments[a_id];
 	const examinee = data.examinees[assignment.examinee];
 	const station = data.stations[assignment.station];
