@@ -1756,9 +1756,7 @@ function PrintOutput() {
 }
 
 function Modal(title) {
-	var m_id = _gen_id();
 	var wrap = _buildModal(title);
-
 	var bsModal = bootstrap.Modal.getOrCreateInstance(wrap);
 
 	ret = {
