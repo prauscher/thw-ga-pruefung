@@ -1740,18 +1740,15 @@ function PrintOutput() {
 	var frame_id = "print-" + _gen_id();
 	$("body").append($("<iframe>").addClass("d-none").attr("id", frame_id).attr("name", frame_id));
 
-	return {
-		"frame_id": frame_id,
-		"write": function (content) {
-			window.frames[frame_id].document.write(content);
-		},
-		"print": function () {
-			window.frames[frame_id].document.close();
-			setTimeout(function () {
-				window.frames[frame_id].print();
-				$("#" + frame_id).remove();
-			}, 0);
-		},
+	this.write = function (content) {
+		window.frames[frame_id].document.write(content);
+	};
+	this.print = function () {
+		window.frames[frame_id].document.close();
+		setTimeout(function () {
+			window.frames[frame_id].print();
+			$("#" + frame_id).remove();
+		}, 0);
 	};
 }
 
