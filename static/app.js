@@ -343,7 +343,7 @@ function _openExamineeEditModal(e_id) {
 
 	modal.elem.find(".modal-body").append([
 		$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup) - die OV-Kürzel werden verwendet um möglichst verschiedene OVs zu einer Station zu entsenden. Eine höhere Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen):"),
-		$("<form>").on("submit", _submit).append([
+		$("<form>").append([
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "priority").addClass("col-form-label").text("Priorität"),
 				$("<input>").attr("type", "number").addClass("form-control").attr("id", "priority").val(e_id === null ? "100" : data.examinees[e_id].priority)
@@ -436,7 +436,7 @@ function _openStationEditModal(s_id) {
 
 	modal.elem.find(".modal-body").append([
 		$("<p>").text("An Prüfungsstationen werden die praktischen Prüfungsaufgaben bearbeitet. Jeder Prüfling muss jede Station alleine bearbeiten. Die Aufgaben werden verwendet um die Laufzettel zu befüllen: Aus einer Vorauswahl können Einträge ausgewählt werden oder eine eigene Definition kann eingegeben werden."),
-		$("<form>").on("submit", _submit).append([
+		$("<form>").append([
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "name").addClass("col-form-label").text("Name"),
 				$("<input>").attr("type", "text").addClass("form-control").attr("id", "name").val(s_id === null ? "" : data.stations[s_id].name)
@@ -1491,7 +1491,7 @@ function _generateStation(i, name) {
 		modal.elem.find(".modal-body").append([
 			$("<p>").addClass("fw-bold").text("Station " + name),
 			$("<p>").text("Um Prüflinge zuzuweisen, werden ein oder mehrere Prüflinge in der unten stehenden Liste ausgewählt. Diese enthält nur verfügbare Prüflinge und ist sortiert nach Priorität und bereits absolvierten Stationen. Es können mehrere Prüflinge gleichzeitig zugewiesen werden und optional ein automatisches Ende der Zuweisung (z.B. für Pausen) eingestellt werden:"),
-			$("<form>").on("submit", _submit).append([
+			$("<form>").append([
 				$("<div>").addClass("mb-3").append([
 					$("<label>").attr("for", "minutes").addClass("col-form-label").text("Automatisches Ende"),
 					$("<input>").attr("type", "number").addClass("form-control").attr("id", "minutes").val(i === null ? 30 : 0)
