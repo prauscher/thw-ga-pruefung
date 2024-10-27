@@ -5,5 +5,9 @@ services:
       COOKIE_SECRET: sehrGeheim
       WEB_DEBUG: "yes"
       WEB_PORT: 8888
+    volumes:
+      - data:/data
     ports:
       - 8888:8888
+volumes:
+  data:
