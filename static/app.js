@@ -1441,13 +1441,13 @@ function _generateStation(i, name) {
 				}
 				print.write("<table style=\"width: 100%;border-collapse:collapse;\">");
 				print.write("<thead><tr>");
-				print.write("<th scope=\"row\">Prüfling</th>");
-				print.write("<th scope=\"row\" style=\"width:10%;\"></th>");
-				print.write("<th scope=\"row\" style=\"width:10%;\"></th>");
+				print.write("<th scope=\"row\" style=\"text-align:left;\">Prüfling</th>");
+				print.write("<th scope=\"row\" style=\"width:10%;\">Abgeholt</th>");
+				print.write("<th scope=\"row\" style=\"width:10%;\">Ausgegeben</th>");
 				print.write("</tr></thead><tbody>");
 				for (var assignment of assignments) {
-					print.write("<tr>");
-					print.write("<th style=\"vertical-align:center; height:1.5em;\" scope=\"row\">" + data.examinees[assignment.examinee].name + "</th>");
+					print.write("<tr style=\"border-top:1px solid black;\">");
+					print.write("<th style=\"vertical-align:center; text-align:left; height:1.5em;\" scope=\"row\">" + data.examinees[assignment.examinee].name + "</th>");
 					print.write("<td>&nbsp;</td>");
 					print.write("<td>&nbsp;</td>");
 					print.write("</tr>");
