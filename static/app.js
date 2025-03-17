@@ -1442,8 +1442,8 @@ function _generateStation(i, name) {
 				print.write("<table style=\"width: 100%;border-collapse:collapse;\">");
 				print.write("<thead><tr>");
 				print.write("<th scope=\"row\" style=\"text-align:left;\">Prüfling</th>");
-				print.write("<th scope=\"row\" style=\"width:10%;\">Abgeholt</th>");
-				print.write("<th scope=\"row\" style=\"width:10%;\">Ausgegeben</th>");
+				print.write("<th scope=\"row\" style=\"width:15%;\">Abgeholt</th>");
+				print.write("<th scope=\"row\" style=\"width:15%;\">Ausgegeben</th>");
 				print.write("</tr></thead><tbody>");
 				for (var assignment of assignments) {
 					print.write("<tr style=\"height:2em; border-top:1px solid black;\">");
