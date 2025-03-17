@@ -1446,7 +1446,7 @@ function _generateStation(i, name) {
 				print.write("<th scope=\"row\" style=\"width:15%;\">Ausgegeben</th>");
 				print.write("</tr></thead><tbody>");
 				for (var assignment of assignments) {
-					print.write("<tr style=\"height:2em; border-top:1px solid black;\">");
+					print.write("<tr style=\"height:3em; border-top:1px solid black;\">");
 					print.write("<th style=\"vertical-align:center; text-align:left;\" scope=\"row\">" + data.examinees[assignment.examinee].name + "</th>");
 					print.write("<td style=\"border-left:1px dotted black;\">&nbsp;</td>");
 					print.write("<td style=\"border-left:1px dotted black;\">&nbsp;</td>");
