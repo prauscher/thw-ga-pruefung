@@ -1409,11 +1409,16 @@ function _generateStation(i, name) {
 			e.preventDefault();
 
 			var autoEnd = modal.elem.find("#minutes").val();
+			if (autoEnd <= 0) {
+				autoEnd = null;
+			} else {
+				autoEnd = autoEnd * 60;
+			}
 
 			var assignments = modal.elem.find("#examinees").find("option:selected").map(function (_i, elem) {
 				var assignment = {"i": _gen_id(), "station": i, "examinee": $(elem).val()}
-				if (autoEnd > 0) {
-					assignment["autoEnd"] = autoEnd * 60;
+				if (autoEnd !== null) {
+					assignment["autoEnd"] = autoEnd;
 				}
 				return assignment;
 			}).get();
@@ -1430,14 +1435,24 @@ function _generateStation(i, name) {
 			var print = new PrintOutput();
 			if (i === null) {
 				print.write("<h2>Pausenankündigung</h2>");
-				print.write("<p>Beginn: " + formatTimestamp(Date.now() / 1000) + "</p>");
-				for (var assignment of assignments) {
-					var label = data.examinees[assignment.examinee].name;
-					if ("autoEnd" in assignment) {
-						label = label + " (" + Math.round(assignment.autoEnd / 60) + " Minuten)";
-					}
-					print.write("<li>" + label + "</li>");
+				print.write("<p>Beginn: <strong>" + formatTimestamp(Date.now() / 1000) + "</strong></p>");
+				if (autoEnd !== null) {
+					print.write("<p>Ende: <strong>" + formatTimestamp((Date.now() / 1000) + autoEnd) + "</strong></p>");
 				}
+				print.write("<table style=\"width: 100%;border-collapse:collapse;\">");
+				print.write("<thead><tr>");
+				print.write("<th scope=\"row\">Prüfling</th>");
+				print.write("<th scope=\"row\" style=\"width:10%;\"></th>");
+				print.write("<th scope=\"row\" style=\"width:10%;\"></th>");
+				print.write("</tr></thead><tbody>");
+				for (var assignment of assignments) {
+					print.write("<tr>");
+					print.write("<th style=\"vertical-align:center; height:1.5em;\" scope=\"row\">" + data.examinees[assignment.examinee].name + "</th>");
+					print.write("<td>&nbsp;</td>");
+					print.write("<td>&nbsp;</td>");
+					print.write("</tr>");
+				}
+				print.write("</tbody></table>");
 			} else {
 				for (var assignment of assignments) {
 					print.write("<div style=\"page-break-after:right;\">" + _generatePage(assignment) + "</div>");
