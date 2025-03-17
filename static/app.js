@@ -1448,8 +1448,8 @@ function _generateStation(i, name) {
 				for (var assignment of assignments) {
 					print.write("<tr style=\"height:2em; border-top:1px solid black;\">");
 					print.write("<th style=\"vertical-align:center; text-align:left;\" scope=\"row\">" + data.examinees[assignment.examinee].name + "</th>");
-					print.write("<td>&nbsp;</td>");
-					print.write("<td>&nbsp;</td>");
+					print.write("<td style=\"border-left:1px dotted black;\">&nbsp;</td>");
+					print.write("<td style=\"border-left:1px dotted black;\">&nbsp;</td>");
 					print.write("</tr>");
 				}
 				print.write("</tbody></table>");
