@@ -43,6 +43,8 @@ $(document).on("onbarcodescanned", function (e, code) {
 	}
 });
 
+var aufgaben = null;
+
 $(function () {
 	// Overwrite app_token if one is given
 	if (location.hash.length > 1) {
@@ -173,6 +175,9 @@ $(function () {
 				}
 			}
 			render();
+			if (Object.keys(data.stations) == 0) {
+				showWizard();
+			}
 		},
 		handlers: {
 			"station": function (msg) {
@@ -310,7 +315,74 @@ $(function () {
 			$(elem).toggleClass(["text-danger"], Date.now() / 1000 > $(elem).data("best-before"));
 		});
 	}, 1000);
+
+	$.get({
+		url: "/static/aufgaben.json",
+		success: function (data) {
+			aufgaben = data;
+		},
+		dataType: "json",
+	});
 });
+
+var wizardModal = null;
+
+function showWizard() {
+	// wait until aufgaben is filled from remote
+	if (aufgaben == null) {
+		window.setTimeout(showWizard, 100);
+		return;
+	}
+
+	var serien = {};
+	for (const task of aufgaben) {
+		for (const serie of task.serien) {
+			if (!(serie.serie in serien)) {
+				serien[serie.serie] = {"stations": {}};
+			}
+			if (!(serie.station in serien[serie.serie].stations)) {
+				serien[serie.serie].stations[serie.station] = [];
+			}
+			serien[serie.serie].stations[serie.station].push({
+				"lfd": serie.lfd,
+				"name": task.name,
+				"min_tasks": task.min_tasks,
+				"parts": task.parts,
+				"notes": task.notes,
+			});
+			serien[serie.serie].stations[serie.station].sort((a, b) => a.lfd - b.lfd);
+		}
+	}
+
+	// need to show modal, possibly with message
+	wizardModal = new Modal("Willkommen");
+
+	var buttons = [];
+
+	for (const [serie, data] of Object.entries(serien)) {
+		buttons.push($("<button>").attr("type", "button").addClass(["btn", "btn-primary", "d-block", "mb-2"]).text("Serie " + serie).click(function (e) {
+			e.preventDefault();
+
+			for (const [station_name, tasks] of Object.entries(data.stations)) {
+				const [nr, pdf_name] = station_name.split(" ", 2);
+				socket.send({"_m": "station", "i": _gen_id(), "name": "Station " + nr, "name_pdf": pdf_name, "tasks": tasks});
+			}
+
+			wizardModal.close();
+		}));
+	}
+
+
+	wizardModal.elem.find(".modal-body").append([
+		$("<p>").text("Bisher wurden keine Stationen angelegt. Hier kannst du direkt eine Prüfungsserie laden, um schneller starten zu können. Wenn du ohne vorbereitete Prüfungsserie starten möchtest, schließe dieses Popup einfach wieder."),
+		$("<div>").append(buttons)
+	]);
+
+	wizardModal.show();
+	wizardModal.elem.on("hidden.bs.modal", function () {
+		wizardModal = null;
+	});
+}
 
 function _openExamineeEditModal(e_id) {
 	var modal = new Modal(e_id === null ? "Prüflinge eintragen" : "Prüfling " + data.examinees[e_id].name + " bearbeiten");
@@ -423,7 +495,7 @@ function _openStationEditModal(s_id) {
 	}
 
 	var predefinedTasks = $("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "predefined_tasks").append(
-		JSON.parse(document.getElementById("aufgaben")).map(function (task) {
+		aufgaben.map(function (task) {
 			var _preset = task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).concat(task.notes || []).join("\n");
 			return $("<option>").data("preset", _preset).text(task.name);
 		})
