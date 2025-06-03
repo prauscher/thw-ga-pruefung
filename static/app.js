@@ -934,6 +934,7 @@ function _openStationModal(s_id) {
 			e.preventDefault();
 
 			var print = new PrintOutput();
+			print.write("<head><style type=\"text/css\">@page { size: A4 portrait; }</style></head>");
 			print.write("<div style=\"page-break-after:right;\">" + _generatePage({"i": "----", "station": s_id}) + "</div>");
 			print.print();
 		}),
@@ -1081,6 +1082,7 @@ function _generateStation(i, name) {
 
 			// Open print dialog
 			var print = new PrintOutput();
+			print.write("<head><style type=\"text/css\">@page { size: A4 portrait; }</style></head>");
 			if (i === null) {
 				print.write("<h2>Pausenankündigung</h2>");
 				print.write("<p>Beginn: <strong>" + formatTimestamp(Date.now() / 1000) + "</strong></p>");
