@@ -117,7 +117,7 @@
 		{"name": "Kraftstofffüllstand geprüft", "mandatory": true},
 		{"name": "Kraftstoffhahn geöffnet", "mandatory": true},
 		{"name": "Chokezug herausgezogen (bei warmen Motor nur erklären)", "mandatory": true},
-		{"name": "Inbetriebnahme des Stromerzeugers nur nach erfolgter Durchführung der Wolkeschritte (Reihenfolge muss nicht zwingend eingehalten werden)", "manditory": true},
+		{"name": "Inbetriebnahme des Stromerzeugers nur nach erfolgter Durchführung der Wolkeschritte (Reihenfolge muss nicht zwingend eingehalten werden)", "mandatory": true},
 		{"name": "Motor gestartet", "mandatory": true},
 		{"name": "Verbraucher erst angeschlossen, wenn der Motor mit Nenndrehzahl läuft", "mandatory": true},
 		{"name": "Überwurfringglocke der Anschlussleitung an der Steckdose des tragbaren Stromerzeugers verriegelt", "mandatory": false}
