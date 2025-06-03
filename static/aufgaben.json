@@ -253,7 +253,7 @@
 		{"name": "Fußplatte vollflächig auf bruchsicheren/druckfesten Untergrund aufgesetzt", "mandatory": true},
 		{"name": "Anhebeklaue vollflächig unter der Last angesetzt", "mandatory": true},
 		{"name": "Last nach Anheben unterbaut", "mandatory": true},
-		{"name": "Nicht unter die angehobene Last gegriffen", "mandatoy": true}
+		{"name": "Nicht unter die angehobene Last gegriffen", "mandatory": true}
 	]},
 	{"name": "7.3 Vorbereiten des Hebe-/Pressgeräts, hydraulisch", "min_tasks": 4, "serien": [{"serie": "A", "station": "4 IV", "lfd": 15}], "parts": [
 		{"name": "Höchstdruckschlauch drall- und knickfrei ausgelegt", "mandatory": true},
