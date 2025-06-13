@@ -1436,7 +1436,7 @@ function PrintOutput() {
 		}, 0);
 	};
 
-	this.write("<head><style type=\"text/css\">@page { size: A4 portrait; margin: 0.5cm; } body { font-family:serif; font-size: 11pt; }</style></head>");
+	this.write("<head><style type=\"text/css\">@page { size: A4 portrait; margin: 0.5cm; } * { font-family:\"Times New Roman\", Times, serif; font-size: 11pt; }</style></head>");
 }
 
 function Modal(title) {
