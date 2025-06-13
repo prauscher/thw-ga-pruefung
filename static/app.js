@@ -1339,8 +1339,8 @@ function _generatePage(assignment) {
 	var header = $("<div>");
 	header.append($("<table>").attr("width", "100%").append([
 		$("<tr>").append([
-			$("<th>").attr("width", "25%").text("Station"),
-			$("<td>").css("overflow-wrap", "anywhere").attr("width", "45%").text(data.stations[assignment.station].name_pdf || data.stations[assignment.station].name),
+			$("<th>").attr("width", "30%").text("Station"),
+			$("<td>").css("overflow-wrap", "anywhere").attr("width", "40%").text(data.stations[assignment.station].name_pdf || data.stations[assignment.station].name),
 			$("<td>").attr("rowspan", "4").css("text-align", "center").append([
 				$("<img>").attr("src", barcode),
 				$("<div>").text("A-" + assignment.i)
@@ -1356,7 +1356,7 @@ function _generatePage(assignment) {
 		]),
 		$("<tr>").append([
 			$("<th>").text("Prüfer*in (Name und Unterschrift)"),
-			$("<td>").text("_".repeat(30)),
+			$("<td>").text("_".repeat(25)),
 		]),
 	]));
 
