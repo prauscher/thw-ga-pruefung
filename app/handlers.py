@@ -95,7 +95,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
         msg["_snr"] = self.state.snr
         self.state.message_cache = self.state.message_cache[-511:] + [msg]
 
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {msg['_snr']:04d} | {self.current_user['name']:<10} | {msg['_cid']:<8} | {msg}")
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {msg['_snr']:04d} | {self.current_user['name']:<12} | {msg['_cid']:<8} | {msg}")
 
         for client in self._clients:
             if client.auth is not None and client.auth in self.state.users:
@@ -187,7 +187,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
             self.process__login(msg)
             return
 
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |      | {self.current_user['name']:<10} | {msg['_cid']:<8} | Created user {msg.get('name')}")
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |      | {self.current_user['name']:<12} | {msg['_cid']:<8} | Created user {msg.get('name')}")
         self.reply(msg, {"_m": "_success"})
 
     def process_request_users(self, msg):
@@ -205,7 +205,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
         current_user = self.current_user
         self.state.users.pop(msg["token"], "")
 
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |      | {current_user['name']:<10} | {msg['_cid']:<8} | Deleted user {msg.get('name')}")
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |      | {current_user['name']:<12} | {msg['_cid']:<8} | Deleted user {msg.get('name')}")
         self.reply(msg, {"_m": "_confirm"})
 
 
