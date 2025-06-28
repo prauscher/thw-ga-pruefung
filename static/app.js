@@ -62,7 +62,7 @@ $(function () {
 			user = _user;
 			$("#socketIndicator").text("Online").addClass("bg-success").removeClass("bg-danger");
 			$("#username").text(user.name);
-			$("#admin").toggle(("grant" in user && user.grant) || user.role == "admin");
+			$("#admin").toggle(user.role == "admin");
 			$("#examinee-add").toggle(user.role == "admin");
 			$("#station-add").toggle(user.role == "admin");
 			$(".assign-examinee").toggle(user.role == "operator");

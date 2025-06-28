@@ -176,7 +176,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     def process__create_user(self, msg):
         first_run = not self.state.users
 
-        if not first_run and self.current_user.get("role", "") != "admin" and not self.current_user.get("grant", False):
+        if not first_run and self.current_user.get("role", "") != "admin":
             self.reply(msg, {"_m": "_unauthorized"})
             return
 
@@ -191,14 +191,14 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
         self.reply(msg, {"_m": "_success"})
 
     def process_request_users(self, msg):
-        if self.current_user.get("role", "") != "admin" and not self.current_user.get("grant", False):
+        if self.current_user.get("role", "") != "admin":
             self.reply(msg, {"_m": "_unauthorized"})
             return
 
         self.reply(msg, {"_m": "users", "users": self.state.users})
 
     def process_user_delete(self, msg):
-        if self.current_user.get("role", "") != "admin" and not self.current_user.get("grant", False):
+        if self.current_user.get("role", "") != "admin":
             self.reply(msg, {"_m": "_unauthorized"})
             return
 
