@@ -311,6 +311,8 @@ $(function () {
 	});
 
 	setInterval(function () {
+		const now = new Date();
+		$("#clock").text(formatNumber(now.getHours()) + ":" + formatNumber(now.getMinutes()));
 		$(".best-before").each(function (_i, elem) {
 			formatBestBefore($(elem));
 		});
@@ -324,6 +326,10 @@ $(function () {
 		dataType: "json",
 	});
 });
+
+function formatNumber(number) {
+	return (number < 10 ? "0" : "") + number;
+}
 
 var wizardModal = null;
 
