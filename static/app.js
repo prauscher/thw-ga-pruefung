@@ -370,7 +370,9 @@ function showWizard() {
 			e.preventDefault();
 
 			for (const [station_name, tasks] of Object.entries(data.stations)) {
-				const [pdf_name, name] = station_name.split(" ", 2);
+				var names = station_name.split(" ");
+				const pdf_name = names.splice(0, 1).join(" ");
+				const name = names.join(" ");
 				socket.send({"_m": "station", "i": _gen_id(), "name": name, "name_pdf": pdf_name, "tasks": tasks});
 			}
 
