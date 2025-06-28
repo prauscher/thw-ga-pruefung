@@ -345,7 +345,7 @@ function showWizard() {
 			}
 			serien[serie.serie].stations[serie.station].push({
 				"lfd": serie.lfd,
-				"name": task.name,
+				"name": serie.lfd + " " + task.name,
 				"min_tasks": task.min_tasks,
 				"parts": task.parts,
 				"notes": task.notes,
@@ -364,8 +364,8 @@ function showWizard() {
 			e.preventDefault();
 
 			for (const [station_name, tasks] of Object.entries(data.stations)) {
-				const [nr, pdf_name] = station_name.split(" ", 2);
-				socket.send({"_m": "station", "i": _gen_id(), "name": "Station " + nr, "name_pdf": pdf_name, "tasks": tasks});
+				const [pdf_name, name] = station_name.split(" ", 2);
+				socket.send({"_m": "station", "i": _gen_id(), "name": name, "name_pdf": pdf_name, "tasks": tasks});
 			}
 
 			wizardModal.close();
