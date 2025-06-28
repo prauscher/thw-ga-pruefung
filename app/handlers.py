@@ -261,7 +261,10 @@ class MessageHandler(BroadcastWebSocketHandler):
              return
 
         i = msg.get("i")
-        self.state.stations[i] = {"name": msg.get("name"), "name_pdf": msg.get("name_pdf"), "tasks": msg.get("tasks")}
+        self.state.stations[i] = {
+            **self.state.stations.get(i, {}),
+            "name": msg.get("name"), "name_pdf": msg.get("name_pdf"), "tasks": msg.get("tasks"),
+        }
         self.broadcast(msg, {"_m": "station", "i": i, **self.state.stations[i]})
 
     def process_station_delete(self, msg):
@@ -282,7 +285,7 @@ class MessageHandler(BroadcastWebSocketHandler):
              return
 
         i = msg.get("i")
-        self.state.stations[i].update({"capacity": msg["capacity"]})
+        self.state.stations.get(i, {}).update({"capacity": msg["capacity"]})
         self.broadcast(msg, {"_m": "station", "i": i, **self.state.stations[i]})
 
     def process_examinee(self, msg):
@@ -292,6 +295,7 @@ class MessageHandler(BroadcastWebSocketHandler):
 
         i = msg.get("i")
         self.state.examinees[i] = {
+            **self.state.examinees.get(i, {}),
             "name": msg.get("name"),
             "priority": int(msg.get("priority")),
             "flags": msg.get("flags", [])
@@ -317,6 +321,7 @@ class MessageHandler(BroadcastWebSocketHandler):
 
         i = msg.get("i")
         self.state.assignments[i] = {
+            **self.state.assignments.get(i, {}),
             "examinee": msg.get("examinee"),
             "station": msg.get("station"),
             "start": time.time(),
@@ -330,7 +335,7 @@ class MessageHandler(BroadcastWebSocketHandler):
              return
 
         i = msg.get("i")
-        self.state.assignments[i].update({
+        self.state.assignments.get(i, {}).update({
             "end": time.time(),
             "result": msg.get("result")})
         self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
