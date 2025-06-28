@@ -312,7 +312,7 @@ $(function () {
 
 	setInterval(function () {
 		$(".best-before").each(function (_i, elem) {
-			$(elem).toggleClass(["text-danger"], Date.now() / 1000 > $(elem).data("best-before"));
+			formatBestBefore($(elem));
 		});
 	}, 1000);
 
@@ -640,11 +640,17 @@ function _buildExamineeItem(e_id, a_id) {
 		if (expectedTimeout === null) {
 			node.addClass("text-warning");
 		} else {
-			node.addClass("best-before").toggleClass(["text-danger"], Date.now() / 1000 > expectedTimeout).data("best-before", expectedTimeout);
+			node.addClass("best-before").data("best-before", expectedTimeout);
+			formatBestBefore(node);
 		}
 	}
 
 	return node;
+}
+
+function formatBestBefore(node) {
+	node.toggleClass(["text-danger"], Date.now() / 1000 > node.data("best-before"));
+	node.toggleClass(["fw-bold"], Date.now() / 1000 - (10 * 60) > node.data("best-before"));
 }
 
 function _openExamineeModal(e_id) {
