@@ -471,7 +471,7 @@ function _openExamineeEditModal(e_id) {
 	}
 
 	modal.elem.find(".modal-body").append([
-		$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup) - die OV-Kürzel werden verwendet um möglichst verschiedene OVs zu einer Station zu entsenden. Eine höhere Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen). Prüflinge können für die Zuteilung gesperrt angelegt werden, um Zuteilungen zu verhindern, z.B. zur Koordination der Anmeldung. Ein Sperrwert von 0 gibt den Prüfling frei, der Wert -1 sperrt den Prüfling bis zur manuellen Freigabe. Ein Wert über 0 sperrt den Prüfling für die angegebene Minutenanzahl:"),
+		$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup). Eine höhere Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen). Prüflinge können für die Zuteilung gesperrt angelegt werden, um Zuteilungen zu verhindern, z.B. zur Koordination der Anmeldung. Ein Sperrwert von 0 gibt den Prüfling frei, der Wert -1 sperrt den Prüfling bis zur manuellen Freigabe. Ein Wert über 0 sperrt den Prüfling für die angegebene Minutenanzahl:"),
 		$("<form>").append([
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "priority").addClass("col-form-label").text("Priorität"),
@@ -1268,11 +1268,7 @@ function _generateStation(i) {
 			}
 			examinees.push(examinee_kv[0]);
 		}
-		var examineePrefixes = [];
 		for (var assignment of Object.values(data.assignments)) {
-			if (assignment.result == "open" && assignment.station == i) {
-				examineePrefixes.push(data.examinees[assignment.examinee].name.split(" ", 1).shift());
-			}
 			if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
 				var _i = examinees.indexOf(assignment.examinee);
 				if (_i >= 0) {
@@ -1289,23 +1285,6 @@ function _generateStation(i) {
 		examinees.sort(function (a, b) {
 			return examinee_priorities[b] - examinee_priorities[a];
 		});
-
-		// Try to use as many different prefixes (OVs) as possible
-		if (i !== null) {
-			var examineesPre = examinees;
-			var examineesPost = [];
-			examinees = [];
-			for (var e_id of examineesPre) {
-				var _prefix = data.examinees[e_id].name.split(" ", 1).shift();
-				if (examineePrefixes.indexOf(_prefix) >= 0) {
-					examineesPost.push(e_id);
-				} else {
-					examineePrefixes.push(_prefix);
-					examinees.push(e_id);
-				}
-			}
-			examinees = examinees.concat(examineesPost);
-		}
 
 		modal.elem.find(".modal-body").append([
 			$("<p>").addClass("fw-bold").text("Station " + name),
