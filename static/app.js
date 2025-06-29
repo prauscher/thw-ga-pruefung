@@ -1299,9 +1299,6 @@ function _generateStation(i) {
 	}
 
 	assignButton.prop("disabled", examinees.length == 0);
-	assignButton.addClass("position-relative").append(
-		$("<span>").addClass(["position-absolute", "top-0", "start-100", "translate-middle", "badge", "rounded-pill", "bg-danger"]).text(examinees.length > 9 ? "9+" : examinees.length)
-	);
 
 	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
 	elem = $("<div>").addClass("col").append(
@@ -1316,7 +1313,8 @@ function _generateStation(i) {
 					] : [
 						$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (assignmentsFinished / Object.keys(data.examinees).length) * 100 + "%").text(assignmentsFinished > 0 ? assignmentsFinished : ""),
 						$("<div>").addClass(["progress-bar", "bg-primary"]).css("width", (assignments.length / Object.keys(data.examinees).length) * 100 + "%").text(assignments.length > 0 ? assignments.length : ""),
-						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", ((Object.keys(data.examinees).length - assignmentsFinished - assignments.length) / Object.keys(data.examinees).length) * 100 + "%").text(Object.keys(data.examinees).length > assignmentsFinished + assignments.length ? Object.keys(data.examinees).length - assignmentsFinished - assignments.length : ""),
+						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", (examinees.length / Object.keys(data.examinees).length) * 100 + "%").text(examinees.length > 0 ? examinees.length : ""),
+						$("<div>").addClass(["progress-bar", "bg-secondary"]).css("width", ((Object.keys(data.examinees).length - assignmentsFinished - assignments.length - examinees.length) / Object.keys(data.examinees).length) * 100 + "%").text(Object.keys(data.examinees).length > assignmentsFinished + assignments.length + examinees.length ? Object.keys(data.examinees).length - assignmentsFinished - assignments.length - examinees.length : ""),
 					])
 				),
 				$("<li>").addClass("list-group-item").append([
