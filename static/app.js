@@ -2,6 +2,9 @@ var data = {};
 var user = null;
 // Default colors
 var flag_colors = ["#007bff", "#dc3545", "#ffc107", "#28a745"];
+const fixedStations = {
+	"_pause": {"name": "Pause"},
+};
 
 var circle = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 circle.setAttribute("width", 16);
@@ -619,10 +622,12 @@ function render() {
 		return 0;
 	});
 	$("#stations").empty().append(station_ids.map(function (s_id) {
-		return _generateStation(s_id, data.stations[s_id].name + " (" + data.stations[s_id].name_pdf + ")");
+		return _generateStation(s_id);
 	}));
 
-	$("#pause-container").empty().append(_generateStation(null, "Pause"));
+	$("#pause-container").empty().append([
+		_generateStation("_pause"),
+	]);
 }
 
 function _buildExamineeItem(e_id, a_id) {
@@ -676,7 +681,7 @@ function _openExamineeModal(e_id) {
 			firstStart = assignment.start;
 		}
 
-		if (assignment.result == "done" && assignment.station !== null) {
+		if (assignment.result == "done" && !assignment.station.startsWith("_")) {
 			stationTimes[assignment.station].sum += assignment.end - assignment.start;
 			stationTimes[assignment.station].count += 1;
 		}
@@ -702,7 +707,7 @@ function _openExamineeModal(e_id) {
 	var currentAssignmentText;
 	if (currentAssignment === null) {
 		currentAssignmentText = "Der*die Prüfling befindet sich im Bereitstellungsraum.";
-	} else if (currentAssignment.station === null) {
+	} else if (currentAssignment.station === "_pause") {
 		currentAssignmentText = "Der*die Prüfling befindet sich bis " + formatTimestamp(currentAssignment.end) + " in Pause";
 	} else {
 		currentAssignmentText = "Der*die Prüfling befindet sich seit " + formatTimestamp(currentAssignment.start) + " an Station " + data.stations[currentAssignment.station].name + "( " + data.stations[currentAssignment.station].name_pdf + ")";
@@ -712,14 +717,14 @@ function _openExamineeModal(e_id) {
 	var assignmentEntries = [];
 	var sums = {"waiting": 0, "station": 0};
 	for (const assignment of assignments) {
-		var name = assignment.station === null ? "Pause" : data.stations[assignment.station].name;
+		var name = assignment.station.startsWith("_") ? fixedStations[assignment.station].name : data.stations[assignment.station].name;
 		if (assignment.result === "canceled") {
 			name = name + " (Abgebrochen)";
 		}
 		var duration = (assignment.end || Date.now() / 1000) - assignment.start;
 		var usage = stationTimes[assignment.station] === null ? 1.0 : duration / stationTimes[assignment.station];
 		var durationContent = [$("<span>").text(Math.round(duration / 60))];
-		if (assignment.result === "done" && assignment.station !== null) {
+		if (assignment.result === "done" && !assignment.station.startsWith("_")) {
 			durationContent.push($("<br>"));
 			durationContent.push($("<span>").toggleClass("text-danger", usage > 1).toggleClass("text-success", usage < 1).text((usage >= 1 ? "+" : "") + Math.round((usage - 1) * 100) + " %"));
 		}
@@ -731,7 +736,7 @@ function _openExamineeModal(e_id) {
 			now = null;
 		}
 		assignmentEntries.push($("<tr>").append([
-			$("<td>").toggleClass("fst-italic", assignment.station === null || assignment.result == "canceled").append(
+			$("<td>").toggleClass("fst-italic", assignment.station.startsWith("_") || assignment.result == "canceled").append(
 				$("<a>").attr("href", "#").text(name).click(function (e) {
 					e.preventDefault();
 					_openAssignmentModal(assignment.i);
@@ -838,7 +843,7 @@ function _openExamineeModal(e_id) {
 }
 
 function _openStationModal(s_id) {
-	var modal = new Modal("Station " + (s_id === null ? "Pause" : data.stations[s_id].name));
+	var modal = new Modal("Station " + (s_id.startsWith("_") ? fixedStations[s_id].name : data.stations[s_id].name));
 
 	var missingExaminees = Object.keys(data.examinees);
 	var currentExaminees = [];
@@ -944,14 +949,14 @@ function _openStationModal(s_id) {
 	]);
 
 	modal.elem.find(".modal-footer").append([
-		$("<button>").addClass(["btn", "btn-info"]).toggle(s_id !== null).text("Vorschau").click(function (e) {
+		$("<button>").addClass(["btn", "btn-info"]).toggle(!s_id.startsWith("_")).text("Vorschau").click(function (e) {
 			e.preventDefault();
 
 			var print = new PrintOutput();
 			print.write("<div style=\"page-break-after:right;\">" + _generatePage({"i": "----", "station": s_id}) + "</div>");
 			print.print();
 		}),
-		$("<button>").addClass(["btn", "btn-danger"]).toggle(s_id !== null && user.role == "admin").text("Löschen").click(function (e) {
+		$("<button>").addClass(["btn", "btn-danger"]).toggle(!s_id.startsWith("_") && user.role == "admin").text("Löschen").click(function (e) {
 			e.preventDefault();
 
 			if (confirm("Achtung, das Löschen einer Station ist nicht umkehrbar und entfernt alle Zuweisungen!")) {
@@ -959,7 +964,7 @@ function _openStationModal(s_id) {
 				modal.close();
 			}
 		}),
-		$("<button>").addClass(["btn", "btn-warning"]).toggle(s_id !== null && user.role == "admin").text("Bearbeiten").click(function (e) {
+		$("<button>").addClass(["btn", "btn-warning"]).toggle(!s_id.startsWith("_") && user.role == "admin").text("Bearbeiten").click(function (e) {
 			e.preventDefault();
 
 			_openStationEditModal(s_id);
@@ -1032,7 +1037,7 @@ function _openAssignmentModal(a_id) {
 				$("<tr>").append([
 					$("<th>").text("Station"),
 					$("<td>").append(
-						assignment.station == null ? "Pause" : $("<a>").attr("href", "#").text(data.stations[assignment.station].name).click(function (e) {
+						assignment.station.startsWith("_") ? fixedStations[assignment.station].name : $("<a>").attr("href", "#").text(data.stations[assignment.station].name).click(function (e) {
 							e.preventDefault();
 							_openStationModal(assignment.station);
 						})
@@ -1060,7 +1065,8 @@ function _openAssignmentModal(a_id) {
 	modal.show();
 }
 
-function _generateStation(i, name) {
+function _generateStation(i) {
+	var name = i.startsWith("_") ? fixedStations[i].name : data.stations[i].name + " (" + data.stations[i].name_pdf + ")";
 	var elem;
 	var assignButton = $("<button>").addClass(["btn", "btn-success", "assign-examinee"]).text("Zuweisen").click(function (e) {
 		e.preventDefault();
@@ -1095,7 +1101,7 @@ function _generateStation(i, name) {
 
 			// Open print dialog
 			var print = new PrintOutput();
-			if (i === null) {
+			if (i === "_pause") {
 				print.write("<h2>Pausenankündigung</h2>");
 				print.write("<p>Beginn: <strong>" + formatTimestamp(Date.now() / 1000) + "</strong></p>");
 				if (autoEnd !== null) {
@@ -1171,7 +1177,7 @@ function _generateStation(i, name) {
 			$("<form>").append([
 				$("<div>").addClass("mb-3").append([
 					$("<label>").attr("for", "minutes").addClass("col-form-label").text("Automatisches Ende"),
-					$("<input>").attr("type", "number").addClass("form-control").attr("id", "minutes").val(i === null ? 30 : 0)
+					$("<input>").attr("type", "number").addClass("form-control").attr("id", "minutes").val(i === "_pause" ? 30 : 0)
 				]),
 				$("<div>").addClass("mb-3").append([
 					$("<label>").attr("for", "examinees").addClass("col-form-label").text("Prüflinge"),
@@ -1232,7 +1238,7 @@ function _generateStation(i, name) {
 
 	assignButton.prop("disabled", examinees.length == 0);
 
-	const capacity = (i === null) ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
+	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").text(name).click(function () {
@@ -1255,12 +1261,12 @@ function _generateStation(i, name) {
 			]).append(assignments.map(function (a_id) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
 			})).append(
-				(i === null || capacity < assignments.length) ? [] : Array.from(Array(capacity - assignments.length)).map(function (_, j) {
+				(i.startsWith("_") || capacity < assignments.length) ? [] : Array.from(Array(capacity - assignments.length)).map(function (_, j) {
 					return $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)")
 				})
 			),
 			$("<div>").addClass("card-footer").append([
-				i === null ? "" : $("<div>").addClass("btn-group").toggle(user && user.role == "operator").append([
+				i.startsWith("_") ? "" : $("<div>").addClass("btn-group").toggle(user && user.role == "operator").append([
 					$("<button>").addClass(["btn", "btn-secondary"]).text("-").toggle(capacity > 0).click(function () {
 						socket.send({"_m": "station_capacity", "i": i, "capacity": capacity - 1});
 					}),
@@ -1284,7 +1290,7 @@ var Examinee = {
 		var stationTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, {"sum": 0, "count": 0}]));
 		var ownTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, null]));
 		for (var assignment of Object.values(data.assignments)) {
-			if (assignment.result == "done" && assignment.station !== null) {
+			if (assignment.result == "done" && !assignment.station.startsWith("_")) {
 				stationTimes[assignment.station].sum += (assignment.end - assignment.start);
 				stationTimes[assignment.station].count += 1;
 				if (assignment.examinee == e_id) {
@@ -1316,7 +1322,7 @@ var Examinee = {
 
 		// find expected Timeout from assignment history
 		for (const assignment of Object.values(data.assignments)) {
-			if (assignment.result == "done" && assignment.end !== null && assignment.station !== null) {
+			if (assignment.result == "done" && assignment.end !== null && !assignment.station.startsWith("_")) {
 				if (assignment.examinee == e_id) {
 					ownTimes[assignment.station] = assignment.end - assignment.start;
 				}
