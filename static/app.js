@@ -682,7 +682,7 @@ function render() {
 }
 
 function _buildExamineeItem(e_id, a_id) {
-	var node = $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]).click(function () {
+	var node = $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]).css("cursor", "pointer").click(function () {
 		if (a_id !== null) {
 			_openAssignmentModal(a_id);
 		} else {
@@ -1375,7 +1375,7 @@ function _generateStation(i) {
 	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
-			$("<div>").addClass("card-header").text(name).click(function () {
+			$("<div>").addClass("card-header").css("cursor", "pointer").text(name).click(function () {
 				_openStationModal(i);
 			}),
 			$("<ul>").addClass(["list-group", "list-group-flush", "examinees"]).append([
