@@ -538,7 +538,7 @@ function _openStationEditModal(s_id) {
 			} else if (line.substring(0, 1) == "O") {
 				// single optional task
 				currentTask.parts.push({"name": line.substring(2), "mandatory": false});
-			} else if (line.substring(0, 1) == "*") {
+			} else {
 				// note
 				currentTask.notes.push(line);
 			}
