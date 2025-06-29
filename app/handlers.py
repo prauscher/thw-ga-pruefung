@@ -319,11 +319,16 @@ class MessageHandler(BroadcastWebSocketHandler):
              return
 
         i = msg.get("i")
+        locked = int(msg.get("locked", "0"))
+        if locked > 0:
+            locked = time.time() + locked * 60
+
         self.state.examinees[i] = {
             **self.state.examinees.get(i, {}),
             "name": msg.get("name"),
             "priority": int(msg.get("priority")),
-            "flags": msg.get("flags", [])
+            "flags": msg.get("flags", []),
+            "locked": locked,
         }
         self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
 
@@ -338,6 +343,18 @@ class MessageHandler(BroadcastWebSocketHandler):
                                   if assignment.get("examinee") != i}
         self.state.examinees.pop(i, None)
         self.broadcast(msg, {"_m": "examinee_delete", "i": i})
+
+    def process_examinee_lock(self, msg):
+        if self.current_user.get("role", "") != "operator":
+             self.reply(msg, {"_m": "unauthorized"})
+             return
+
+        i = msg.get("i")
+        locked = int(msg.get("locked", "0"))
+        if locked > 0:
+            locked = time.time() + locked * 60
+        self.state.examinees.get(i, {}).update({"locked": locked})
+        self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
 
     def process_examinee_flags(self, msg):
         if self.current_user.get("role", "") != "operator":

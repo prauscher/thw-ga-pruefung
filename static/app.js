@@ -303,6 +303,9 @@ $(function () {
 		},
 	});
 
+	// Rerender periodically to update locked examinees
+	setInterval(render, 10000);
+
 	$("#export").click(function () {
 		var csvContent = "data:text/csv;charset=utf-8,";
 
@@ -449,7 +452,7 @@ function _openExamineeEditModal(e_id) {
 		for (var name of modal.elem.find("#names").val().split("\n").values()) {
 			name = name.trim();
 			if (name != "") {
-				socket.send({"_m": "examinee", "i": e_id === null ? _gen_id() : e_id, "name": name, "priority": modal.elem.find("#priority").val(), "flags": flags});
+				socket.send({"_m": "examinee", "i": e_id === null ? _gen_id() : e_id, "name": name, "priority": modal.elem.find("#priority").val(), "locked": modal.elem.find("#locked").val(), "flags": flags});
 			}
 		}
 
@@ -468,11 +471,15 @@ function _openExamineeEditModal(e_id) {
 	}
 
 	modal.elem.find(".modal-body").append([
-		$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup) - die OV-Kürzel werden verwendet um möglichst verschiedene OVs zu einer Station zu entsenden. Eine höhere Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen):"),
+		$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup) - die OV-Kürzel werden verwendet um möglichst verschiedene OVs zu einer Station zu entsenden. Eine höhere Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen). Prüflinge können für die Zuteilung gesperrt angelegt werden, um Zuteilungen zu verhindern, z.B. zur Koordination der Anmeldung. Ein Sperrwert von 0 gibt den Prüfling frei, der Wert -1 sperrt den Prüfling bis zur manuellen Freigabe. Ein Wert über 0 sperrt den Prüfling für die angegebene Minutenanzahl:"),
 		$("<form>").append([
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "priority").addClass("col-form-label").text("Priorität"),
 				$("<input>").attr("type", "number").addClass("form-control").attr("id", "priority").val(e_id === null ? "100" : data.examinees[e_id].priority)
+			]),
+			$("<div>").addClass("mb-3").append([
+				$("<label>").attr("for", "locked").addClass("col-form-label").text("Sperrwert"),
+				$("<input>").attr("type", "number").addClass("form-control").attr("id", "locked").val(e_id === null ? "-1" : (data.examinees[e_id].locked > 0 ? (data.examinees[e_id].locked > Date.now() / 1000 ? Math.round((data.examinees[e_id].locked - Date.now() / 1000) / 60) : "0") : data.examinees[e_id].locked))
 			]),
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "flags").addClass("col-form-label").text("Markierungen"),
@@ -603,7 +610,7 @@ function render() {
 		}
 	}
 
-	var examineesWaitingReturnTime = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, 0]));
+	var examineesWaitingReturnTime = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, ("locked" in data.examinees[e_id] && data.examinees[e_id].locked > 0) ? data.examinees[e_id].locked : 0]));
 	var examineesWaitingMissingStations = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, Object.keys(data.stations)]));
 	for (var assignment of Object.values(data.assignments)) {
 		if (assignment.end !== null) {
@@ -648,7 +655,7 @@ function render() {
 			])
 		)
 	).append(examineesWaiting.map(function (e_id) {
-		return _buildExamineeItem(e_id, null).toggleClass("text-muted", examineesWaitingMissingStations[e_id].length == 0);
+		return _buildExamineeItem(e_id, null).toggleClass("text-muted", examineesWaitingMissingStations[e_id].length == 0 || ("locked" in data.examinees[e_id] && (data.examinees[e_id].locked == -1 || data.examinees[e_id].locked > Date.now() / 1000)));
 	}));
 	if (examineesWaiting.length == 0) {
 		$("#examinees").append(
@@ -775,8 +782,12 @@ function _openExamineeModal(e_id) {
 	stationTimes = Object.fromEntries(Object.entries(stationTimes).map(([s_id, _times]) => [s_id, (_times.count > 0 ? _times.sum / _times.count : null)]));
 
 	var currentAssignmentText;
-	if (currentAssignment === null) {
-		currentAssignmentText = "Der*die Prüfling befindet sich im Bereitstellungsraum.";
+	if (currentAssignment === null && "locked" in examinee && examinee.locked == -1) {
+		currentAssignmentText = "Der*die Prüfling befindet sich im Bereitstellungsraum und ist bis zur manuellen Freigabe für Zuteilungen gesperrt.";
+	} else if (currentAssignment === null && "locked" in examinee && examinee.locked > Date.now() / 1000) {
+		currentAssignmentText = "Der*die Prüfling befindet sich im Bereitstellungsraum und ist bis " + formatTimestamp(examinee.locked) + " für Zuteilungen gesperrt.";
+	} else if (currentAssignment === null) {
+		currentAssignmentText = "Der*die Prüfling befindet sich im Bereitstellungsraum und ist Zuteilungsbereit.";
 	} else if (currentAssignment.station === "_theorie") {
 		currentAssignmentText = "Der*die Prüfling befindet sich seit " + formatTimestamp(currentAssignment.start) + " in der Theorieprüfung";
 	} else if (currentAssignment.station === "_pause") {
@@ -829,6 +840,24 @@ function _openExamineeModal(e_id) {
 		sums.waiting += (Date.now() / 1000 - now);
 	}
 
+	var lockPanel = $("<div>").addClass("mb-3");
+	if ("locked" in examinee && (examinee.locked == -1 || examinee.locked > Date.now() / 1000)) {
+		lockPanel.append($("<button>").addClass(["btn", "btn-primary"]).text("Für Zuteilung freigeben")).click(function () {
+			socket.send({"_m": "examinee_lock", "i": e_id, "locked": 0});
+			lockPanel.hide();
+		});
+	} else {
+		var lockInput = $("<input>");
+		lockPanel.append($("<div>").addClass("input-group").append([
+			$("<p>").text("Ein Prüfling kann entweder für einige Minuten oder bis zur manuellen Freigabe für die Zuteilung gesperrt werden. Gebe entweder die Anzahl der Minuten oder -1 für eine unbestimmte Sperrung ein."),
+			$("<button>").addClass(["btn", "btn-outline-warning"]).text("Für Zuteilung sperren für").click(function () {
+				socket.send({"_m": "examinee_lock", "i": e_id, "locked": lockInput.val()});
+				lockPanel.hide();
+			}),
+			lockInput.attr("type", "number").val("-1").addClass("form-control")
+		]));
+	}
+
 	var updateFlagsStoreButton = $("<button>").addClass(["btn", "btn-success"]).text("Speichern").click(function () {
 		var flags = updateFlagsPanel.find(".btn-outline-dark").map((_i, btn) => $(btn).data("color")).get();
 		socket.send({"_m": "examinee_flags", "i": e_id, "flags": flags});
@@ -844,6 +873,7 @@ function _openExamineeModal(e_id) {
 
 	modal.elem.find(".modal-body").append([
 		$("<p>").text(currentAssignmentText),
+		lockPanel.toggle(user && user.role == "operator"),
 		updateFlagsPanel.toggle(user && user.role == "operator"),
 		$("<h5>").text("Offene Stationen"),
 		$("<div>").addClass("table-responsive").append(
@@ -1219,8 +1249,14 @@ function _generateStation(i) {
 			modal.close();
 		}
 
-		// Find valid examinees and sort by priorities
-		var examinees = Object.keys(data.examinees);
+		// Find valid examinees (which must not be locked) and sort by priorities
+		var examinees = [];
+		for (const examinee_kv of Object.entries(data.examinees)) {
+			if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > Date.now() / 1000)) {
+				continue;
+			}
+			examinees.push(examinee_kv[0]);
+		}
 		var examineePrefixes = [];
 		for (var assignment of Object.values(data.assignments)) {
 			if (assignment.result == "open" && assignment.station == i) {
@@ -1315,7 +1351,13 @@ function _generateStation(i) {
 		end = lastFinishedAssignment + (Object.keys(data.examinees).length - assignmentsFinished) * (lastFinishedAssignment - firstStartedAssignment) / assignmentsFinished;
 	}
 
-	var examinees = Object.keys(data.examinees);
+	var examinees = [];
+	for (const examinee_kv of Object.entries(data.examinees)) {
+		if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > Date.now() / 1000)) {
+			continue;
+		}
+		examinees.push(examinee_kv[0]);
+	}
 	for (var assignment of Object.values(data.assignments)) {
 		if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
 			var _i = examinees.indexOf(assignment.examinee);
