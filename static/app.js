@@ -184,6 +184,10 @@ $(function () {
 			}
 		},
 		handlers: {
+			"set_serie_id": function (msg) {
+				data.serie_id = msg.serie_id;
+				render();
+			},
 			"station": function (msg) {
 				data.stations[msg.i] = msg;
 				render();
@@ -395,6 +399,8 @@ function showWizard() {
 	for (const [serie, data] of Object.entries(serien)) {
 		buttons.push($("<button>").attr("type", "button").addClass(["btn", "btn-primary", "d-block", "mb-2"]).text("Serie " + serie).click(function (e) {
 			e.preventDefault();
+
+			socket.send({"_m": "set_serie_id", "serie_id": serie});
 
 			for (const [station_name, tasks] of Object.entries(data.stations)) {
 				var names = station_name.split(" ");
