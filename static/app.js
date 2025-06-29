@@ -801,14 +801,19 @@ function _openExamineeModal(e_id) {
 
 	var now = firstStart;
 	var assignmentEntries = [];
-	var sums = {"waiting": 0, "station": 0};
+	var sums = {"waiting": 0, "station": 0, "stations_with_avg": 0, "avg_station": 0};
 	for (const assignment of assignments) {
 		var name = assignment.station.startsWith("_") ? fixedStations[assignment.station].name : data.stations[assignment.station].name;
 		if (assignment.result === "canceled") {
 			name = name + " (Abgebrochen)";
 		}
 		var duration = (assignment.end || Date.now() / 1000) - assignment.start;
-		var usage = stationTimes[assignment.station] === null ? 1.0 : duration / stationTimes[assignment.station];
+		var usage = 1.0;
+		if (!assignment.station.startsWith("_") && stationTimes[assignment.station] != null) {
+			usage = duration / stationTimes[assignment.station];
+			sums.stations_with_avg += duration;
+			sums.avg_station += stationTimes[assignment.station];
+		}
 		var durationContent = [$("<span>").text(Math.round(duration / 60))];
 		if (assignment.result === "done" && !assignment.station.startsWith("_")) {
 			durationContent.push($("<br>"));
@@ -936,7 +941,10 @@ function _openExamineeModal(e_id) {
 					$("<tr>").toggle(assignmentEntries.length > 0).append([
 						$("<th>").text("Summe"),
 						$("<td>").addClass("text-end").text(Math.round(sums.waiting / 60)),
-						$("<td>").addClass("text-end").text(Math.round(sums.station / 60)),
+						$("<td>").addClass("text-end").append($("<span>").text(Math.round(sums.station / 60))).append(sums.avg_station == 0 ? [] : [
+							$("<br>"),
+							$("<span>").toggleClass("text-danger", sums.stations_with_avg > sums.avg_station).toggleClass("text-success", sums.stations_with_avg <= sums.avg_station).text((sums.stations_with_avg > sums.avg_station ? "+" : "") + Math.round(((sums.stations_with_avg / sums.avg_station) - 1) * 100) + " %"),
+						]),
 					])
 				),
 			]),
