@@ -656,13 +656,39 @@ function render() {
 }
 
 function _buildExamineeItem(e_id, a_id) {
-	var node = $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]).append(data.examinees[e_id].name).append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []).click(function () {
+	var node = $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]).click(function () {
 		if (a_id !== null) {
 			_openAssignmentModal(a_id);
 		} else {
 			_openExamineeModal(e_id);
 		}
 	});
+
+	var openFixedStations = Object.keys(fixedStations);
+	var openStations = Object.keys(data.stations);
+	for (var assignment of Object.values(data.assignments)) {
+		if (assignment.examinee == e_id) {
+			if (assignment.station.startsWith("_")) {
+				var _i = openFixedStations.indexOf(assignment.station);
+				if (_i >= 0) {
+					openFixedStations.splice(_i, 1);
+				}
+			} else {
+				var _i = openStations.indexOf(assignment.station);
+				if (_i >= 0) {
+					openStations.splice(_i, 1);
+				}
+			}
+		}
+	}
+
+	var state_indicator = "bg-danger";
+	if (openFixedStations.indexOf("_pause") < 0) {
+		state_indicator = "bg-success";
+	}
+	node.append($("<span>").addClass(["badge", "me-1", state_indicator]).text(openStations.length));
+	node.append(data.examinees[e_id].name);
+	node.append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []);
 
 	var expectedTimeout = null;
 	if (a_id !== null) {
