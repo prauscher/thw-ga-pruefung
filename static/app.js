@@ -1244,6 +1244,9 @@ function _generateStation(i) {
 	}
 
 	assignButton.prop("disabled", examinees.length == 0);
+	assignButton.addClass("position-relative").append(
+		$("<span>").addClass(["position-absolute", "top-0", "start-100", "translate-middle", "badge", "rounded-pill", "bg-danger"]).text(examinees.length > 9 ? "9+" : examinees.length)
+	);
 
 	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
 	elem = $("<div>").addClass("col").append(
