@@ -184,8 +184,10 @@ $(function () {
 			}
 		},
 		handlers: {
-			"set_serie_id": function (msg) {
+			"set_global_settings": function (msg) {
 				data.serie_id = msg.serie_id;
+				data.ort = msg.ort;
+				data.pruefungsleiter = msg.pruefungsleiter;
 				render();
 			},
 			"station": function (msg) {
@@ -395,12 +397,14 @@ function showWizard() {
 	wizardModal = new Modal("Willkommen");
 
 	var buttons = [];
+	var input_ort = $("<input>");
+	var input_pruefungsleiter = $("<input>");
 
 	for (const [serie, data] of Object.entries(serien)) {
 		buttons.push($("<button>").attr("type", "button").addClass(["btn", "btn-primary", "d-block", "mb-2"]).text("Serie " + serie).click(function (e) {
 			e.preventDefault();
 
-			socket.send({"_m": "set_serie_id", "serie_id": serie});
+			socket.send({"_m": "set_global_settings", "serie_id": serie, "ort": input_ort.val(), "pruefungsleiter": input_pruefungsleiter.val()});
 
 			for (const [station_name, tasks] of Object.entries(data.stations)) {
 				var names = station_name.split(" ");
@@ -413,9 +417,18 @@ function showWizard() {
 		}));
 	}
 
-
 	wizardModal.elem.find(".modal-body").append([
 		$("<p>").text("Bisher wurden keine Stationen angelegt. Hier kannst du direkt eine Prüfungsserie laden, um schneller starten zu können. Wenn du ohne vorbereitete Prüfungsserie starten möchtest, schließe dieses Popup einfach wieder."),
+		$("<form>").append([
+			$("<div>").addClass("mb-3").append([
+                                $("<label>").attr("for", "ort").addClass("col-form-label").text("Ort der Prüfung"),
+                                input_ort.attr("type", "text").addClass("form-control").attr("id", "ort").val("Darmstadt")
+                        ]),
+			$("<div>").addClass("mb-3").append([
+                                $("<label>").attr("for", "pruefungsleiter").addClass("col-form-label").text("Prüfungsleiter"),
+                                input_pruefungsleiter.attr("type", "text").addClass("form-control").attr("id", "pruefungsleiter").val("")
+                        ]),
+		]),
 		$("<div>").append(buttons)
 	]);
 

@@ -211,6 +211,8 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
 
 class AppState(BroadcastState):
     serie_id = None
+    ort = None
+    pruefungsleiter = None
     stations = {}
     examinees = {}
     assignments = {}
@@ -218,6 +220,8 @@ class AppState(BroadcastState):
     def to_client(self):
         return {**super().to_client(),
                 "serie_id": self.serie_id,
+                "ort": self.ort,
+                "pruefungsleiter": self.pruefungsleiter,
                 "stations": self.stations,
                 "examinees": self.examinees,
                 "assignments": self.assignments}
@@ -225,6 +229,8 @@ class AppState(BroadcastState):
     def to_file(self):
         return {**super().to_file(),
                 "serie_id": self.serie_id,
+                "ort": self.ort,
+                "pruefungsleiter": self.pruefungsleiter,
                 "stations": self.stations,
                 "examinees": self.examinees,
                 "assignments": self.assignments}
@@ -232,6 +238,8 @@ class AppState(BroadcastState):
     def from_file(self, data):
         super().from_file(data)
         self.serie_id = data.get("serie_id", None)
+        self.ort = data.get("ort", None)
+        self.pruefungsleiter = data.get("pruefungsleiter", None)
         self.stations = data.get("stations", {})
         self.examinees = data.get("examinees", {})
         self.assignments = data.get("assignments", {})
@@ -259,13 +267,18 @@ class MessageHandler(BroadcastWebSocketHandler):
             assignment["result"] = "done"
             self.broadcast({}, {"_m": "assignment", "i": assignment_id, **assignment})
 
-    def process_set_serie_id(self, msg):
+    def process_set_global_settings(self, msg):
         if self.current_user.get("role", "") != "admin":
              self.reply(msg, {"_m": "unauthorized"})
              return
 
         self.state.serie_id = msg.get("serie_id");
-        self.broadcast(msg, {"_m": "set_serie_id", "serie_id": self.state.serie_id})
+        self.state.ort = msg.get("ort");
+        self.state.pruefungsleiter = msg.get("pruefungsleiter");
+        self.broadcast(msg, {"_m": "set_global_settings",
+                             "serie_id": self.state.serie_id,
+                             "ort": self.state.ort,
+                             "pruefungsleiter": self.state.pruefungsleiter})
 
     def process_station(self, msg):
         if self.current_user.get("role", "") != "admin":
