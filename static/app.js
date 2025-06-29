@@ -712,6 +712,9 @@ function _buildExamineeItem(e_id, a_id) {
 	if (openFixedStations.indexOf("_pause") < 0) {
 		state_indicator = "bg-success";
 	}
+	if ("locked" in data.examinees[e_id] && (data.examinees[e_id].locked == -1 || data.examinees[e_id].locked > Date.now() / 1000)) {
+		state_indicator = "bg-secondary";
+	}
 	node.append($("<span>").addClass(["badge", "me-1", state_indicator]).text(openStations.length));
 	node.append(data.examinees[e_id].name);
 	node.append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []);
