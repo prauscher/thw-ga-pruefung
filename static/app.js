@@ -796,7 +796,7 @@ function _openExamineeModal(e_id) {
 	} else if (currentAssignment.station === "_pause") {
 		currentAssignmentText = "Der*die Prüfling befindet sich bis " + formatTimestamp(currentAssignment.end) + " in Pause";
 	} else {
-		currentAssignmentText = "Der*die Prüfling befindet sich seit " + formatTimestamp(currentAssignment.start) + " an Station " + data.stations[currentAssignment.station].name + "( " + data.stations[currentAssignment.station].name_pdf + ")";
+		currentAssignmentText = "Der*die Prüfling befindet sich seit " + formatTimestamp(currentAssignment.start) + " an Station " + data.stations[currentAssignment.station].name + " (" + data.stations[currentAssignment.station].name_pdf + ")";
 	}
 
 	var now = firstStart;
