@@ -339,6 +339,15 @@ class MessageHandler(BroadcastWebSocketHandler):
         self.state.examinees.pop(i, None)
         self.broadcast(msg, {"_m": "examinee_delete", "i": i})
 
+    def process_examinee_flags(self, msg):
+        if self.current_user.get("role", "") != "operator":
+             self.reply(msg, {"_m": "unauthorized"})
+             return
+
+        i = msg.get("i")
+        self.state.examinees.get(i, {}).update({"flags": msg["flags"]})
+        self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
+
     def process_assign(self, msg):
         if self.current_user.get("role", "") != "operator":
              self.reply(msg, {"_m": "unauthorized"})

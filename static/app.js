@@ -829,8 +829,22 @@ function _openExamineeModal(e_id) {
 		sums.waiting += (Date.now() / 1000 - now);
 	}
 
+	var updateFlagsStoreButton = $("<button>").addClass(["btn", "btn-success"]).text("Speichern").click(function () {
+		var flags = updateFlagsPanel.find(".btn-outline-dark").map((_i, btn) => $(btn).data("color")).get();
+		socket.send({"_m": "examinee_flags", "i": e_id, "flags": flags});
+		updateFlagsStoreButton.hide();
+	}).hide();
+
+	var updateFlagsPanel = $("<div>").addClass("mb-3").append(flag_colors.map(function (color) {
+		return $("<button>").attr("type", "button").addClass("btn").data("color", color).css("color", color).toggleClass("btn-outline-dark", data.examinees[e_id].flags.indexOf(color) >= 0).append(circle.clone()).click(function () {
+			$(this).toggleClass("btn-outline-dark", ! $(this).hasClass("btn-outline-dark"));
+			updateFlagsStoreButton.show();
+		});
+	})).append(updateFlagsStoreButton);
+
 	modal.elem.find(".modal-body").append([
 		$("<p>").text(currentAssignmentText),
+		updateFlagsPanel.toggle(user && user.role == "operator"),
 		$("<h5>").text("Offene Stationen"),
 		$("<div>").addClass("table-responsive").append(
 			$("<table>").addClass(["table", "table-striped"]).append([
