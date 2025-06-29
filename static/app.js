@@ -297,6 +297,29 @@ $(function () {
 		},
 	});
 
+	$("#export").click(function () {
+		var csvContent = "data:text/csv;charset=utf-8,";
+
+		csvContent += "Prüfling,Station,Start,Ende,Dauer\r\n";
+		for (var a_id of Object.keys(data.assignments)) {
+			const assignment = data.assignments[a_id];
+			if (assignment.result == "open" || assignment.result == "done") {
+				csvContent += '"' + data.examinees[assignment.examinee].name.replace('"', '""') + '",';
+				csvContent += '"' + (assignment.station.startsWith("_") ? fixedStations[assignment.station].name : data.stations[assignment.station].name).replace('"', '""') + '",';
+				csvContent += '"' + formatTimestamp(assignment.start) + '",';
+				csvContent += '"' + (assignment.end === null ? "" : formatTimestamp(assignment.end)) + '",';
+				csvContent += '"' + (assignment.end === null ? "" : Math.round((assignment.end - assignment.start) / 60)) + '"\r\n';
+			}
+		}
+
+		var link = document.createElement("a");
+		link.setAttribute("href", encodeURI(csvContent));
+		link.setAttribute("download", "export-pruefung.csv");
+		document.body.appendChild(link);
+		link.click();
+		setTimeout(0, function() {document.body.removeChild(link);});
+	});
+
 	$("#logout").click(function () {
 		localStorage.removeItem("app_token");
 		socket.reconnect();
