@@ -3,6 +3,7 @@ var user = null;
 // Default colors
 var flag_colors = ["#007bff", "#dc3545", "#ffc107", "#28a745"];
 const fixedStations = {
+	"_theorie": {"name": "Theorie"},
 	"_pause": {"name": "Pause"},
 };
 
@@ -626,6 +627,7 @@ function render() {
 	}));
 
 	$("#pause-container").empty().append([
+		_generateStation("_theorie").addClass("mb-3"),
 		_generateStation("_pause"),
 	]);
 }
@@ -707,6 +709,8 @@ function _openExamineeModal(e_id) {
 	var currentAssignmentText;
 	if (currentAssignment === null) {
 		currentAssignmentText = "Der*die Prüfling befindet sich im Bereitstellungsraum.";
+	} else if (currentAssignment.station === "_theorie") {
+		currentAssignmentText = "Der*die Prüfling befindet sich seit " + formatTimestamp(currentAssignment.start) + " in der Theorieprüfung";
 	} else if (currentAssignment.station === "_pause") {
 		currentAssignmentText = "Der*die Prüfling befindet sich bis " + formatTimestamp(currentAssignment.end) + " in Pause";
 	} else {
@@ -949,10 +953,11 @@ function _openStationModal(s_id) {
 	]);
 
 	modal.elem.find(".modal-footer").append([
-		$("<button>").addClass(["btn", "btn-info"]).toggle(!s_id.startsWith("_")).text("Vorschau").click(function (e) {
+		$("<button>").addClass(["btn", "btn-info"]).toggle(s_id !== "_pause").text("Vorschau").click(function (e) {
 			e.preventDefault();
 
 			var print = new PrintOutput();
+			print.setOrientation(s_id == "_theorie" ? "landscape" : "portrait");
 			print.write("<div style=\"page-break-after:right;\">" + _generatePage({"i": "----", "station": s_id}) + "</div>");
 			print.print();
 		}),
@@ -1102,6 +1107,7 @@ function _generateStation(i) {
 			// Open print dialog
 			var print = new PrintOutput();
 			if (i === "_pause") {
+				print.setOrientation("portrait");
 				print.write("<h2>Pausenankündigung</h2>");
 				print.write("<p>Beginn: <strong>" + formatTimestamp(Date.now() / 1000) + "</strong></p>");
 				if (autoEnd !== null) {
@@ -1122,6 +1128,7 @@ function _generateStation(i) {
 				}
 				print.write("</tbody></table>");
 			} else {
+				print.setOrientation(i == "_theorie" ? "landscape" : "portrait");
 				for (var assignment of assignments) {
 					print.write("<div style=\"page-break-after:right;\">" + _generatePage(assignment) + "</div>");
 				}
@@ -1347,73 +1354,115 @@ var Examinee = {
 }
 
 function _generatePage(assignment) {
-	var page = $("<div>");
-
-	var code = BARCode("A-" + assignment.i);
-	var codeContainer = document.createElement("div");
-	codeContainer.appendChild(code);
-	var barcode = "data:image/svg+xml;base64," + window.btoa(codeContainer.innerHTML);
-
-	var start = Date.now() / 1000;
-
 	var header = $("<div>");
-	header.append($("<table>").attr("width", "100%").append([
-		$("<tr>").append([
-			$("<th>").attr("width", "30%").text("Station"),
-			$("<td>").css("overflow-wrap", "anywhere").attr("width", "40%").text(data.stations[assignment.station].name_pdf || data.stations[assignment.station].name),
-			$("<td>").attr("rowspan", "4").css("text-align", "center").append([
-				$("<img>").attr("src", barcode),
-				$("<div>").text("A-" + assignment.i)
-			])
-		]),
-		$("<tr>").append([
-			$("<th>").text("Prüfling"),
-			$("<td>").css("overflow-wrap", "anywhere").text(assignment.examinee === undefined ? "(Vorschau)" : data.examinees[assignment.examinee].name),
-		]),
-		$("<tr>").append([
-			$("<th>").text("Startzeit"),
-			$("<td>").text(formatTimestamp(start)),
-		]),
-		$("<tr>").append([
-			$("<th>").text("Prüfer*in (Name und Unterschrift)"),
-			$("<td>").text("_".repeat(25)),
-		]),
-	]));
+	var body = $("<div>");
 
-	header.append($("<p>").html("Bitte setze für jeden Prüfungspunkt in das zugehörige Feld einen Haken (✓) für erfüllte Punkte oder ein Strich (—) für nicht erfüllte Punkte."));
+	var examinee_name = assignment.examinee === undefined ? "(Vorschau)" : data.examinees[assignment.examinee].name;
 
-	var body = $("<div>").css("columns", "2 auto");
-
-	for (var task of data.stations[assignment.station].tasks) {
-		body.append($("<div>").css("padding", "10px").css("break-inside", "avoid").append([
-			$("<table>").css("width", "100%").css("border", "1px dotted black").css("border-collapse", "collapse").append([
-				$("<tr>").append([
-					$("<th>").css("text-align","left").attr("colspan", 2).text(task.name)
-				]),
-				$("<tr>").css("border-bottom", "1px dotted black").append([
-					$("<th>").attr("width", "80%").attr("colspan", 2).css("text-align", "right").text((task.min_tasks || task.parts.length) + " von " + task.parts.length),
-				])
-			]).append(task.parts.map(function (part) {
-				var field = $("<div>").text(" ").css({
-					"margin": "auto",
-					"width": "15px",
-					"height": "15px",
-					"border": "3px solid black",
-				});
-				if (!part.mandatory) {
-					field.css("border-radius", "20px");
-				}
-				return $("<tr>").append([
-					$("<td>").attr("width", "70%").text(part.name),
-					$("<td>").append(field.clone()),
-				]);
-			})).append((task.notes || []).map(function (note) {
-				return $("<tr>").append([
-					$("<td>").attr("colspan", 2).css("font-weight", "bold").css("font-style", "italic").text(note)
-				]);
-			}))
+	if (assignment.station === "_theorie") {
+		const now = new Date();
+		const cell_style = {"border": "1px solid black", "padding": "2pt", "min-width": "1.5em"};
+		header.append($("<h1>").text("Prüfungsbogen für die Grundausbildungsprüfung für " + examinee_name + " am " + formatNumber(now.getDate()) + "." + formatNumber(now.getMonth() + 1) + "." + now.getFullYear()));
+		body.append($("<p>").text("Bitte setze für jede Aufgabe der Theorieprüfung ein Kreuz bei den richtigen Antwortmöglichkeiten. Die Zeile \"Richtig\" wird durch die Prüfer gesetzt."));
+		body.append($("<table style=\"width: 100%;border-collapse:collapse;\">").append([
+			$("<tr>").append([
+				$("<th>").css(cell_style).text("Frage"),
+			]).append(Array.from(Array(40)).map(function (_, j) {return $("<th>").css(cell_style).text(j + 1);})),
+			$("<tr>").append([
+				$("<th>").css(cell_style).text("A"),
+			]).append(Array.from(Array(40)).map(function (_, _) {return $("<td>").css(cell_style).text(" ");})),
+			$("<tr>").append([
+				$("<th>").css(cell_style).text("B"),
+			]).append(Array.from(Array(40)).map(function (_, _) {return $("<td>").css(cell_style).text(" ");})),
+			$("<tr>").append([
+				$("<th>").css(cell_style).text("C"),
+			]).append(Array.from(Array(40)).map(function (_, _) {return $("<td>").css(cell_style).text(" ");})),
+			$("<tr>").append([
+				$("<th>").css(cell_style).text("Richtig"),
+			]).append(Array.from(Array(40)).map(function (_, _) {return $("<td>").css(cell_style).text(" ");})),
 		]));
+		body.append($("<p>").text("Damit wurden ____ von 40 Fragen richtig beantwortet, wobei mindestens 31 richtige Fragen zum bestehen benötigt werden. Die theoretische Prüfung ist somit bestanden / nicht bestanden."));
+		body.append($("<hr>"));
+		body.append($("<p>").text("Übersicht der Praxisprüfung: Aufgaben gelten als Bestanden, wenn alle erforderlichen (eckigen) Punkte bestanden wurden und die insgesamt benötigte Punktzahl für die Aufgabe erreicht wurde."))
+		body.append($("<table style=\"width: 100%;border-collapse:collapse;\">").append([
+			$("<tr>").append([
+				$("<th>").css(cell_style).text("Aufgabe"),
+			]).append(Array.from(Array(24)).map(function (_, j) {return $("<th>").css(cell_style).text(j + 1);})),
+			$("<tr>").append([
+				$("<th>").css(cell_style).text("Richtig"),
+			]).append(Array.from(Array(24)).map(function (_, _) {return $("<td>").css(cell_style).text(" ");})),
+		]));
+		body.append($("<p>").text("Damit wurden ____ von 24 Aufgaben korrekt bearbeitet, wobei zum bestehen mindestens 19 Aufgaben korrekt bearbeitet werden müssen. Die praktische Prüfung ist somit bestanden / nicht bestanden."));
+		body.append($("<p>").text("Die Prüfung zur Grundausbildung wurde bestanden / nicht bestanden."));
+		body.append($("<p>").css("margin-top", "4em").css("white-space", "pre").text("_______________________________________\nUnterschrift Leiter Prüfungskommission"));
+	} else {
+		var code = BARCode("A-" + assignment.i);
+		var codeContainer = document.createElement("div");
+		codeContainer.appendChild(code);
+		var barcode = "data:image/svg+xml;base64," + window.btoa(codeContainer.innerHTML);
+
+		var start = Date.now() / 1000;
+
+		header.append($("<table>").attr("width", "100%").append([
+			$("<tr>").append([
+				$("<th>").attr("width", "30%").text("Station"),
+				$("<td>").css("overflow-wrap", "anywhere").attr("width", "40%").text(data.stations[assignment.station].name_pdf || data.stations[assignment.station].name),
+				$("<td>").attr("rowspan", "4").css("text-align", "center").append([
+					$("<img>").attr("src", barcode),
+					$("<div>").text("A-" + assignment.i)
+				])
+			]),
+			$("<tr>").append([
+				$("<th>").text("Prüfling"),
+				$("<td>").css("overflow-wrap", "anywhere").text(examinee_name),
+			]),
+			$("<tr>").append([
+				$("<th>").text("Startzeit"),
+				$("<td>").text(formatTimestamp(start)),
+			]),
+			$("<tr>").append([
+				$("<th>").text("Prüfer*in (Name und Unterschrift)"),
+				$("<td>").text("_".repeat(25)),
+			]),
+		]));
+
+		header.append($("<p>").html("Bitte setze für jeden Prüfungspunkt in das zugehörige Feld einen Haken (✓) für erfüllte Punkte oder ein Strich (—) für nicht erfüllte Punkte."));
+
+		body.css("columns", "2 auto");
+
+		for (var task of data.stations[assignment.station].tasks) {
+			body.append($("<div>").css("padding", "10px").css("break-inside", "avoid").append([
+				$("<table>").css("width", "100%").css("border", "1px dotted black").css("border-collapse", "collapse").append([
+					$("<tr>").append([
+						$("<th>").css("text-align","left").attr("colspan", 2).text(task.name)
+					]),
+					$("<tr>").css("border-bottom", "1px dotted black").append([
+						$("<th>").attr("width", "80%").attr("colspan", 2).css("text-align", "right").text((task.min_tasks || task.parts.length) + " von " + task.parts.length),
+					])
+				]).append(task.parts.map(function (part) {
+					var field = $("<div>").text(" ").css({
+						"margin": "auto",
+						"width": "15px",
+						"height": "15px",
+						"border": "3px solid black",
+					});
+					if (!part.mandatory) {
+						field.css("border-radius", "20px");
+					}
+					return $("<tr>").append([
+						$("<td>").attr("width", "70%").text(part.name),
+						$("<td>").append(field.clone()),
+					]);
+				})).append((task.notes || []).map(function (note) {
+					return $("<tr>").append([
+						$("<td>").attr("colspan", 2).css("font-weight", "bold").css("font-style", "italic").text(note)
+					]);
+				}))
+			]));
+		}
 	}
+
+	var page = $("<div>");
 
 	page.append($("<table>").append([
 		$("<thead>").css("position", "sticky").append(
@@ -1455,8 +1504,9 @@ function PrintOutput() {
 			$("#" + frame_id).remove();
 		}, 0);
 	};
-
-	this.write("<head><style type=\"text/css\">@page { size: A4 portrait; margin: 0.5cm; } * { font-family:\"Times New Roman\", Times, serif; font-size: 11pt; }</style></head>");
+	this.setOrientation = function (orientation) {
+		this.write("<head><style type=\"text/css\">@page { size: A4 " + orientation + "; margin: 0.5cm; } * { font-family:\"Times New Roman\", Times, serif; font-size: 11pt; }</style></head>");
+	};
 }
 
 function Modal(title) {
