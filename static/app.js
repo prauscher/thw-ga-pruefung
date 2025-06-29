@@ -1426,44 +1426,120 @@ function _generatePage(assignment) {
 	var header = $("<div>");
 	var body = $("<div>");
 
-	var examinee_name = assignment.examinee === undefined ? "(Vorschau)" : data.examinees[assignment.examinee].name;
+	var examinee_name = assignment.examinee === undefined ? "OTST (Vorschau) (Vorschau)" : data.examinees[assignment.examinee].name;
 
 	if (assignment.station === "_theorie") {
 		const now = new Date();
 		const cell_style = {"border": "1px solid black", "padding": "2pt", "min-width": "1.5em"};
-		header.append($("<h1>").text("Prüfungsbogen für die Grundausbildungsprüfung für " + examinee_name + " am " + formatNumber(now.getDate()) + "." + formatNumber(now.getMonth() + 1) + "." + now.getFullYear()));
-		body.append($("<p>").text("Bitte setze für jede Aufgabe der Theorieprüfung ein Kreuz bei den richtigen Antwortmöglichkeiten. Die Zeile \"Richtig\" wird durch die Prüfer gesetzt."));
-		body.append($("<table style=\"width: 100%;border-collapse:collapse;\">").append([
-			$("<tr>").append([
-				$("<th>").css(cell_style).text("Frage"),
-			]).append(Array.from(Array(40)).map(function (_, j) {return $("<th>").css(cell_style).text(j + 1);})),
-			$("<tr>").append([
-				$("<th>").css(cell_style).text("A"),
-			]).append(Array.from(Array(40)).map(function (_, _) {return $("<td>").css(cell_style).text(" ");})),
-			$("<tr>").append([
-				$("<th>").css(cell_style).text("B"),
-			]).append(Array.from(Array(40)).map(function (_, _) {return $("<td>").css(cell_style).text(" ");})),
-			$("<tr>").append([
-				$("<th>").css(cell_style).text("C"),
-			]).append(Array.from(Array(40)).map(function (_, _) {return $("<td>").css(cell_style).text(" ");})),
-			$("<tr>").append([
-				$("<th>").css(cell_style).text("Richtig"),
-			]).append(Array.from(Array(40)).map(function (_, _) {return $("<td>").css(cell_style).text(" ");})),
+
+		body.css("font-family", "Arial, sans-serif");
+
+		var table = $("<table>").css({"width": "100%", "border-collapse": "collapse", "border": "3px solid black"});
+		table.append($("<tr>").append($("<th>").attr("colspan", 48).css({"white-space": "pre", "font-size": "18pt", "border-bottom": "1px solid black"}).text("Grundausbildung im Technischen Hilfswerk\nAuswertungsbogen Abschlussprüfung")));
+		table.append($("<tr>").append([
+			$("<th>").attr("colspan", 16).attr("rowspan", 2).css({"white-space": "pre", "border": "1px solid black"}).text("Bundesanstalt\nTechnisches Hilfswerk\n\nHERPSL"),
+			$("<th>").attr("colspan", 7).css({"text-align": "left", "border": "1px solid black"}).text("Name:"),
+			$("<th>").attr("colspan", 10).css({"text-align": "left", "border": "1px solid black"}).text(" "),
+			$("<th>").attr("colspan", 5).css({"text-align": "left", "border": "1px solid black"}).text("OV:"),
+			$("<th>").attr("colspan", 10).css({"text-align": "left", "border": "1px solid black"}).text(" "),
 		]));
-		body.append($("<p>").text("Damit wurden ____ von 40 Fragen richtig beantwortet, wobei mindestens 31 richtige Fragen zum bestehen benötigt werden. Die theoretische Prüfung ist somit bestanden / nicht bestanden."));
-		body.append($("<hr>"));
-		body.append($("<p>").text("Übersicht der Praxisprüfung: Aufgaben gelten als Bestanden, wenn alle erforderlichen (eckigen) Punkte bestanden wurden und die insgesamt benötigte Punktzahl für die Aufgabe erreicht wurde."))
-		body.append($("<table style=\"width: 100%;border-collapse:collapse;\">").append([
-			$("<tr>").append([
-				$("<th>").css(cell_style).text("Aufgabe"),
-			]).append(Array.from(Array(24)).map(function (_, j) {return $("<th>").css(cell_style).text(j + 1);})),
-			$("<tr>").append([
-				$("<th>").css(cell_style).text("Richtig"),
-			]).append(Array.from(Array(24)).map(function (_, _) {return $("<td>").css(cell_style).text(" ");})),
+		table.append($("<tr>").append([
+			$("<th>").attr("colspan", 7).css({"text-align": "left", "border": "1px solid black"}).text("Vorname:"),
+			$("<th>").attr("colspan", 10).css({"text-align": "left", "border": "1px solid black"}).text(" "),
+			$("<th>").attr("colspan", 5).css({"text-align": "left", "border": "1px solid black"}).text("Geb. Datum:"),
+			$("<th>").attr("colspan", 10).css({"text-align": "left", "border": "1px solid black"}).text(" "),
 		]));
-		body.append($("<p>").text("Damit wurden ____ von 24 Aufgaben korrekt bearbeitet, wobei zum bestehen mindestens 19 Aufgaben korrekt bearbeitet werden müssen. Die praktische Prüfung ist somit bestanden / nicht bestanden."));
-		body.append($("<p>").text("Die Prüfung zur Grundausbildung wurde bestanden / nicht bestanden."));
-		body.append($("<p>").css("margin-top", "4em").css("white-space", "pre").text("_______________________________________\nUnterschrift Leiter Prüfungskommission"));
+		table.append($("<tr>").append($("<td>").attr("colspan", 48).css({"border-top": "3px solid black"}).html("&nbsp;")));
+		table.append($("<tr>").append([
+			$("<th>").attr("colspan", 12).css({"text-align": "left"}).text("Theoretischer Prüfungsteil"),
+			$("<th>").attr("colspan", 4).css({"border": "1px solid black"}).text("Serie"),
+			$("<th>").attr("colspan", 2).css({"border": "1px solid black"}).text(data.serie_id),
+			$("<th>").attr("colspan", 5).text(" "),
+			$("<th>").attr("colspan", 25).css({"text-align": "left", "white-space": "pre"}).text("Erste-Hilfe-Bescheinigung lag - nicht - vor.**\nVerschwiegenheitserklärung Sprechfunk lag - nicht - vor.**"),
+		]));
+		table.append($("<tr>").append(Array.from(Array(48)).map(function (_, j) {return $("<td>").css({"width": j < 47 ? "2.1%" : ""}).html("&nbsp;");})));
+
+		table.append($("<tr>")
+			.append($("<td>").attr("colspan", 2).text(" "))
+			.append(Array.from(Array(40)).map(function (_, j) {return $("<th>").css("border", "1px solid black").text(j + 1);}))
+			.append($("<td>").attr("colspan", 6).text(" "))
+		);
+		table.append($("<tr>")
+			.append($("<th>").attr("colspan", 2).css("border", "1px solid black").text("A"))
+			.append(Array.from(Array(40)).map(function (_, j) {return $("<th>").css("border", "1px solid black").text(" ");}))
+			.append($("<td>").attr("colspan", 6).text(" "))
+		);
+		table.append($("<tr>")
+			.append($("<th>").attr("colspan", 2).css("border", "1px solid black").text("B"))
+			.append(Array.from(Array(40)).map(function (_, j) {return $("<th>").css("border", "1px solid black").text(" ");}))
+			.append($("<td>").attr("colspan", 6).text(" "))
+		);
+		table.append($("<tr>")
+			.append($("<th>").attr("colspan", 2).css("border", "1px solid black").text("C"))
+			.append(Array.from(Array(40)).map(function (_, j) {return $("<th>").css("border", "1px solid black").text(" ");}))
+			.append($("<td>").attr("colspan", 6).text("Summe:"))
+		);
+		table.append($("<tr>")
+			.append($("<th>").css("border", "1px solid black").text("✓"))
+			.append($("<th>").css("border", "1px solid black").text("–"))
+			.append(Array.from(Array(40)).map(function (_, j) {return $("<th>").css("border", "1px solid black").text(" ");}))
+			.append($("<td>").attr("colspan", 6).css("border", "1px solid black").text(" "))
+		);
+
+		table.append($("<tr>").append([
+			$("<td>").attr("colspan", 4).text("✓ = richtig"),
+			$("<td>").attr("colspan", 4).text("– = falsch"),
+			$("<td>").attr("colspan", 40).text(" "),
+		]));
+		table.append($("<tr>").append($("<td>").attr("colspan", 48).css("white-space", "pre").text("Die schriftliche Prüfung ist bestanden, wenn mindestens 32 Fragen richtig beantwortet wurden.\nDer Helfer hat die theoretische Prüfung - nicht - bestanden.**")));
+		table.append($("<tr>").append($("<td>").css({"border-bottom": "3px dashed black", "white-space": "pre"}).attr("colspan", 48).html("&nbsp;")));
+		table.append($("<tr>").append($("<td>").attr("colspan", 48).html("&nbsp;")));
+		table.append($("<tr>").append([
+			$("<th>").attr("colspan", 12).css({"text-align": "left"}).text("Praktischer Prüfungsteil"),
+			$("<th>").attr("colspan", 4).css({"border": "1px solid black"}).text("Serie"),
+			$("<th>").attr("colspan", 2).css({"border": "1px solid black"}).text(data.serie_id),
+			$("<th>").attr("colspan", 30).css({"text-align": "left", "white-space": "pre"}).text(" \n "),
+		]));
+		table.append($("<tr>").append($("<td>").attr("colspan", 48).html("&nbsp;")));
+
+		table.append($("<tr>")
+			.append($("<td>").attr("colspan", 4).text(" "))
+			.append(Array.from(Array(24)).map(function (_, j) {return $("<th>").css("border", "1px solid black").text(j + 1);}))
+			.append($("<td>").attr("colspan", 20).text("Summe:"))
+		);
+		table.append($("<tr>")
+			.append($("<th>").attr("colspan", 3).css({"border": "1px solid black", "border-right": "0px"}).text("richtig"))
+			.append($("<th>").css({"border": "1px solid black", "border-left": "0px"}).text("✓"))
+			.append(Array.from(Array(24)).map(function (_, j) {return $("<th>").css("border", "1px solid black").text(" ");}))
+			.append($("<td>").attr("colspan", 4).css("border", "1px solid black").text(" "))
+			.append($("<td>").attr("colspan", 16).text(" "))
+		);
+		table.append($("<tr>")
+			.append($("<th>").attr("colspan", 3).css({"border": "1px solid black", "border-right": "0px"}).text("falsch"))
+			.append($("<th>").css({"border": "1px solid black", "border-left": "0px"}).text("–"))
+			.append(Array.from(Array(24)).map(function (_, j) {return $("<th>").css("border", "1px solid black").text(" ");}))
+			.append($("<td>").attr("colspan", 20).text(" "))
+		);
+		table.append($("<tr>").append($("<td>").attr("colspan", 48).css("white-space", "pre").text("Die praktische Prüfung ist bestanden, wenn mindestens 19 Aufgaben richtig gelöst wurden.\nDer Helfer hat die praktische Prüfung - nicht - bestanden.**")));
+		table.append($("<tr>").append($("<td>").attr("colspan", 48).html("&nbsp;")));
+		table.append($("<tr>").append([
+			$("<td>").attr("colspan", 4).text("Ort"),
+			$("<td>").attr("colspan", 8).css("border-bottom", "1px solid black").text(data.ort),
+			$("<td>").attr("colspan", 5).css({"text-align": "right", "padding-right": "1em"}).text("Datum"),
+			$("<td>").attr("colspan", 8).css("border-bottom", "1px solid black").text(formatNumber(now.getDate()) + "." + formatNumber(now.getMonth() + 1) + "." + now.getFullYear()),
+			$("<td>").attr("colspan", 8).css({"text-align": "right", "padding-right": "1em"}).text("Prüfungsleiter:"),
+			$("<td>").attr("colspan", 13).css("border-bottom", "1px solid black").text(" "),
+			$("<td>").attr("colspan", 2).text(" "),
+		]));
+		table.append($("<tr>").append([
+			$("<td>").attr("colspan", 33).text(" "),
+			$("<td>").attr("colspan", 13).css("text-align", "center").text(data.pruefungsleiter),
+			$("<td>").attr("colspan", 2).text(" "),
+		]));
+		body.append(table);
+
+		body.append($("<p>").html("&nbsp;"));
+		body.append($("<p>").css("text-align", "center").html("** Nichtzutreffendes streichen"));
 	} else {
 		var code = BARCode({"msg": "A-" + assignment.i, "dim": [200, 80]});
 		var codeContainer = document.createElement("div");
@@ -1533,7 +1609,7 @@ function _generatePage(assignment) {
 
 	var page = $("<div>");
 
-	page.append($("<table>").append([
+	page.append($("<table>").css("width", "100%").append([
 		$("<thead>").css("position", "sticky").append(
 			$("<tr>").append(
 				$("<td>").append(header)
@@ -1561,6 +1637,7 @@ function formatTimestamp(timestamp) {
 
 function PrintOutput() {
 	var frame_id = "print-" + _gen_id();
+	this.frame_id = frame_id;
 	$("body").append($("<iframe>").addClass("d-none").attr("id", frame_id).attr("name", frame_id));
 
 	this.write = function (content) {
@@ -1574,7 +1651,7 @@ function PrintOutput() {
 		}, 0);
 	};
 	this.setOrientation = function (orientation) {
-		this.write("<head><style type=\"text/css\">@page { size: A4 " + orientation + "; margin: 0.5cm; } * { font-family:\"Times New Roman\", Times, serif; font-size: 11pt; }</style></head>");
+		this.write("<head><style type=\"text/css\">@page { size: A4 " + orientation + "; margin: 0.5cm; } body { font-family:\"Times New Roman\", Times, serif; font-size: 11pt; }</style></head>");
 	};
 }
 
