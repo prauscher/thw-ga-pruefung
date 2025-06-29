@@ -1396,7 +1396,7 @@ function _generatePage(assignment) {
 		body.append($("<p>").text("Die Prüfung zur Grundausbildung wurde bestanden / nicht bestanden."));
 		body.append($("<p>").css("margin-top", "4em").css("white-space", "pre").text("_______________________________________\nUnterschrift Leiter Prüfungskommission"));
 	} else {
-		var code = BARCode("A-" + assignment.i);
+		var code = BARCode({"msg": "A-" + assignment.i, "dim": [200, 80]});
 		var codeContainer = document.createElement("div");
 		codeContainer.appendChild(code);
 		var barcode = "data:image/svg+xml;base64," + window.btoa(codeContainer.innerHTML);
