@@ -4,7 +4,7 @@ var user = null;
 var flag_colors = ["#007bff", "#dc3545", "#ffc107", "#28a745"];
 const fixedStations = {
 	"_theorie": {"name": "Theorie"},
-	"_pause": {"name": "Pause"},
+	"_pause": {"name": "Mittagspause"},
 };
 
 var circle = document.createElementNS("http://www.w3.org/2000/svg", "svg");
