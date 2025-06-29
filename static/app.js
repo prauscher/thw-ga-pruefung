@@ -1068,11 +1068,11 @@ function _openStationModal(s_id) {
 	]);
 
 	modal.elem.find(".modal-footer").append([
-		$("<button>").addClass(["btn", "btn-info"]).toggle(s_id !== "_pause").text("Vorschau").click(function (e) {
+		$("<button>").addClass(["btn", "btn-info"]).toggle(!s_id.startsWith("_")).text("Vorschau").click(function (e) {
 			e.preventDefault();
 
 			var print = new PrintOutput();
-			print.setOrientation(s_id == "_theorie" ? "landscape" : "portrait");
+			print.setOrientation("portrait");
 			print.write("<div style=\"page-break-after:right;\">" + _generatePage({"i": "----", "station": s_id}) + "</div>");
 			print.print();
 		}),
@@ -1221,9 +1221,9 @@ function _generateStation(i) {
 
 			// Open print dialog
 			var print = new PrintOutput();
-			if (i === "_pause") {
+			if (i.startsWith("_")) {
 				print.setOrientation("portrait");
-				print.write("<h2>Pausenankündigung</h2>");
+				print.write("<h2>" + (i == "_theorie" ? "Zuordnung zur Theorieprüfung" : "Pausenankündigung") + "</h2>");
 				print.write("<p>Beginn: <strong>" + formatTimestamp(Date.now() / 1000) + "</strong></p>");
 				if (autoEnd !== null) {
 					print.write("<p>Ende: <strong>" + formatTimestamp((Date.now() / 1000) + autoEnd) + "</strong></p>");
@@ -1232,7 +1232,7 @@ function _generateStation(i) {
 				print.write("<thead><tr>");
 				print.write("<th scope=\"row\" style=\"text-align:left;\">Prüfling</th>");
 				print.write("<th scope=\"row\" style=\"width:15%;\">Abgeholt</th>");
-				print.write("<th scope=\"row\" style=\"width:15%;\">Ausgegeben</th>");
+				print.write("<th scope=\"row\" style=\"width:15%;\">" + (i == "_theorie" ? "Abgeschlossen" : "Ausgegeben") + "</th>");
 				print.write("</tr></thead><tbody>");
 				for (var assignment of assignments) {
 					print.write("<tr style=\"height:3em; border-top:1px solid black;\">");
@@ -1243,7 +1243,7 @@ function _generateStation(i) {
 				}
 				print.write("</tbody></table>");
 			} else {
-				print.setOrientation(i == "_theorie" ? "landscape" : "portrait");
+				print.setOrientation("portrait");
 				for (var assignment of assignments) {
 					print.write("<div style=\"page-break-after:right;\">" + _generatePage(assignment) + "</div>");
 				}
@@ -1487,7 +1487,8 @@ function _generatePage(assignment) {
 
 	var examinee_name = assignment.examinee === undefined ? "OTST (Vorschau) (Vorschau)" : data.examinees[assignment.examinee].name;
 
-	if (assignment.station === "_theorie") {
+	if (false) {
+		// Auswertungsbogen, maybe useful later
 		const now = new Date();
 		const cell_style = {"border": "1px solid black", "padding": "2pt", "min-width": "1.5em"};
 
