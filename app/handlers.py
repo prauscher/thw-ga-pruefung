@@ -89,17 +89,20 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     def send(self, msg):
         self.write_message(json.dumps(msg))
 
-    def broadcast(self, request, msg):
-        self.state.snr = (self.state.snr + 1) & 0xffff
-        msg["_cid"] = request.get("_cid", "")
-        msg["_snr"] = self.state.snr
-        self.state.message_cache = self.state.message_cache[-511:] + [msg]
+    @classmethod
+    def send_to_all(cls, msg):
+        cls.state.snr = (cls.state.snr + 1) & 0xffff
+        msg["_snr"] = cls.state.snr
+        cls.state.message_cache = cls.state.message_cache[-511:] + [msg]
 
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {msg['_snr']:04d} | {self.current_user['name']:<14} | {msg['_cid']:<8} | {msg}")
-
-        for client in self._clients:
-            if client.auth is not None and client.auth in self.state.users:
+        for client in cls._clients:
+            if client.auth is not None and client.auth in cls.state.users:
                 client.send(msg)
+
+    def broadcast(self, request, msg):
+        msg["_cid"] = request.get("_cid", "")
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {msg['_snr']:04d} | {self.current_user['name']:<14} | {msg['_cid']:<8} | {msg}")
+        self.send_to_all(msg)
 
     def on_close(self):
         self._clients.discard(self)
@@ -245,27 +248,26 @@ class AppState(BroadcastState):
         self.assignments = data.get("assignments", {})
 
 
+def release_assignments():
+    for assignment_id, assignment in MessageHandler.state.assignments.items():
+        if assignment["end"] is None:
+            continue
+
+        if assignment["end"] > time.time():
+            continue
+
+        if assignment["result"] != "open":
+            continue
+
+        assignment["result"] = "done"
+        MessageHandler.send_to_all({"_m": "assignment", "i": assignment_id, **assignment})
+
+
 class MessageHandler(BroadcastWebSocketHandler):
     state = AppState()
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # TODO yes, this will run on each handler, so we use only every 60 seconds
-        tornado.ioloop.PeriodicCallback(self.release_assignments, 1000 * 60).start()
-
-    def release_assignments(self):
-        for assignment_id, assignment in self.state.assignments.items():
-            if assignment["end"] is None:
-                continue
-
-            if assignment["end"] > time.time():
-                continue
-
-            if assignment["result"] != "open":
-                continue
-
-            assignment["result"] = "done"
-            self.broadcast({}, {"_m": "assignment", "i": assignment_id, **assignment})
+    cleanup_callback = tornado.ioloop.PeriodicCallback(release_assignments, 1000 * 10)
+    cleanup_callback.start()
 
     def process_set_global_settings(self, msg):
         if self.current_user.get("role", "") != "admin":
