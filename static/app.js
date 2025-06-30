@@ -20,7 +20,8 @@ circle.append(_circle);
 // Need jQuery-Object for cloning
 circle = $(circle);
 
-scannerChars = {173: "-", 13: "", 16: ""};
+const scannerChars = {173: "-", 13: "", 16: ""};
+const assignment_states = {"open": "Aktiv", "done": "Abgeschlossen", "canceled": "Abgebrochen"};
 
 $(function () {
 	var _timeoutHandler = null;
@@ -309,16 +310,15 @@ $(function () {
 	$("#export").click(function () {
 		var csvContent = "data:text/csv;charset=utf-8,";
 
-		csvContent += "Prüfling,Station,Start,Ende,Dauer\r\n";
+		csvContent += "Prüfling,Station,Ergebnis,Start,Ende,Dauer\r\n";
 		for (var a_id of Object.keys(data.assignments)) {
 			const assignment = data.assignments[a_id];
-			if (assignment.result == "open" || assignment.result == "done") {
-				csvContent += '"' + data.examinees[assignment.examinee].name.replace('"', '""') + '",';
-				csvContent += '"' + (assignment.station.startsWith("_") ? fixedStations[assignment.station].name : data.stations[assignment.station].name).replace('"', '""') + '",';
-				csvContent += '"' + formatTimestamp(assignment.start) + '",';
-				csvContent += '"' + (assignment.end === null ? "" : formatTimestamp(assignment.end)) + '",';
-				csvContent += '"' + (assignment.end === null ? "" : Math.round((assignment.end - assignment.start) / 60)) + '"\r\n';
-			}
+			csvContent += '"' + data.examinees[assignment.examinee].name.replace('"', '""') + '",';
+			csvContent += '"' + (assignment.station.startsWith("_") ? fixedStations[assignment.station].name : data.stations[assignment.station].name).replace('"', '""') + '",';
+			csvContent += '"' + assignment_states[assignment.result] + '",';
+			csvContent += '"' + formatTimestamp(assignment.start) + '",';
+			csvContent += '"' + (assignment.end === null ? "" : formatTimestamp(assignment.end)) + '",';
+			csvContent += '"' + (assignment.end === null ? "" : Math.round((assignment.end - assignment.start) / 60)) + '"\r\n';
 		}
 
 		var link = document.createElement("a");
@@ -1108,8 +1108,6 @@ function _openAssignmentModal(a_id) {
 	const examinee = data.examinees[assignment.examinee];
 	const station = data.stations[assignment.station];
 
-	const _states = {"open": "Aktiv", "done": "Abgeschlossen", "canceled": "Abgebrochen"};
-
 	var options = [];
 
 	if (assignment.result == "open") {
@@ -1172,8 +1170,8 @@ function _openAssignmentModal(a_id) {
 					),
 				]),
 				$("<tr>").append([
-					$("<th>").text("Status"),
-					$("<td>").text(_states[assignment.result]),
+					$("<th>").text("Ergebnis"),
+					$("<td>").text(assignment_states[assignment.result]),
 				]),
 				$("<tr>").append([
 					$("<th>").text("Anfang"),
