@@ -401,7 +401,7 @@ function showWizard() {
 			}
 			serien[serie.serie].stations[serie.station].push({
 				"lfd": serie.lfd,
-				"name": serie.lfd + " " + task.name,
+				"name": "#" + serie.lfd + ": " + task.name,
 				"min_tasks": task.min_tasks,
 				"parts": task.parts,
 				"notes": task.notes,
