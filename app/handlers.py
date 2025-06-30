@@ -22,7 +22,11 @@ class BroadcastState:
     # First entry in cache is never transmitted, but needed during search of _fetch
     message_cache = [{"_snr": 0}]
     _storage = Path("data.json")
-    _loaded = False
+
+    def __init__(self):
+        if self._storage.exists():
+            self.from_file(json.loads(self._storage.read_text()))
+        tornado.ioloop.PeriodicCallback(self.store, 1000 * 5).start()
 
     def iterate_cache_since(self, since_snr):
         msgs = []
@@ -35,16 +39,6 @@ class BroadcastState:
 
         for cached_msg in reversed(msgs):
             yield cached_msg
-
-    def startup(self):
-        # Startup is called on each new connection, but should only run on first
-        if self._loaded:
-            return
-        self._loaded = True
-
-        if self._storage.exists():
-            self.from_file(json.loads(self._storage.read_text()))
-        tornado.ioloop.PeriodicCallback(self.store, 1000 * 5).start()
 
     def store(self):
         self._storage.write_text(json.dumps(self.to_file()))
@@ -67,10 +61,6 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     _clients = set()
     state = BroadcastState()
     auth = None
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.state.startup()
 
     @property
     def current_user(self):
