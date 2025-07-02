@@ -91,8 +91,8 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
 
     def broadcast(self, request, msg):
         msg["_cid"] = request.get("_cid", "")
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {msg['_snr']:04d} | {self.current_user['name']:<14} | {msg['_cid']:<8} | {msg}")
         self.send_to_all(msg)
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {msg['_snr']:04d} | {self.current_user['name']:<14} | {msg['_cid']:<8} | {msg}")
 
     def on_close(self):
         self._clients.discard(self)
