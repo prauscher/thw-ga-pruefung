@@ -41,7 +41,7 @@ $(function () {
 				$(document).trigger("onbarcodescanned", [_input]);
 			}
 			_input = "";
-		}, 50);
+		}, 500);
 	});
 });
 
