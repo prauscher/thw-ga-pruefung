@@ -354,6 +354,7 @@ class MessageHandler(BroadcastWebSocketHandler):
             **self.state.assignments.get(i, {}),
             "examinee": msg.get("examinee"),
             "station": msg.get("station"),
+            "examiner": msg.get("examiner", ""),
             "start": time.time(),
             "end": None if "autoEnd" not in msg else time.time() + msg["autoEnd"],
             "result": "open"}

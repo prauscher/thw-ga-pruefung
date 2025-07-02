@@ -682,13 +682,16 @@ function render() {
 }
 
 function _buildExamineeItem(e_id, a_id) {
-	var node = $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]).css("cursor", "pointer").click(function () {
-		if (a_id !== null) {
-			_openAssignmentModal(a_id);
-		} else {
-			_openExamineeModal(e_id);
-		}
-	});
+	var node = $("<li>").addClass(["list-group-item", "examinee-" + e_id, "text-truncate"]);
+	if (a_id !== false) {
+		node.css("cursor", "pointer").click(function () {
+			if (a_id !== null) {
+				_openAssignmentModal(a_id);
+			} else {
+				_openExamineeModal(e_id);
+			}
+		});
+	}
 
 	var openFixedStations = Object.keys(fixedStations);
 	var openStations = Object.keys(data.stations);
@@ -720,7 +723,7 @@ function _buildExamineeItem(e_id, a_id) {
 	node.append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []);
 
 	var expectedTimeout = null;
-	if (a_id !== null) {
+	if (a_id !== null && a_id !== false) {
 		if (data.assignments[a_id].end !== null) {
 			expectedTimeout = data.assignments[a_id].end;
 		} else {
@@ -1198,24 +1201,37 @@ function _generateStation(i) {
 		e.preventDefault();
 
 		var modal = new Modal("Prüflinge zuweisen");
+		modal.elem.find(".modal-dialog").addClass("modal-lg");
 
 		function _submit(e) {
 			e.preventDefault();
 
-			var autoEnd = modal.elem.find("#minutes").val();
-			if (autoEnd <= 0) {
-				autoEnd = null;
-			} else {
-				autoEnd = autoEnd * 60;
-			}
-
-			var assignments = modal.elem.find("#examinees").find("option:selected").map(function (_i, elem) {
-				var assignment = {"i": _gen_id(), "station": i, "examinee": $(elem).val()}
-				if (autoEnd !== null) {
-					assignment["autoEnd"] = autoEnd;
+			var autoEnd = null;
+			var assignments;
+			if (i.startsWith("_")) {
+				autoEnd = modal.elem.find("#minutes").val();
+				if (autoEnd <= 0) {
+					autoEnd = null;
+				} else {
+					autoEnd = autoEnd * 60;
 				}
-				return assignment;
-			}).get();
+
+				assignments = modal.elem.find("#examinees").find("option:selected").map(function (_i, elem) {
+					var assignment = {"i": _gen_id(), "station": i, "examinee": $(elem).val()}
+					if (autoEnd !== null) {
+						assignment["autoEnd"] = autoEnd;
+					}
+					return assignment;
+				}).get();
+			} else {
+				assignments = modal.elem.find(".examiner").map(function (_i, elem) {
+					var examiner = $(elem).val();
+					if (examiner == "") {
+						return null;
+					}
+					return {"i": _gen_id(), "station": i, "examinee": $(elem).data("e_id"), "examiner": $(elem).val()};
+				}).filter((_i, assignment) => assignment !== null).get();
+			}
 
 			if (assignments.length == 0) {
 				return;
@@ -1284,27 +1300,48 @@ function _generateStation(i) {
 			return examinee_priorities[b] - examinee_priorities[a];
 		});
 
-		modal.elem.find(".modal-body").append([
-			$("<p>").addClass("fw-bold").text("Station " + name),
-			$("<p>").text("Um Prüflinge zuzuweisen, werden ein oder mehrere Prüflinge in der unten stehenden Liste ausgewählt. Diese enthält nur verfügbare Prüflinge und ist sortiert nach Priorität und bereits absolvierten Stationen. Es können mehrere Prüflinge gleichzeitig zugewiesen werden und optional ein automatisches Ende der Zuweisung (z.B. für Pausen) eingestellt werden:"),
-			$("<form>").append([
-				$("<div>").addClass("mb-3").append([
-					$("<label>").attr("for", "minutes").addClass("col-form-label").text("Automatisches Ende"),
-					$("<input>").attr("type", "number").addClass("form-control").attr("id", "minutes").val(i === "_pause" ? 30 : 0)
+		modal.elem.find(".modal-body").append($("<p>").addClass("fw-bold").text("Station " + name));
+		if (i.startsWith("_")) {
+			modal.elem.find(".modal-body").append([
+				$("<p>").text("Um Prüflinge zuzuweisen, werden ein oder mehrere Prüflinge in der unten stehenden Liste ausgewählt. Diese enthält nur verfügbare Prüflinge und ist sortiert nach Priorität und bereits absolvierten Stationen. Es können mehrere Prüflinge gleichzeitig zugewiesen werden und optional ein automatisches Ende der Zuweisung (z.B. für Pausen) eingestellt werden:"),
+				$("<form>").append([
+					$("<div>").addClass("mb-3").append([
+						$("<label>").attr("for", "minutes").addClass("col-form-label").text("Automatisches Ende"),
+						$("<input>").attr("type", "number").addClass("form-control").attr("id", "minutes").val(i === "_pause" ? 30 : 0)
+					]),
+					$("<div>").addClass("mb-3").append([
+						$("<label>").attr("for", "examinees").addClass("col-form-label").text("Prüflinge"),
+						$("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "examinees").append(
+							examinees.map((e_id) => $("<option>").attr("value", e_id).text(data.examinees[e_id].name))),
+					]),
 				]),
-				$("<div>").addClass("mb-3").append([
-					$("<label>").attr("for", "examinees").addClass("col-form-label").text("Prüflinge"),
-					$("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "examinees").append(
-						examinees.map((e_id) => $("<option>").attr("value", e_id).text(data.examinees[e_id].name)))
+				$("<button>").addClass(["btn", "btn-primary", "float-end"]).text("Zuweisen").click(_submit)
+			]);
+		} else {
+			modal.elem.find(".modal-body").append([
+				$("<p>").text("Um Prüflinge zuzuweisen, schreibe den Namen des*der eingeteilten Prüfer*in in das Textfeld hinter die jeweiligen Namen. Es werden nur verfügbare Prüflinge angezeigt, die nach Priorität sortiert sind."),
+				$("<form>").submit(_submit).append([
+					$("<div>").addClass("mb-3").append([
+						$("<label>").attr("for", "examinees").addClass("col-form-label").text("Prüflinge"),
+						$("<div>").addClass("overflow-auto").css("height", "200px").append(
+							$("<ul>").addClass(["list-group", "list-group-flush"]).append(
+								examinees.map((e_id) => _buildExamineeItem(e_id, false).prepend(
+									$("<div>").addClass("float-end").append(
+										$("<input>").attr("type", "text").data("e_id", e_id).addClass(["form-control", "examiner"])
+									)
+								))
+							),
+						),
+					]),
+					$("<button>").attr("type", "submit").addClass(["btn", "btn-primary", "float-end"]).text("Zuweisen")
 				]),
-			]),
-		]);
+			]);
+		}
 
-		var button = $("<button>").addClass(["btn", "btn-primary"]).text("Zuweisen").click(_submit);
-		modal.elem.find(".modal-footer").append(button);
+		modal.elem.find(".modal-footer").remove();
 		modal.show();
 		modal.elem.on("shown.bs.modal", function () {
-			modal.elem.find("#examinees").focus();
+			modal.elem.find(".examiner:first").focus();
 		});
 	});
 
