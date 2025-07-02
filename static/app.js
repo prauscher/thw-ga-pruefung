@@ -693,7 +693,7 @@ function _buildExamineeItem(e_id, a_id) {
 	var openFixedStations = Object.keys(fixedStations);
 	var openStations = Object.keys(data.stations);
 	for (var assignment of Object.values(data.assignments)) {
-		if (assignment.examinee == e_id) {
+		if (assignment.examinee == e_id && assignment.result == "done") {
 			if (assignment.station.startsWith("_")) {
 				var _i = openFixedStations.indexOf(assignment.station);
 				if (_i >= 0) {
