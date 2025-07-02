@@ -322,11 +322,12 @@ $(function () {
 	$("#export").click(function () {
 		var csvContent = "data:text/csv;charset=utf-8,";
 
-		csvContent += "Prüfling,Station,Ergebnis,Start,Ende,Dauer\r\n";
+		csvContent += "Prüfling,Station,Prüfer,Ergebnis,Start,Ende,Dauer\r\n";
 		for (var a_id of Object.keys(data.assignments)) {
 			const assignment = data.assignments[a_id];
 			csvContent += '"' + data.examinees[assignment.examinee].name.replace('"', '""') + '",';
 			csvContent += '"' + (assignment.station.startsWith("_") ? fixedStations[assignment.station].name : data.stations[assignment.station].name).replace('"', '""') + '",';
+			csvContent += '"' + ("examiner" in assignment ? assignment.examiner : "").replace('"', '""') + '",';
 			csvContent += '"' + assignment_states[assignment.result] + '",';
 			csvContent += '"' + formatTimestamp(assignment.start) + '",';
 			csvContent += '"' + (assignment.end === null ? "" : formatTimestamp(assignment.end)) + '",';
@@ -739,6 +740,10 @@ function _buildExamineeItem(e_id, a_id) {
 			node.addClass("best-before").data("best-before", expectedTimeout);
 			formatBestBefore(node);
 		}
+
+		if ("examiner" in data.assignments[a_id]) {
+			node.prepend($("<span>").addClass(["float-end", "badge", "bg-primary"]).text(data.assignments[a_id].examiner));
+		}
 	}
 
 	return node;
@@ -752,6 +757,7 @@ function formatBestBefore(node) {
 function _openExamineeModal(e_id) {
 	const examinee = data.examinees[e_id];
 	var modal = new Modal("Prüfling " + examinee.name);
+	modal.elem.find(".modal-dialog").addClass("modal-lg");
 
 	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, {"sum": 0, "count": 0}]));
 	var assignments = [];
@@ -836,6 +842,7 @@ function _openExamineeModal(e_id) {
 					_openAssignmentModal(assignment.i);
 				}),
 			),
+			$("<td>").text("examiner" in assignment ? assignment.examiner : ""),
 			$("<td>").addClass("text-end").text(Math.round((assignment.start - oldNow) / 60)),
 			$("<td>").addClass("text-end").append(durationContent),
 		]));
@@ -932,6 +939,7 @@ function _openExamineeModal(e_id) {
 				$("<thead>").append(
 					$("<tr>").append([
 						$("<th>").text("Station"),
+						$("<th>").text("Prüfer*in"),
 						$("<th>").addClass("text-end").text("Wartezeit [min]"),
 						$("<th>").addClass("text-end").text("Dauer [min]"),
 					])
@@ -974,6 +982,7 @@ function _openExamineeModal(e_id) {
 
 function _openStationModal(s_id) {
 	var modal = new Modal("Station " + (s_id.startsWith("_") ? fixedStations[s_id].name : data.stations[s_id].name));
+	modal.elem.find(".modal-dialog").addClass("modal-lg");
 
 	var missingExaminees = Object.keys(data.examinees);
 	var currentExaminees = [];
@@ -1036,6 +1045,7 @@ function _openStationModal(s_id) {
 				$("<thead>").append(
 					$("<tr>").append([
 						$("<th>").text("Prüfling"),
+						$("<th>").text("Prüfer*in"),
 						$("<th>").addClass("text-end").text("Dauer [min]"),
 					])
 				),
@@ -1061,6 +1071,7 @@ function _openStationModal(s_id) {
 						name.toggleClass("fw-bold", assignment.result == "open");
 						return $("<tr>").toggleClass("fw-bold", assignment.result == "open").append([
 							$("<td>").append(name),
+							$("<td>").append("examiner" in assignment ? assignment.examiner : ""),
 							$("<td>").addClass("text-end").append(duration)
 						]);
 					})
@@ -1171,6 +1182,10 @@ function _openAssignmentModal(a_id) {
 							_openStationModal(assignment.station);
 						})
 					),
+				]),
+				$("<tr>").append([
+					$("<th>").text("Prüfer*in"),
+					$("<td>").text("examiner" in assignment ? assignment.examiner : "-"),
 				]),
 				$("<tr>").append([
 					$("<th>").text("Ergebnis"),
@@ -1367,7 +1382,18 @@ function _generateStation(i) {
 		}
 	}
 
-	assignments.sort(function (a, b) {
+	assignments.sort(function (a_id, b_id) {
+		const a = data.assignments[a_id];
+		const b = data.assignments[b_id];
+		if ("examiner" in a && "examiner" in b) {
+			if (a.examiner == b.examiner) {
+				return 0;
+			} else if (a.examiner < b.examiner) {
+				return -1;
+			} else if (a.examiner > b.examiner) {
+				return 1;
+			}
+		}
 		return b.start - a.start;
 	});
 
@@ -1507,7 +1533,8 @@ function _generatePage(assignment) {
 	var header = $("<div>");
 	var body = $("<div>");
 
-	var examinee_name = assignment.examinee === undefined ? "OTST (Vorschau) (Vorschau)" : data.examinees[assignment.examinee].name;
+	var examinee_name = assignment.examinee === undefined ? "OTST (Vorschau)" : data.examinees[assignment.examinee].name;
+	var examiner_name = assignment.examiner === undefined ? "Berta Beispiel" : assignment.examiner;
 
 	if (false) {
 		// Auswertungsbogen, maybe useful later
@@ -1648,8 +1675,8 @@ function _generatePage(assignment) {
 				$("<td>").text(formatTimestamp(start)),
 			]),
 			$("<tr>").append([
-				$("<th>").text("Prüfer*in (Name und Unterschrift)"),
-				$("<td>").text("_".repeat(25)),
+				$("<th>").text("Prüfer*in"),
+				$("<td>").css("white-space", "pre").text("\n" + "_".repeat(25) + "\n" + examiner_name),
 			]),
 		]));
 
