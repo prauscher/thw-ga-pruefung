@@ -368,7 +368,7 @@ $(function () {
 	}, 1000);
 
 	$.get({
-		url: "/static/aufgaben.json",
+		url: "/static/aufgaben.json?t=" + Date.now(),
 		success: function (data) {
 			aufgaben = data;
 		},
