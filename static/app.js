@@ -26,6 +26,15 @@ const snd_beep_error = new Audio("data:audio/mpeg;base64,//PkZAAWIKU0A61oABzhKmg
 const scannerChars = {173: "-", 13: "", 16: ""};
 const assignment_states = {"open": "Aktiv", "done": "Abgeschlossen", "canceled": "Abgebrochen"};
 
+var socket = null;
+
+function _gen_id() {
+	var S4 = function() {
+		return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+	};
+	return S4() + S4();
+}
+
 $(function () {
 	var _timeoutHandler = null;
 	var _input = "";
