@@ -150,7 +150,7 @@
 		{"name": "Stellwinkel (Schmiege)", "mandatory": false},
 		{"name": "Wasserwaage", "mandatory": false}
 	]},
-	{"nr": "6.1.4", "name": "Rechwinkliges Ablängen eines Kantholzes mit der Bügelsäge", "min_tasks": 3, "serien": [{"serie": "A", "station": "3 Ablängen"}], "parts": [
+	{"nr": "6.1.4", "name": "Rechwinkliges Ablängen eines Kantholzes mit der Bügelsäge", "min_tasks": 3, "serien": [{"serie": "A", "station": "3 Ablängen", "lfd": 11}], "parts": [
 		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true},
 		{"name": "Für den Anschnitt Führungsholz verwendet", "mandatory": true},
 		{"name": "Sägeblattlänge voll ausgenutzt", "mandatory": false},
