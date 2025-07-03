@@ -1218,6 +1218,7 @@ function _generateStation(i) {
 			e.preventDefault();
 
 			var autoEnd = null;
+			var globalExaminer = "";
 			var assignments;
 			if (i.startsWith("_")) {
 				autoEnd = modal.elem.find("#minutes").val();
@@ -1227,8 +1228,10 @@ function _generateStation(i) {
 					autoEnd = autoEnd * 60;
 				}
 
+				globalExaminer = modal.elem.find("#examiner").val();
+
 				assignments = modal.elem.find("#examinees").find("option:selected").map(function (_i, elem) {
-					var assignment = {"i": _gen_id(), "station": i, "examinee": $(elem).val()}
+					var assignment = {"i": _gen_id(), "station": i, "examinee": $(elem).val(), "examiner": globalExaminer};
 					if (autoEnd !== null) {
 						assignment["autoEnd"] = autoEnd;
 					}
@@ -1260,6 +1263,9 @@ function _generateStation(i) {
 				print.write("<p>Beginn: <strong>" + formatTimestamp(Date.now() / 1000) + "</strong></p>");
 				if (autoEnd !== null) {
 					print.write("<p>Ende: <strong>" + formatTimestamp((Date.now() / 1000) + autoEnd) + "</strong></p>");
+				}
+				if (globalExaminer != "") {
+					print.write("<p>Prüfer*in: <strong>" + globalExaminer + "</strong></p>");
 				}
 				print.write("<table style=\"width: 100%;border-collapse:collapse;\">");
 				print.write("<thead><tr>");
@@ -1318,11 +1324,15 @@ function _generateStation(i) {
 		modal.elem.find(".modal-body").append($("<p>").addClass("fw-bold").text("Station " + name));
 		if (i.startsWith("_")) {
 			modal.elem.find(".modal-body").append([
-				$("<p>").text("Um Prüflinge zuzuweisen, werden ein oder mehrere Prüflinge in der unten stehenden Liste ausgewählt. Diese enthält nur verfügbare Prüflinge und ist sortiert nach Priorität und bereits absolvierten Stationen. Es können mehrere Prüflinge gleichzeitig zugewiesen werden und optional ein automatisches Ende der Zuweisung (z.B. für Pausen) eingestellt werden:"),
+				$("<p>").text("Um Prüflinge zuzuweisen, werden ein oder mehrere Prüflinge in der unten stehenden Liste ausgewählt. Diese enthält nur verfügbare Prüflinge und ist sortiert nach Priorität und bereits absolvierten Stationen. Es können mehrere Prüflinge gleichzeitig zugewiesen werden und optional ein automatisches Ende der Zuweisung (z.B. für Pausen) eingestellt werden. Optional kann der Name des*der Prüfer*in hinterlegt werden:"),
 				$("<form>").append([
 					$("<div>").addClass("mb-3").append([
 						$("<label>").attr("for", "minutes").addClass("col-form-label").text("Automatisches Ende"),
 						$("<input>").attr("type", "number").addClass("form-control").attr("id", "minutes").val(i === "_pause" ? 30 : 0)
+					]),
+					$("<div>").addClass("mb-3").append([
+						$("<label>").attr("for", "examiner").addClass("col-form-label").text("Prüfer*in"),
+						$("<input>").attr("type", "text").addClass("form-control").attr("id", "examiner").val("")
 					]),
 					$("<div>").addClass("mb-3").append([
 						$("<label>").attr("for", "examinees").addClass("col-form-label").text("Prüflinge"),
