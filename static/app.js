@@ -1413,6 +1413,7 @@ function _generateStation(i) {
 	}
 
 	var examinees = [];
+	var activeExaminers = [];
 	for (const examinee_kv of Object.entries(data.examinees)) {
 		if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > Date.now() / 1000)) {
 			continue;
@@ -1420,6 +1421,12 @@ function _generateStation(i) {
 		examinees.push(examinee_kv[0]);
 	}
 	for (var assignment of Object.values(data.assignments)) {
+		if (assignment.result == "open" && assignment.station == i && "examiner" in assignment) {
+			var _i = activeExaminers.indexOf(assignment.examiner);
+			if (_i < 0) {
+				activeExaminers.push(assignment.examiner);
+			}
+		}
 		if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
 			var _i = examinees.indexOf(assignment.examinee);
 			if (_i >= 0) {
@@ -1454,7 +1461,7 @@ function _generateStation(i) {
 			]).append(assignments.map(function (a_id) {
 				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
 			})).append(
-				(i.startsWith("_") || capacity < assignments.length) ? [] : Array.from(Array(capacity - assignments.length)).map(function (_, j) {
+				(i.startsWith("_") || capacity < activeExaminers.length) ? [] : Array.from(Array(capacity - activeExaminers.length)).map(function (_, j) {
 					return $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)")
 				})
 			),
