@@ -568,7 +568,7 @@ function _openStationEditModal(s_id) {
 	var predefinedTasks = $("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "predefined_tasks").append(
 		aufgaben.map(function (task) {
 			var _preset = task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).concat(task.notes || []).join("\n");
-			return $("<option>").data("preset", _preset).text(task.name);
+			return $("<option>").data("preset", _preset).text(task.nr + " " + task.name);
 		})
 	).change(function () {
 		var taskDescription = $(this).find("option:selected").map(function (_i, elem) {
