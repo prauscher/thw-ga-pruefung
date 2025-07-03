@@ -752,10 +752,6 @@ function _buildExamineeItem(e_id, a_id) {
 			node.addClass("best-before").data("best-before", expectedTimeout);
 			formatBestBefore(node);
 		}
-
-		if ("examiner" in data.assignments[a_id]) {
-			node.prepend($("<span>").addClass(["float-end", "badge", "bg-primary", "ms-1"]).text(data.assignments[a_id].examiner));
-		}
 	}
 
 	return node;
@@ -1434,6 +1430,8 @@ function _generateStation(i) {
 	assignButton.prop("disabled", examinees.length == 0);
 
 	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
+	var currentExaminer = "";
+	var examinerColors = ["#fff080", "#800080", "#00806c", "#800000", "#004e80"];
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").css("cursor", "pointer").text(name).click(function () {
@@ -1455,7 +1453,16 @@ function _generateStation(i) {
 					$("<span>").text("Abschluss"),
 				]),
 			]).append(assignments.map(function (a_id) {
-				return _buildExamineeItem(data.assignments[a_id].examinee, a_id);
+				var item = _buildExamineeItem(data.assignments[a_id].examinee, a_id);
+
+				if ("examiner" in data.assignments[a_id] && data.assignments[a_id].examiner != "") {
+					if (currentExaminer != data.assignments[a_id].examiner) {
+						examinerColors.push(examinerColors.shift());
+					}
+					item.css("border-right", ".8em solid " + examinerColors[0]);
+				}
+
+				return item;
 			})).append(
 				(i.startsWith("_") || capacity < activeExaminers.length) ? [] : Array.from(Array(capacity - activeExaminers.length)).map(function (_, j) {
 					return $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)")
