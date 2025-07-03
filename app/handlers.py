@@ -83,7 +83,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     def send_to_all(cls, msg):
         cls.state.snr = (cls.state.snr + 1) & 0xffff
         msg["_snr"] = cls.state.snr
-        cls.state.message_cache = cls.state.message_cache[-511:] + [msg]
+        cls.state.message_cache = cls.state.message_cache[-1023:] + [msg]
 
         for client in cls._clients:
             if client.auth is not None and client.auth in cls.state.users:
