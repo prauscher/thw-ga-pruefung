@@ -360,7 +360,7 @@
 		"* Anmerkung für den/die Prüfer/in: siehe Ansprechpartner-Tafeln in der Materialliste. Folgende Fakten sollen vorkommen: Zugunglück, Zug in Haus, Zugunfall; Haus/Gebäude beschädigt; möglicherweise Einsturzgefahr; möglicherweise verletzte Personen",
 		"** Prüfer/in dient als Ansprechpartner/Empfänger der Meldung."
 	]},
-	{"nr": "10.1", "name": "Transportsicherung auf einer Kranken-trage für den Transport über eine längere Strecke im unwegsamen Gelände", "min_tasks": 7, "serien": [{"serie": "B", "station": "5 Trage", "lfd": 20}, {"serie": "C", "station": "6 Trage", "lfd": 24}], "parts": [
+	{"nr": "10.1", "name": "Transportsicherung auf einer Kranken-trage für den Transport über eine längere Strecke im unwegsamen Gelände", "min_tasks": 7, "serien": [{"serie": "B", "station": "5 Trage", "lfd": 20, "print_lfd": 19}, {"serie": "C", "station": "6 Trage", "lfd": 24}], "parts": [
 		{"name": "Arbeitsleinen mit Doppelstich verbunden", "mandatory": true},
 		{"name": "Leinenführung nach Vorgabe fest am Körper", "mandatory": true},
 		{"name": "Person in der Einbindungszeit betreut, Handgriffe erklärt und angesprochen", "mandatory": true},
@@ -417,7 +417,7 @@
 		"Die Aufgabe ist an das örtlich verfügbare Gerät anzupassen.",
 		"* Verfügt der jeweilige Gerätetyp über kein Umschaltventil, ist das Kriterium als erfüllt zu werten"
 	]},
-	{"nr": "10.7", "name": "Anlegen der persönlichen Schutzusstattung gegen Absturz (PSAgA)", "min_tasks": 7, "serien": [{"serie": "B", "station": "5 Trage", "lfd": 19}], "parts": [
+	{"nr": "10.7", "name": "Anlegen der persönlichen Schutzusstattung gegen Absturz (PSAgA)", "min_tasks": 7, "serien": [{"serie": "B", "station": "5 Trage", "lfd": 19, "print_lfd": 20}], "parts": [
 		{"name": "Keine Gegenstände in den Taschen des Multifunktionalen Einsatzanzuges (MEA)", "mandatory": true},
 		{"name": "Sichtprüfung durchgeführt, um mögliche Verunreinigungen, Beschädigungen oder Risse feststellen zu können", "mandatory": true},
 		{"name": "Auffanggurt an der Rückenöse aufgenommen", "mandatory": false},

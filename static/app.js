@@ -410,12 +410,13 @@ function showWizard() {
 			}
 			serien[serie.serie].stations[serie.station].push({
 				"lfd": serie.lfd,
+				"print_lfd": "print_lfd" in serie ? serie.print_lfd : serie.lfd,
 				"name": "#" + serie.lfd + ": " + task.name,
 				"min_tasks": task.min_tasks,
 				"parts": task.parts,
 				"notes": task.notes,
 			});
-			serien[serie.serie].stations[serie.station].sort((a, b) => a.lfd - b.lfd);
+			serien[serie.serie].stations[serie.station].sort((a, b) => a.print_lfd - b.print_lfd);
 		}
 	}
 
