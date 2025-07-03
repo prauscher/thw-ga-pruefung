@@ -1307,7 +1307,7 @@ function _generateStation(i) {
 					examinees.splice(_i, 1);
 				}
 			}
-			if (assignment.station == i && assignment.start > Date.now() / 1000 - 60 * 60 && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0) {
+			if (assignment.station == i && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0 && (assignment.start > Date.now() / 1000 - 60 * 60 || assignment.result == "open")) {
 				activeExaminers.push(assignment.examiner);
 			}
 		}
@@ -1340,7 +1340,7 @@ function _generateStation(i) {
 			]);
 		} else {
 			modal.elem.find(".modal-body").append([
-				$("<p>").text("Um Prüflinge zuzuweisen, schreibe den Namen des*der eingeteilten Prüfer*in in das Textfeld hinter die jeweiligen Namen. Es werden nur verfügbare Prüflinge angezeigt, die nach Priorität sortiert sind."),
+				$("<p>").text("Um Prüflinge zuzuweisen, schreibe den Namen des*der eingeteilten Prüfer*in (z.B. ODAR David Krings) in das Textfeld hinter die jeweiligen Namen. Es werden nur verfügbare Prüflinge angezeigt, die nach Priorität sortiert sind."),
 				$("<form>").submit(_submit).append([
 					$("<div>").addClass("mb-3").append([
 						$("<label>").attr("for", "examinees").addClass("col-form-label").text("Prüflinge"),
