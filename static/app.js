@@ -723,7 +723,7 @@ function _buildExamineeItem(e_id, a_id) {
 	if ("locked" in data.examinees[e_id] && (data.examinees[e_id].locked == -1 || data.examinees[e_id].locked > Date.now() / 1000)) {
 		state_indicator = "bg-secondary";
 	}
-	node.append($("<span>").addClass(["badge", "me-1", state_indicator]).text(openStations.length));
+	node.append($("<span>").addClass(["float-start", "badge", "me-1", state_indicator]).text(openStations.length));
 	node.append(data.examinees[e_id].name);
 	node.append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []);
 
@@ -855,7 +855,7 @@ function _openExamineeModal(e_id) {
 	}
 	if (now !== null && missingStations.length > 0) {
 		assignmentEntries.push($("<tr>").append([
-			$("<td>").addClass("fst-italic").text(" "),
+			$("<td>").attr("colspan", 2).addClass("fst-italic").text(" "),
 			$("<td>").addClass("text-end").text(Math.round((Date.now() / 1000 - now) / 60)),
 			$("<td>").addClass("text-end").text(" "),
 		]));
@@ -951,10 +951,10 @@ function _openExamineeModal(e_id) {
 				$("<tbody>").append(assignmentEntries),
 				$("<tfoot>").append(
 					$("<tr>").toggle(assignmentEntries.length == 0).append(
-						$("<th>").attr("colspan", 3).text("(Leer)")
+						$("<th>").attr("colspan", 4).text("(Leer)")
 					),
 					$("<tr>").toggle(assignmentEntries.length > 0).append([
-						$("<th>").text("Summe"),
+						$("<th>").attr("colspan", 2).text("Summe"),
 						$("<td>").addClass("text-end").text(Math.round(sums.waiting / 60)),
 						$("<td>").addClass("text-end").append($("<span>").text(Math.round(sums.station / 60))).append(sums.avg_station == 0 ? [] : [
 							$("<br>"),
@@ -1082,10 +1082,10 @@ function _openStationModal(s_id) {
 				),
 				$("<tfoot>").append(
 					$("<tr>").toggle(assignments.length == 0).append(
-						$("<th>").attr("colspan", 2).text("(Leer)")
+						$("<th>").attr("colspan", 3).text("(Leer)")
 					),
 					$("<tr>").toggle(assignments.length > 0).append([
-						$("<th>").text("Durchschnitt"),
+						$("<th>").attr("colspan", 2).text("Durchschnitt"),
 						$("<th>").addClass("text-end").text(durationCount == 0 ? "unbekannt" : Math.round((durationSum / durationCount) / 60)),
 					])
 				),
