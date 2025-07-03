@@ -1373,26 +1373,32 @@ function _generateStation(i) {
 	});
 
 	var assignments = [];
-	var assignmentsFinished = 0;
-	var firstStartedAssignment = null;
-	var lastFinishedAssignment = null;
+	var examineesDone = [];
+	var lastStartedAssignment = null;
+	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, []]));
+	var ownTimes = Object.fromEntries(Object.keys(data.examinees).map((_e_id) => [_e_id, Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, null]))]));
 
 	for (var a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
+
+		if (assignment.result == "done" && assignment.end !== null && !assignment.station.startsWith("_")) {
+			ownTimes[assignment.examinee][assignment.station] = assignment.end - assignment.start;
+			stationTimes[assignment.station].push(assignment.end - assignment.start);
+		}
+
 		if (assignment.station == i) {
 			if (assignment.result == "open") {
 				assignments.push(a_id);
+				if (lastStartedAssignment === null || assignment.start > lastStartedAssignment) {
+					lastStartedAssignment = assignment.start;
+				}
 			} else if (assignment.result == "done") {
-				if (firstStartedAssignment === null || assignment.start < firstStartedAssignment) {
-					firstStartedAssignment = assignment.start;
-				}
-				if (lastFinishedAssignment === null || assignment.end > lastFinishedAssignment) {
-					lastFinishedAssignment = assignment.end;
-				}
-				assignmentsFinished += 1;
+				examineesDone.push(assignment.examinee);
 			}
 		}
 	}
+
+	stationTimes = Object.fromEntries(Object.entries(stationTimes).map(([_s_id, _times]) => [_s_id, _times.length == 0 ? null : _times.reduce((_c, _v) => _v + _c, 0) / _times.length]));
 
 	assignments.sort(function (a_id, b_id) {
 		const a = data.assignments[a_id];
@@ -1409,12 +1415,33 @@ function _generateStation(i) {
 		return b.start - a.start;
 	});
 
+	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
+
 	var end = null;
-	if (firstStartedAssignment !== null && lastFinishedAssignment !== null) {
-		end = lastFinishedAssignment + (Object.keys(data.examinees).length - assignmentsFinished) * (lastFinishedAssignment - firstStartedAssignment) / assignmentsFinished;
+	if (!i.startsWith("_") && lastStartedAssignment !== null && examineesDone.length > 0 && capacity > 0) {
+		end = lastStartedAssignment + Object.keys(data.examinees).reduce(function (carry, e_id) {
+			// Ignore examinees which completed this station
+			if (examineesDone.indexOf(e_id) >= 0) {
+				return carry;
+			}
+
+			var factors = [];
+			for (const _s_id of Object.keys(data.stations)) {
+				if (ownTimes[e_id][_s_id] !== null && stationTimes[_s_id] !== null) {
+					factors.push(ownTimes[e_id][_s_id] / stationTimes[_s_id]);
+				}
+			}
+
+			var factor = 1;
+			if (factors.length > 0) {
+				factor = (factors.reduce((_c, _v) => _v + _c, 0) / factors.length);
+			}
+			return carry + factor;
+		}, 0) * stationTimes[i] / capacity;
 	}
 
 	var examinees = [];
+	var allExaminers = {};
 	var activeExaminers = [];
 	for (const examinee_kv of Object.entries(data.examinees)) {
 		if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > Date.now() / 1000)) {
@@ -1423,9 +1450,11 @@ function _generateStation(i) {
 		examinees.push(examinee_kv[0]);
 	}
 	for (var assignment of Object.values(data.assignments)) {
-		if (assignment.result == "open" && assignment.station == i && "examiner" in assignment) {
-			var _i = activeExaminers.indexOf(assignment.examiner);
-			if (_i < 0) {
+		if ("examiner" in assignment && assignment.station == i) {
+			if (!(assignment.examiner in allExaminers) || assignment.start > allExaminers[assignment.examiner]) {
+				allExaminers[assignment.examiner] = assignment.start;
+			}
+			if (assignment.result == "open" && activeExaminers.indexOf(assignment.examiner) < 0) {
 				activeExaminers.push(assignment.examiner);
 			}
 		}
@@ -1437,9 +1466,12 @@ function _generateStation(i) {
 		}
 	}
 
+	// Find examiners which were once active, but are no longer, sorted by their last started assignment
+	var availableExaminers = Object.entries(allExaminers).filter((kv) => activeExaminers.indexOf(kv[0]) < 0);
+	availableExaminers.sort((kv_a, kv_b) => kv_b[1] - kv_a[1]);
+
 	assignButton.prop("disabled", examinees.length == 0);
 
-	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
 	var currentExaminer = "";
 	var examinerColors = ["#fff080", "#800080", "#00806c", "#800000", "#004e80"];
 	elem = $("<div>").addClass("col").append(
@@ -1452,13 +1484,13 @@ function _generateStation(i) {
 					$("<div>").addClass(["progress"]).append(Object.keys(data.examinees).length == 0 ? [
 						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", "100%").text(""),
 					] : [
-						$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (assignmentsFinished / Object.keys(data.examinees).length) * 100 + "%").text(assignmentsFinished > 0 ? assignmentsFinished : ""),
+						$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (examineesDone.length / Object.keys(data.examinees).length) * 100 + "%").text(examineesDone.length > 0 ? examineesDone.length : ""),
 						$("<div>").addClass(["progress-bar", "bg-primary"]).css("width", (assignments.length / Object.keys(data.examinees).length) * 100 + "%").text(assignments.length > 0 ? assignments.length : ""),
 						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", (examinees.length / Object.keys(data.examinees).length) * 100 + "%").text(examinees.length > 0 ? examinees.length : ""),
-						$("<div>").addClass(["progress-bar", "bg-secondary"]).css("width", ((Object.keys(data.examinees).length - assignmentsFinished - assignments.length - examinees.length) / Object.keys(data.examinees).length) * 100 + "%").text(Object.keys(data.examinees).length > assignmentsFinished + assignments.length + examinees.length ? Object.keys(data.examinees).length - assignmentsFinished - assignments.length - examinees.length : ""),
+						$("<div>").addClass(["progress-bar", "bg-secondary"]).css("width", ((Object.keys(data.examinees).length - examineesDone.length - assignments.length - examinees.length) / Object.keys(data.examinees).length) * 100 + "%").text(Object.keys(data.examinees).length > examineesDone.length + assignments.length + examinees.length ? Object.keys(data.examinees).length - examineesDone.length - assignments.length - examinees.length : ""),
 					])
 				),
-				$("<li>").addClass("list-group-item").append([
+				$("<li>").addClass("list-group-item").toggle(!i.startsWith("_")).append([
 					$("<span>").addClass("float-end").text(end === null ? "unbekannt" : formatTimestamp(end)),
 					$("<span>").text("Abschluss"),
 				]),
@@ -1467,15 +1499,25 @@ function _generateStation(i) {
 
 				if ("examiner" in data.assignments[a_id] && data.assignments[a_id].examiner != "") {
 					if (currentExaminer != data.assignments[a_id].examiner) {
+						currentExaminer = data.assignments[a_id].examiner;
 						examinerColors.push(examinerColors.shift());
+						item.append($("<small>").addClass("float-end").text(currentExaminer));
 					}
+					item.addClass("pe-1");
 					item.css("border-right", ".8em solid " + examinerColors[0]);
 				}
 
 				return item;
 			})).append(
 				(i.startsWith("_") || capacity < activeExaminers.length) ? [] : Array.from(Array(capacity - activeExaminers.length)).map(function (_, j) {
-					return $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)")
+					var item = $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)");
+					if (j < availableExaminers.length) {
+						examinerColors.push(examinerColors.shift());
+						item.append($("<small>").addClass("float-end").text(availableExaminers[j][0]));
+						item.addClass("pe-1");
+						item.css("border-right", ".8em solid " + examinerColors[0]);
+					}
+					return item;
 				})
 			),
 			$("<div>").addClass("card-footer").append([
