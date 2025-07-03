@@ -1,32 +1,32 @@
 [
-	{"name": "3.1 Verbinden zweier Leinen mit dem Doppelstich", "min_tasks": 2, "serien": [{"serie": "A", "station": "I 1 Leinen", "lfd": 2}], "parts": [
+	{"nr": "3.1", "name": "Verbinden zweier Leinen mit dem Doppelstich", "min_tasks": 2, "serien": [{"serie": "A", "station": "1 Leinen", "lfd": 2}], "parts": [
 		{"name": "Doppelstich richtig ausgeführt", "mandatory": true},
 		{"name": "Überhang der freien Leinenenden mindestens 10x Leinendurchmesser", "mandatory": false},
 		{"name": "Auf parallele Leinenführung ist zu achten", "mandatory": false}
 	]},
-	{"name": "3.2 Aufschießen einer Arbeitsleine", "min_tasks": 4, "serien": [{"serie": "B", "station": "I 1 Leinen", "lfd": 1}], "parts": [
+	{"nr": "3.2", "name": "Aufschießen einer Arbeitsleine", "min_tasks": 4, "serien": [{"serie": "B", "station": "1 Leinen", "lfd": 1}], "parts": [
 		{"name": "Freies Leinenende etwas kürzer als der normale Schlag", "mandatory": false},
 		{"name": "Drallfrei aufgeschossen", "mandatory": false},
 		{"name": "Mit mindestens drei Schlägen quer umwickelt", "mandatory": false},
 		{"name": "Schläge eng und fest gewickelt", "mandatory": false},
 		{"name": "Überstehendes Leinenende hat mindetens 10x Leinendurchmesser", "mandatory": false}
 	]},
-	{"name": "3.3 Verbinden zweier Rundhölzer mit einem Kreuzbund (Beginn mit Mastwurf)", "min_tasks": 4, "serien": [{"serie": "B", "station": "I 1 Leinen", "lfd": 2}], "parts": [
+	{"nr": "3.3", "name": "Verbinden zweier Rundhölzer mit einem Kreuzbund (Beginn mit Mastwurf)", "min_tasks": 4, "serien": [{"serie": "B", "station": "1 Leinen", "lfd": 2}], "parts": [
 		{"name": "Mit Mastwurf und Halbschlag begonnen", "mandatory": true},
 		{"name": "Wechselschlag richtig angesetzt", "mandatory": true},
 		{"name": "Mindestens drei Schläge in jede Richtung", "mandatory": true},
 		{"name": "Kreuzbund mit Rosette festgezogen", "mandatory": true}
 	]},
-	{"name": "3.4 Binden eines Mastwurfs an einem Rundholz", "min_tasks": 2, "serien": [{"serie": "A", "station": "I 1 Leinen", "lfd": 1}, {"serie": "C", "station": "I 1 Leinen", "lfd": 1}], "parts": [
+	{"nr": "3.4", "name": "Binden eines Mastwurfs an einem Rundholz", "min_tasks": 2, "serien": [{"serie": "A", "station": "1 Leinen", "lfd": 1}, {"serie": "C", "station": "1 Leinen", "lfd": 1}], "parts": [
 		{"name": "Mastwurf richtig gebunden *", "mandatory": true},
 		{"name": "Mastwurf durch Halbschlag gesichert", "mandatory": true},
 		{"name": "Überhang des freien Leinenendes hat mindestens 10x Leinendurchmesser", "mandatory": false}
 	], "notes": ["* Anmerkung für den/die Prüfer/in: Die Lastrichtung ist vorzugeben."]},
-	{"name": "3.5 Binden eines einfachen Ankerstichs an einem Rundholz mit einer Arbeitsleine; die Leine ist mit einem halben Schlag zu sichern", "min_tasks": 2, "serien": [{"serie": "B", "station": "I 1 Leinen", "lfd": 3}], "parts": [
+	{"nr": "3.5", "name": "Binden eines einfachen Ankerstichs an einem Rundholz mit einer Arbeitsleine; die Leine ist mit einem halben Schlag zu sichern", "min_tasks": 2, "serien": [{"serie": "B", "station": "1 Leinen", "lfd": 3}], "parts": [
 		{"name": "\"Verloren fest\" um Rundholz gelegt", "mandatory": true},
 		{"name": "Ankerstich inkl. Halbschlag richtig ausgeführt", "mandatory": true}
 	]},
-	{"name": "3.6 Binden eines Dreibockbundes", "min_tasks": 5, "serien": [{"serie": "C", "station": "I 1 Leinen", "lfd": 2}], "parts": [
+	{"nr": "3.6", "name": "Binden eines Dreibockbundes", "min_tasks": 5, "serien": [{"serie": "C", "station": "1 Leinen", "lfd": 2}], "parts": [
 		{"name": "Stammenden auf gleiche Höhe gelegt", "mandatory": false},
 		{"name": "Abstände der Hölzer auf 3/4 des Durchmessers eingehalten", "mandatory": false},
 		{"name": "Bund ca. 50cm unterhalb des kürzesten Zopfendes begonnen", "mandatory": false},
@@ -35,70 +35,70 @@
 		{"name": "Mastwürfe (mit Halbschlag) liegen unterhalb der Achterschläge", "mandatory": true},
 		{"name": "Würgeschlag ist ausgeführt", "mandatory": true}
 	]},
-	{"name": "3.7 Herstellen eines Bockschnürbunds mit einer Arbeitsleine (kurz)", "min_tasks": 4, "serien": [{"serie": "C", "station": "I 1 Leinen", "lfd": 3}], "parts": [
+	{"nr": "3.7", "name": "Herstellen eines Bockschnürbunds mit einer Arbeitsleine (kurz)", "min_tasks": 4, "serien": [{"serie": "C", "station": "1 Leinen", "lfd": 3}], "parts": [
 		{"name": "Am \"tragenden\" Holz mit Mastwurf begonnen (bei Beginn mit Zopfende zusätzlicher Halbschlag ausgeführt)", "mandatory": true},
 		{"name": "Leinenüberhang mindestens 10x Leinendurchmesser", "mandatory": false},
 		{"name": "Eng und fest gebunden", "mandatory": true},
 		{"name": "Entgegen der Lastrichtung, d.h. nach oben gebunden", "mandatory": true},
 		{"name": "Abschluss am waagerechten Holz mit Mastwurf (bei Abschluss mit Zopfende zusätzlichen Halbschlag ausgeführt)", "mandatory": false}
 	]},
-	{"name": "3.8 Anschlagen einer Anschlagkette an einem liegenden Baum, um ihn wegzuziehen", "min_tasks": 2, "serien": [], "parts": [
+	{"nr": "3.8", "name": "Anschlagen einer Anschlagkette an einem liegenden Baum, um ihn wegzuziehen", "min_tasks": 2, "serien": [], "parts": [
 		{"name": "Hakensicherung kontrolliert", "mandatory": true},
 		{"name": "Kette am Baum fest angezogen", "mandatory": false},
 		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true}
 	]},
-	{"name": "3.9 Verbinden zweier Kettenenden mit einem Schäkel", "min_tasks": 4, "serien": [{"serie": "A", "station": "I 1 Leinen", "lfd": 3}], "parts": [
+	{"nr": "3.9", "name": "Verbinden zweier Kettenenden mit einem Schäkel", "min_tasks": 4, "serien": [{"serie": "A", "station": "1 Leinen", "lfd": 3}], "parts": [
 		{"name": "Kettenstränge drallfrei ausgelegt", "mandatory": true},
 		{"name": "Kettenenden mit Schäkel verbunden", "mandatory": true},
 		{"name": "Schäkelbolzen vollständig eingedreht", "mandatory": true},
 		{"name": "Schäkelbolzen gegen Herausdrehen gesichert", "mandatory": false},
 		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true}
 	]},
-	{"name": "4.1 Zusammenstecken zweier Steckleiterteile", "min_tasks": 3, "serien": [{"serie": "A", "station": "I 1 Leinen", "lfd": 4}, {"serie": "B", "station": "I 1 Leinen", "lfd": 4}, {"serie": "C", "station": "I 1 Leinen", "lfd": 4}], "parts": [
+	{"nr": "4.1", "name": "Zusammenstecken zweier Steckleiterteile", "min_tasks": 3, "serien": [{"serie": "A", "station": "1 Leinen", "lfd": 4}, {"serie": "B", "station": "1 Leinen", "lfd": 4}, {"serie": "C", "station": "1 Leinen", "lfd": 4}], "parts": [
 		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": false},
 		{"name": "Leiterteile ineinander geschoben", "mandatory": true},
 		{"name": "Vor der Zugprobe geprüft, dass die Federsperrbolzen geschlossen sind", "mandatory": true},
 		{"name": "Zugprobe durchgeführt", "mandatory": true}
 	]},
-	{"name": "4.2 Aufrichten einer Steckleiter, bestehend aus zwei Steckleiterteilen - über Sprosse", "min_tasks": 3, "serien": [{"serie": "A", "station": "I 1 Leinen", "lfd": 5}], "parts": [
+	{"nr": "4.2", "name": "Aufrichten einer Steckleiter, bestehend aus zwei Steckleiterteilen - über Sprosse", "min_tasks": 3, "serien": [{"serie": "A", "station": "1 Leinen", "lfd": 5}], "parts": [
 		{"name": "Stationshelfer/in für Fußpunktsicherung oder zur Hilfestellung beim Aufrichten angewiesen", "mandatory": true},
 		{"name": "Leiter gesichert über Sprosse aufgerichtet und angelegt", "mandatory": true},
 		{"name": "Anstellwinkel überprüft und ggf. korrigiert (65° - 75°)", "mandatory": true}
 	], "notes": ["* Anmerkung für den/die Prüfer/in: Ein/e Stationshelfer/in führt Fußpunktsicherung aus."]},
-	{"name": "4.3 Aufrichten einer Steckleiter, bestehend aus zwei Steckleiterteilen - über Holm", "min_tasks": 3, "serien": [{"serie": "C", "station": "I 1 Leinen", "lfd": 5}], "parts": [
+	{"nr": "4.3", "name": "Aufrichten einer Steckleiter, bestehend aus zwei Steckleiterteilen - über Holm", "min_tasks": 3, "serien": [{"serie": "C", "station": "1 Leinen", "lfd": 5}], "parts": [
 		{"name": "Leiter seitlich auf einen Holm gelegt", "mandatory": false},
 		{"name": "Leiter am Holm bis zur Schulterhöhe angehoben und dann umgegriffen", "mandatory": false},
 		{"name": "Leiter gesichert über Holm aufgerichtet und angelegt", "mandatory": true},
 		{"name": "Anstellwinkel übrprüft und ggf. korrigiert (65° - 75°)", "mandatory": true}
 	], "notes": ["Anmerkung für den/die Prüfer/in: Ein/e Stationshelfer/in führt die Fußpunktsicherung aus."]},
-	{"name": "4.4 Aufrichten einer Steckleiter, bestehend aus zwei Steckleiterteilen - über Widerlager", "min_tasks": 3, "serien": [{"serie": "B", "station": "I 1 Leinen", "lfd": 6}], "parts": [
+	{"nr": "4.4", "name": "Aufrichten einer Steckleiter, bestehend aus zwei Steckleiterteilen - über Widerlager", "min_tasks": 3, "serien": [{"serie": "B", "station": "1 Leinen", "lfd": 6}], "parts": [
 		{"name": "Leiter mit dem Fußende vor das Widerlager gelegt", "mandatory": true},
 		{"name": "Leiter über Sprosse gesichert aufgerichtet und angelegt", "mandatory": true},
 		{"name": "Anstellwinkel überprüft und ggf. korrigiert (65° - 75°)", "mandatory": true}
 	]},
-	{"name": "4.5 Herstellen eines Widerlagers (Kanthölzer) zum Aufrichten einer Steckleiter", "min_tasks": 2, "serien": [{"serie": "B", "station": "I 1 Leinen", "lfd": 5}], "parts": [
+	{"nr": "4.5", "name": "Herstellen eines Widerlagers (Kanthölzer) zum Aufrichten einer Steckleiter", "min_tasks": 2, "serien": [{"serie": "B", "station": "1 Leinen", "lfd": 5}], "parts": [
 		{"name": "Ebenen Untergrund ausgewählt oder hergerichtet", "mandatory": false},
 		{"name": "Widerlager richtig (90°) zum Objekt hergestellt", "mandatory": true},
 		{"name": "Widerlager richtig befestigt (Bauklammern)", "mandatory": true}
 	], "notes": ["Anmerkung für den/die Prüfer/in: Die von der Wand abgehenden Vierkantbalken müssen gleich lang und parallel verlegt sein. Sofern kein kein geeigneter Untergrund auf dem Prüfungsgelände zur Verfügung steht, kann das Widerlager aus 4.4 hergestellt werden."]},
-	{"name": "4.6 Herstellen einer Fußpunktsicherung mit Querriegel und Arbeitsleine", "min_tasks": 3, "serien": [{"serie": "C", "station": "I 1 Leinen", "lfd": 6}], "parts": [
+	{"nr": "4.6", "name": "Herstellen einer Fußpunktsicherung mit Querriegel und Arbeitsleine", "min_tasks": 3, "serien": [{"serie": "C", "station": "1 Leinen", "lfd": 6}], "parts": [
 		{"name": "Die gebundenen Mastwürfe sind mit einem halben Schlag gesichert", "mandatory": false},
 		{"name": "Bei beiden Mastwürfen am Holm ist die Sprosse eingebunden", "mandatory": true},
 		{"name": "Leine am Querriegel \"verloren fest\"", "mandatory": true},
 		{"name": "Beide Seiten der Leine sind gleichmäßig gespannt", "mandatory": true}
 	], "notes": ["Anmerkung für den/die Prüfer/in: Die Vorrichtung zur Befestigung des Querriegels, ist durch den ausrichtenden Ortsverband vorzubereiten."]},
-	{"name": "4.7 Herstellen einer Kopfpunktsicherung mit Querriegel und Arbeitsleine", "min_tasks": 4, "serien": [], "parts": [
+	{"nr": "4.7", "name": "Herstellen einer Kopfpunktsicherung mit Querriegel und Arbeitsleine", "min_tasks": 4, "serien": [], "parts": [
 		{"name": "Arbeitsleine am Querriegel mittels Mastwurf festgelegt", "mandatory": true},
 		{"name": "Abgehendes Leinenende um den Holm und über eine Sprosse zum Querriegel zurückgeführt", "mandatory": true},
 		{"name": "Leine mit mindestens drei Schlägen um Sprosse und Querriegel geführt", "mandatory": true},
 		{"name": "Leine um den zweiten Holm herumgelegt und mit Mastwurf und Halbschlag am Querriegel festgelegt", "mandatory": true}
 	]},
-	{"name": "4.8 Besteigen einer Steckleiter - mit dynamischer Fußpunktsicherung", "min_tasks": 3, "serien": [{"serie": "A", "station": "I 1 Leinen", "lfd": 6}], "parts": [
+	{"nr": "4.8", "name": "Besteigen einer Steckleiter - mit dynamischer Fußpunktsicherung", "min_tasks": 3, "serien": [{"serie": "A", "station": "1 Leinen", "lfd": 6}], "parts": [
 		{"name": "Anstellwinkel geprüft und ggf. korrigiert (65°-75°)", "mandatory": true},
 		{"name": "Stationshelfer/in zur Leitersicherung herangezogen", "mandatory": true},
 		{"name": "An Sprossen festgehalten (nicht am Holm)", "mandatory": true}
 	]},
-	{"name": "5.1 Aufbau einer mobilen Stromversorgung mit Beleuchtung", "min_tasks": 9, "serien": [{"serie": "A", "station": "II 2 Beleuchtung", "lfd": 7}, {"serie": "C", "station": "II 2 Beleuchtung", "lfd": 7}], "parts": [
+	{"nr": "5.1", "name": "Aufbau einer mobilen Stromversorgung mit Beleuchtung", "min_tasks": 9, "serien": [{"serie": "A", "station": "2 Beleuchtung", "lfd": 7}, {"serie": "C", "station": "2 Beleuchtung", "lfd": 7}], "parts": [
 		{"name": "Stativbeine maximal gespreizt, senkrecht/lotrecht ausgerichtet und Klemmschrauben angezogen", "mandatory": true},
 		{"name": "Flutlichtleuchte aufgesteckt, ausgerichtet und gesichert", "mandatory": true},
 		{"name": "Teleskoprohre (mit Stationshelfer/in) auf maximale Höhe herausgezogen und gesichert", "mandatory": true},
@@ -111,7 +111,7 @@
 		{"name": "Schutzdeckel und Schutzkappen verbunden", "mandatory": false},
 		{"name": "Vom Verbraucher zum Erzeuger aufgebaut", "mandatory": false}
 	]},
-	{"name": "5.2 Inbetriebnahme eines tragbaren Stromerzeugers", "min_tasks": 8, "serien": [{"serie": "A", "station": "II 2 Beleuchtung", "lfd": 8}, {"serie": "B", "station": "II 2 Pumpen", "lfd": 7}, {"serie": "C", "station": "II 2 Beleuchtung", "lfd": 8}], "parts": [
+	{"nr": "5.2", "name": "Inbetriebnahme eines tragbaren Stromerzeugers", "min_tasks": 8, "serien": [{"serie": "A", "station": "2 Beleuchtung", "lfd": 8}, {"serie": "B", "station": "2 Pumpen", "lfd": 7}, {"serie": "C", "station": "2 Beleuchtung", "lfd": 8}], "parts": [
 		{"name": "Ölstand überprüft", "mandatory": true},
 		{"name": "Abgasschlauch angeschlossen", "mandatory": true},
 		{"name": "Kraftstofffüllstand geprüft", "mandatory": true},
@@ -122,7 +122,7 @@
 		{"name": "Verbraucher erst angeschlossen, wenn der Motor mit Nenndrehzahl läuft", "mandatory": true},
 		{"name": "Überwurfringglocke der Anschlussleitung an der Steckdose des tragbaren Stromerzeugers verriegelt", "mandatory": false}
 	], "notes": ["* Anmerkung für den/die Prüfer/in: Der Sicherungsautomat bleibt permanent auf Stellung „Ein“ und wird NIE als Schalter benutzt! Besitzt der Stromerzeuger keinen Chokezug mehr, ist das Kriterium als erfüllt zu werten."]},
-	{"name": "6.1.1 Zeigen von Werkzeugen für die Holzbearbeitung", "min_tasks": 6, "serien": [{"serie": "A", "station": "III 3 Ablängen", "lfd": 10}], "parts": [
+	{"nr": "6.1.1", "name": "Zeigen von Werkzeugen für die Holzbearbeitung", "min_tasks": 6, "serien": [{"serie": "A", "station": "3 Ablängen", "lfd": 10}], "parts": [
 		{"name": "Bügelsäge", "mandatory": false},
 		{"name": "Fuchsschwanz", "mandatory": false},
 		{"name": "Stichsäge", "mandatory": false},
@@ -132,7 +132,7 @@
 		{"name": "Kistenbeitel", "mandatory": false},
 		{"name": "Zugmesser", "mandatory": false}
 	]},
-	{"name": "6.1.2 Benennen von Werkzeugen für die Holzbearbeitung", "min_tasks": 7, "serien": [{"serie": "C", "station": "III 3 Werkzeug", "lfd": 10}], "parts": [
+	{"nr": "6.1.2", "name": "Benennen von Werkzeugen für die Holzbearbeitung", "min_tasks": 7, "serien": [{"serie": "C", "station": "3 Werkzeug", "lfd": 10}], "parts": [
 		{"name": "Zugmesser", "mandatory": false},
 		{"name": "Lochbeitel", "mandatory": false},
 		{"name": "Schreinerklüpfel", "mandatory": false},
@@ -143,32 +143,32 @@
 		{"name": "Fuchsschwanz", "mandatory": false},
 		{"name": "Schlegel", "mandatory": false}
 	]},
-	{"name": "6.1.3 Zeigen von Mess- und Anreißwerkzeugen für die Holzbearbeitung", "min_tasks": 4, "serien": [{"serie": "A", "station": "II 2 Beleuchtung", "lfd": 9}, {"serie": "B", "station": "III 3 Trennschleifer", "lfd": 13}, {"serie": "C", "station": "II 2 Beleuchtung", "lfd": 9}], "parts": [
+	{"nr": "6.1.3", "name": "Zeigen von Mess- und Anreißwerkzeugen für die Holzbearbeitung", "min_tasks": 4, "serien": [{"serie": "A", "station": "2 Beleuchtung", "lfd": 9}, {"serie": "B", "station": "3 Trennschleifer", "lfd": 13}, {"serie": "C", "station": "2 Beleuchtung", "lfd": 9}], "parts": [
 		{"name": "Gliedermaßstab (Zollstock)", "mandatory": false},
 		{"name": "Zimmermannswinkel", "mandatory": false},
 		{"name": "Bandmaß", "mandatory": false},
 		{"name": "Stellwinkel (Schmiege)", "mandatory": false},
 		{"name": "Wasserwaage", "mandatory": false}
 	]},
-	{"name": "6.1.4 Rechwinkliges Ablängen eines Kantholzes mit der Bügelsäge", "min_tasks": 3, "serien": [{"serie": "A", "station": "III 3 Ablängen"}], "parts": [
+	{"nr": "6.1.4", "name": "Rechwinkliges Ablängen eines Kantholzes mit der Bügelsäge", "min_tasks": 3, "serien": [{"serie": "A", "station": "3 Ablängen"}], "parts": [
 		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true},
 		{"name": "Für den Anschnitt Führungsholz verwendet", "mandatory": true},
 		{"name": "Sägeblattlänge voll ausgenutzt", "mandatory": false},
 		{"name": "Sägeschnitt gerade und rechtwinklig (Sichtkontrolle von Helfer/in durchgeführt)", "mandatory": false}
 	], "notes": ["* Anmerkung für den/die Prüfer/in: Kantholz ist vor Prüfungsbeginn auf den Arbeitsböcken gegen Verschieben zu sichern!"]},
-	{"name": "6.1.5 Herstellen einer rechtwinkligen Holzverbindung mittels Lochblech", "min_tasks": 3, "serien": [{"serie": "B", "station": "III 3 Trennschleifer", "lfd": 14}], "parts": [
+	{"nr": "6.1.5", "name": "Herstellen einer rechtwinkligen Holzverbindung mittels Lochblech", "min_tasks": 3, "serien": [{"serie": "B", "station": "3 Trennschleifer", "lfd": 14}], "parts": [
 		{"name": "Kamm-/Ankernägel ausgewählt *", "mandatory": true},
 		{"name": "Beide Lochbleche mittig angesetzt", "mandatory": true},
 		{"name": "mindestens 4 Nägel fachgerecht gesetzt und eingeschlagen und weitere Ausführung mündlich erklärt", "mandatory": true}
 	], "notes": ["* Anmerkung für den/die Prüfer/in: Auswählen der Kamm-/Ankernägel reicht aus, weitere Ausführungen mit normalen Nägeln durchführen lassen."]},
-	{"name": "6.1.6 Einfaches Kreuzen zweier Kanthölzer durch Verbinden mittels Gewindestange", "min_tasks": 4, "serien": [{"serie": "C", "station": "III 3 Werkzeug", "lfd": 12}], "parts": [
+	{"nr": "6.1.6", "name": "Einfaches Kreuzen zweier Kanthölzer durch Verbinden mittels Gewindestange", "min_tasks": 4, "serien": [{"serie": "C", "station": "3 Werkzeug", "lfd": 12}], "parts": [
 		{"name": "Löcher mittig angerissen", "mandatory": true},
 		{"name": "Löcher rechtwinklig gebohrt", "mandatory": true},
 		{"name": "Kanthölzer mit Gewindestange verbunden", "mandatory": true},
 		{"name": "Unterlegscheiben (quadratisch) verwendet", "mandatory": true},
 		{"name": "Sechskantmuttern festgezogen", "mandatory": false}
 	]},
-	{"name": "6.2.I 1nbetriebnahme des Bohr- und Aufbrechhammers und Bohren eines Lochs in senkrechter Richtung", "min_tasks": 4, "serien": [{"serie": "C", "station": "III 3 Werkzeug", "lfd": 14}], "parts": [
+	{"nr": "6.2.1", "name": "Inbetriebnahme des Bohr- und Aufbrechhammers und Bohren eines Lochs in senkrechter Richtung", "min_tasks": 4, "serien": [{"serie": "C", "station": "3 Werkzeug", "lfd": 14}], "parts": [
 		{"name": "Bohr- und Aufbrechhammer auf \"Bohren\" gestellt *", "mandatory": true},
 		{"name": "Bohrer eingesetzt und arretiert", "mandatory": true},
 		{"name": "Bohr- und Aufbrechhammer erst am Objekt angesetzt und dann in Betrieb genommen", "mandatory": true},
@@ -178,14 +178,14 @@
 		"Anmerkung für den/die Prüfer/in: Nach jeder Prüfung ist der Bohr- und Aufbrechhammer (je nach Bedienungsanleitung) wieder auf \"Schlagen\" zu stellen.",
 		"* Sollte das eingesetzte Gerät keine Umschaltfunktion (Bohren <--> Schlagen) haben, so gilt das entsprechende Bewertungskriterium als erfüllt."
 	]},
-	{"name": "6.2.2 Inbetriebnahme des Bohr- und Aufbrechhammers und Arbeiten mit dem Spitzmeißel in senkrechter Richtung", "min_tasks": 5, "serien": [{"serie": "A", "station": "III 3 Ablängen", "lfd": 14}], "parts": [
+	{"nr": "6.2.2", "name": "Inbetriebnahme des Bohr- und Aufbrechhammers und Arbeiten mit dem Spitzmeißel in senkrechter Richtung", "min_tasks": 5, "serien": [{"serie": "A", "station": "3 Ablängen", "lfd": 14}], "parts": [
 		{"name": "Bohr- und Aufbrechhammer auf \"Schlagen\" gestellt", "mandatory": true},
 		{"name": "Spitzmeißel eingesetzt und arretiert", "mandatory": true},
 		{"name": "Bohr- und Aufbrechhammer erst am Objekt angesetzt und dann in Betrieb genommen", "mandatory": true},
 		{"name": "Schutzbrille/Visier und Kapselgehörschutz ordnungsgemäß getragen", "mandatory": true},
 		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true}
 	], "notes": ["* Anmerkung für den/die Prüfer/in: Nach jeder Prüfung ist der Bohr- und Aufbrechhammer (je nach Bedienungsanleitung) wieder auf „Bohren“ zu stellen. Sollte das eingesetzte Gerät keine Umschaltfunktion (Bohren <--> Schlagen) haben, so gilt das entsprechende Bewertungskriterium als erfüllt."]},
-	{"name": "6.2.3 In- und Außerbetriebnahme eines Trennschleifers (mit Verbrennungsmotor) sowie Ablängen eines Ton- Steinzeug- oder Betonrohres", "min_tasks": 9, "serien": [{"serie": "B", "station": "III 3 Trennschleifer", "lfd": 12}], "parts": [
+	{"nr": "6.2.3", "name": "In- und Außerbetriebnahme eines Trennschleifers (mit Verbrennungsmotor) sowie Ablängen eines Ton- Steinzeug- oder Betonrohres", "min_tasks": 9, "serien": [{"serie": "B", "station": "3 Trennschleifer", "lfd": 12}], "parts": [
 		{"name": "Geeignete Trennscheibe benutzt", "mandatory": true},
 		{"name": "Druckscheibe richtig eingesetzt", "mandatory": true},
 		{"name": "Trennscheibe zentriert und angezogen", "mandatory": true},
@@ -196,14 +196,14 @@
 		{"name": "Vor Ablegen des Trennschleifers Stillstand der Scheibe abgewartet", "mandatory": true},
 		{"name": "Schutzausstattung zzgl. Staubschutzmaske getragen", "mandatory": true}
 	]},
-	{"name": "6.3.1 Ablängen einer Gewindestange mit der Metallbügelsäge", "min_tasks": 4, "serien": [{"serie": "C", "station": "III 3 Werkzeug", "lfd": 11}], "parts": [
+	{"nr": "6.3.1", "name": "Ablängen einer Gewindestange mit der Metallbügelsäge", "min_tasks": 4, "serien": [{"serie": "C", "station": "3 Werkzeug", "lfd": 11}], "parts": [
 		{"name": "Gewindestange mit Gewindeschutz im Schraubstock eingespannt", "mandatory": true},
 		{"name": "Gewindestange auf Maß* abgelängt", "mandatory": true},
 		{"name": "Schnitt rechtwinklig ausgeführt (Sichtkontrolle)", "mandatory": false},
 		{"name": "Schnittfläche geebnet und entgratet", "mandatory": true},
 		{"name": "Auf Gewindegängigkeit geprüft", "mandatory": true}
 	], "notes": ["Anmerkung für den/die Prüfer/in: Das Maß wird vom/von der Prüfer/in festgelegt."]},
-	{"name": "6.3.2 Ablängen eines Rohrstückes mit der Metallbügelsäge", "min_tasks": 4, "serien": [], "parts": [
+	{"nr": "6.3.2", "name": "Ablängen eines Rohrstückes mit der Metallbügelsäge", "min_tasks": 4, "serien": [], "parts": [
 		{"name": "Sägeblatt so in den Sägebügel eingesetzt, dass die Stoßzähnung vom Griff weg weist", "mandatory": true},
 		{"name": "Sägeblatt gespannt (Flügelmutter von Hand festgezogen)", "mandatory": true},
 		{"name": "Sägeblatt während des Sägens nicht verkantet", "mandatory": false},
@@ -211,7 +211,7 @@
 		{"name": "Schnitt nahe der Spannbacken dess Schraubstocks durchgeführt", "mandatory": true},
 		{"name": "Schnitt rechtwinklig zur Rohrachse ausgeführt (Sichtkontrolle)", "mandatory": false}
 	]},
-	{"name": "6.3.3 Inbetriebnahme der Säbelsäge und Ablängen eines Rohrstückes", "min_tasks": 5, "serien": [{"serie": "A", "station": "III 3 Ablängen", "lfd": 12}, {"serie": "C", "station": "III 3 Werkzeug", "lfd": 13}], "parts": [
+	{"nr": "6.3.3", "name": "Inbetriebnahme der Säbelsäge und Ablängen eines Rohrstückes", "min_tasks": 5, "serien": [{"serie": "A", "station": "3 Ablängen", "lfd": 12}, {"serie": "C", "station": "3 Werkzeug", "lfd": 13}], "parts": [
 		{"name": "THW-Einsatzhandschuhe, Kapselgehörschutz und Schutzbrille getragen", "mandatory": true},
 		{"name": "Stromverbindung erst nach Montage hergestellt", "mandatory": true},
 		{"name": "Metallsägeblatt verwendet", "mandatory": true},
@@ -219,7 +219,7 @@
 		{"name": "Sägeblatt nicht verkantet", "mandatory": true},
 		{"name": "Leitungsführung beachtet", "mandatory": true}
 	]},
-	{"name": "6.3.4 In- und Außerbetriebnahme eines Trennschleifers (mit Elektromotor) sowie Durchtrennen eines Metallrohres", "min_tasks": 8, "serien": [{"serie": "A", "station": "III 3 Ablängen", "lfd": 13}], "parts": [
+	{"nr": "6.3.4", "name": "In- und Außerbetriebnahme eines Trennschleifers (mit Elektromotor) sowie Durchtrennen eines Metallrohres", "min_tasks": 8, "serien": [{"serie": "A", "station": "3 Ablängen", "lfd": 13}], "parts": [
 		{"name": "Geeignete Trennscheibe benutzt", "mandatory": true},
 		{"name": "Stromverbindung erst nach Montage hergestellt", "mandatory": true},
 		{"name": "Auf sicheren Stand geachtet und Maschine seitlich am Körper vorbei geführt", "mandatory": true},
@@ -229,25 +229,25 @@
 		{"name": "Mit Höchstdrehzahl am Werkstück angesetzt", "mandatory": true},
 		{"name": "Vor Ablegen des Trennschleifers Stillstand der Scheibe abgewartet", "mandatory": true}
 	]},
-	{"name": "6.3.5 Gebrauch der Schutzausstattung beim Betrieb eines Trennschleifers", "min_tasks": 5, "serien": [{"serie": "B", "station": "III 3 Trennschleifer", "lfd": 10}], "parts": [
+	{"nr": "6.3.5", "name": "Gebrauch der Schutzausstattung beim Betrieb eines Trennschleifers", "min_tasks": 5, "serien": [{"serie": "B", "station": "3 Trennschleifer", "lfd": 10}], "parts": [
 		{"name": "Schutzbrille und Kapselgehörschutz getragen", "mandatory": true},
 		{"name": "Lederschutzhandschuhe getragen", "mandatory": true},
 		{"name": "Lederschürze angelegt", "mandatory": true},
 		{"name": "Jacke komplett geschlossen", "mandatory": true},
 		{"name": "Hose über Stiefel getragen", "mandatory": true}
 	]},
-	{"name": "6.3.6 Arbeitsschutzmaßnahmen bei Arbeiten mit dem Trennschleifer anwenden", "min_tasks": 3, "serien": [{"serie": "B", "station": "III 3 Trennschleifer", "lfd": 11}], "parts": [
+	{"nr": "6.3.6", "name": "Arbeitsschutzmaßnahmen bei Arbeiten mit dem Trennschleifer anwenden", "min_tasks": 3, "serien": [{"serie": "B", "station": "3 Trennschleifer", "lfd": 11}], "parts": [
 		{"name": "Kein Aufenthalt von Personen im Bereich des Funkenfluges", "mandatory": true},
 		{"name": "Löschmittel bereitgestellt", "mandatory": true},
 		{"name": "Keine brennbaren Gegenstände im Bereich des Funkenfluges", "mandatory": true}
 	]},
-	{"name": "7.1 Einseitiges Anheben einer Last mit der Brechstange und Unterbauen der Last", "min_tasks": 4, "serien": [{"serie": "A", "station": "IV 4 Lasten", "lfd": 17}, {"serie": "B", "station": "IV 4 Lasten", "lfd": 15}], "parts": [
+	{"nr": "7.1", "name": "Einseitiges Anheben einer Last mit der Brechstange und Unterbauen der Last", "min_tasks": 4, "serien": [{"serie": "A", "station": "4 Lasten", "lfd": 17}, {"serie": "B", "station": "4 Lasten", "lfd": 15}], "parts": [
 		{"name": "Brechstange beim Anheben nicht abgerutscht", "mandatory": true},
 		{"name": "Auflagefläche unter dem Hebeldrehpunkt aus bruchsicherem Material", "mandatory": true},
 		{"name": "Last nach dem Anheben unterbaut", "mandatory": true},
 		{"name": "Nicht unter die angehobene Last gegriffen", "mandatory": true}
 	], "notes": ["* Anmerkung für den/die Prüfer/in: Das Unterbauen ist durch den/die Prüfungsteilnehmende/n mündlich zu erklären."]},
-	{"name": "7.2 Anheben einer Last mit Zahnstangenwinde/hydraulischem Heber und Unterbauen der Last", "min_tasks": 6, "serien": [{"serie": "C", "station": "IV 4 Lasten", "lfd": 15}], "parts": [
+	{"nr": "7.2", "name": "Anheben einer Last mit Zahnstangenwinde/hydraulischem Heber und Unterbauen der Last", "min_tasks": 6, "serien": [{"serie": "C", "station": "4 Lasten", "lfd": 15}], "parts": [
 		{"name": "Last gegen Verschieben gesichert", "mandatory": true},
 		{"name": "Anhebeklaue rechtwinklig zur Last angesetzt", "mandatory": true},
 		{"name": "Fußplatte vollflächig auf bruchsicheren/druckfesten Untergrund aufgesetzt", "mandatory": true},
@@ -255,21 +255,21 @@
 		{"name": "Last nach Anheben unterbaut", "mandatory": true},
 		{"name": "Nicht unter die angehobene Last gegriffen", "mandatory": true}
 	]},
-	{"name": "7.3 Vorbereiten des Hebe-/Pressgeräts, hydraulisch", "min_tasks": 4, "serien": [{"serie": "A", "station": "IV 4 Lasten", "lfd": 15}], "parts": [
+	{"nr": "7.3", "name": "Vorbereiten des Hebe-/Pressgeräts, hydraulisch", "min_tasks": 4, "serien": [{"serie": "A", "station": "4 Lasten", "lfd": 15}], "parts": [
 		{"name": "Höchstdruckschlauch drall- und knickfrei ausgelegt", "mandatory": true},
 		{"name": "Kupplungen auf Sauberkeit überprüft und bei Bedarf gereinigt", "mandatory": true},
 		{"name": "Verschlüsse und Verschlusskappen zusammengesteckt/verschraubt", "mandatory": false},
 		{"name": "Fußplatte angeschraubt/eingesetzt", "mandatory": true},
 		{"name": "Geeignetes Kopfstück verwendet", "mandatory": true}
 	]},
-	{"name": "7.4 Anheben einer Last mit Hebe-/Pressgerät, hydraulisch, Erklären des Schnellstopps und Ablassen der Last", "min_tasks": 5, "serien": [{"serie": "A", "station": "IV 4 Lasten", "lfd": 16}], "parts": [
+	{"nr": "7.4", "name": "Anheben einer Last mit Hebe-/Pressgerät, hydraulisch, Erklären des Schnellstopps und Ablassen der Last", "min_tasks": 5, "serien": [{"serie": "A", "station": "4 Lasten", "lfd": 16}], "parts": [
 		{"name": "Pressenkörper rechtwinklig zur Last angesetzt", "mandatory": true},
 		{"name": "Last gegen Verschieben gesichert", "mandatory": true},
 		{"name": "Funktion des \"Schnellstopps\" in eigenen Worten erklärt", "mandatory": true},
 		{"name": "Last angehoben und mit Keilen und Unterleghölzern gesichert", "mandatory": true},
 		{"name": "Last sicher abgelassen", "mandatory": true}
 	]},
-	{"name": "7.5 Inbetriebnahme eines Zuggeräts und Ziehen einer Last im direkten Zug", "min_tasks": 8, "serien": [{"serie": "B", "station": "IV 4 Lasten", "lfd": 16}], "parts": [
+	{"nr": "7.5", "name": "Inbetriebnahme eines Zuggeräts und Ziehen einer Last im direkten Zug", "min_tasks": 8, "serien": [{"serie": "B", "station": "4 Lasten", "lfd": 16}], "parts": [
 		{"name": "THW-Einsatzhandschuhe getragen", "mandatory": true},
 		{"name": "Zuggerät an geeignetem Festpunkt angeschlagen", "mandatory": true},
 		{"name": "Schaltgriff zurückgezogen und eingerastet", "mandatory": false},
@@ -281,7 +281,7 @@
 		{"name": "Hebelrohr ausgezogen und gesichert", "mandatory": true},
 		{"name": "Hebelrohr auf Vorschubhebel gesteckt und gesichert", "mandatory": false}
 	]},
-	{"name": "7.6 Außerbetriebnahme des Zuggeräts", "min_tasks": 4, "serien": [{"serie": "B", "station": "IV 4 Lasten", "lfd": 17}], "parts": [
+	{"nr": "7.6", "name": "Außerbetriebnahme des Zuggeräts", "min_tasks": 4, "serien": [{"serie": "B", "station": "4 Lasten", "lfd": 17}], "parts": [
 		{"name": "Drahtzugseil entspannt", "mandatory": true},
 		{"name": "Rückzughebel betätigt", "mandatory": true},
 		{"name": "Drahtzugseil- und Zughaken von den Verankerungen gelöst", "mandatory": false},
@@ -289,7 +289,7 @@
 		{"name": "Drahtzugseil herausgezogen", "mandatory": false},
 		{"name": "Schaltgriff gelöst", "mandatory": false}
 	]},
-	{"name": "7.7 Einsatzbereitschaft des Hebekissensatzes mit zwei Hebekissen herstellen", "min_tasks": 8, "serien": [{"serie": "C", "station": "IV 4 Lasten", "lfd": 15}], "parts": [
+	{"nr": "7.7", "name": "Einsatzbereitschaft des Hebekissensatzes mit zwei Hebekissen herstellen", "min_tasks": 8, "serien": [{"serie": "C", "station": "4 Lasten", "lfd": 15}], "parts": [
 		{"name": "Gesichtsschutz mit Voll-Visier getragen", "mandatory": true},
 		{"name": "Absperrhahn des Druckminderers geschlossen", "mandatory": true},
 		{"name": "Druckminderer an der Druckluftflasche angeschlossen", "mandatory": true},
@@ -300,7 +300,7 @@
 		{"name": "Kupplungen und Nippel soweit zusammengdrückt bis der Kupplungsring sichtbar einrastet", "mandatory": false},
 		{"name": "Füllschläuche an Kissen und Doppelsteuerorgan seitenrichtig angeschlossen", "mandatory": true}
 	]},
-	{"name": "7.8 Einseitiges Anheben einer Last mit einem Hebekissen um min. 10cm und Ablassen der Last", "min_tasks": 7, "serien": [{"serie": "C", "station": "IV 4 Lasten", "lfd": 16}], "parts": [
+	{"nr": "7.8", "name": "Einseitiges Anheben einer Last mit einem Hebekissen um min. 10cm und Ablassen der Last", "min_tasks": 7, "serien": [{"serie": "C", "station": "4 Lasten", "lfd": 16}], "parts": [
 		{"name": "Hebekissen gemäß den Herstellervorgaben unter die Last geschoben", "mandatory": true},
 		{"name": "Gesichtsschutz mit Voll-Visier getragen", "mandatory": true},
 		{"name": "Kissen unter der Last befüllt", "mandatory": false},
@@ -310,13 +310,13 @@
 		{"name": "Last langsam abgelassen", "mandatory": false},
 		{"name": "Kissen vor scharfen Kanten/spitzen Gegenständen geschützt", "mandatory": true}
 	]},
-	{"name": "8.1 Füllen und Verlegen von Sandsäcken (zugebunden)", "min_tasks": 3, "serien": [{"serie": "A", "station": "V 5 Pumpen", "lfd": 18}, {"serie": "C", "station": "VI 6 Trage", "lfd": 22}], "parts": [
+	{"nr": "8.1", "name": "Füllen und Verlegen von Sandsäcken (zugebunden)", "min_tasks": 3, "serien": [{"serie": "A", "station": "5 Pumpen", "lfd": 18}, {"serie": "C", "station": "6 Trage", "lfd": 22}], "parts": [
 		{"name": "Sandsack ca. 2/3 (max 12kg) mit Sand gefüllt und zugebunden", "mandatory": true},
 		{"name": "Sandsäcke flach auf den Boden gelegt", "mandatory": false},
 		{"name": "Einfüllöffnung zeigt landwärts", "mandatory": false},
 		{"name": "Sandsäcke zum dichten Verbund gelegt", "mandatory": false}
 	]},
-	{"name": "8.2 Inbetriebnahme einer Tauchpumpe und Verwendung eines Strahlrohres", "min_tasks": 6, "serien": [{"serie": "B", "station": "II 2 Pumpen", "lfd": 8}], "parts": [
+	{"nr": "8.2", "name": "Inbetriebnahme einer Tauchpumpe und Verwendung eines Strahlrohres", "min_tasks": 6, "serien": [{"serie": "B", "station": "2 Pumpen", "lfd": 8}], "parts": [
 		{"name": "Tauchpumpe mit Arbeitsleine durch einfachen Ankerstich gesichert", "mandatory": true},
 		{"name": "Druckschlauch fest angekuppelt", "mandatory": false},
 		{"name": "Elektrische Verbindung hergestellt", "mandatory": true},
@@ -325,25 +325,25 @@
 		{"name": "Strahlrohr durch Stationshelfer/in gesichert und Sprühstahl eingestellt", "mandatory": true},
 		{"name": "Druckschlauch nicht über scharfe Kante gezogen", "mandatory": false}
 	]},
-	{"name": "8.3 Inbetriebnahme einer Tauchpumpe", "min_tasks": 4, "serien": [{"serie": "A", "station": "V 5 Pumpen", "lfd": 19}, {"serie": "C", "station": "V 5 Pumpen", "lfd": 18}], "parts": [
+	{"nr": "8.3", "name": "Inbetriebnahme einer Tauchpumpe", "min_tasks": 4, "serien": [{"serie": "A", "station": "5 Pumpen", "lfd": 19}, {"serie": "C", "station": "5 Pumpen", "lfd": 18}], "parts": [
 		{"name": "Tauchpumpe mit Arbeitsleine durch einfachen Ankerstich gesichert", "mandatory": true},
 		{"name": "Druckschlauch angekuppelt und Ende festgelegt mit einer Schlauchbrücke bei freiem Auslauf", "mandatory": true},
 		{"name": "Elektrische Verbindung hergestellt und Pumpe eingeschaltet", "mandatory": true},
 		{"name": "Pumpe an der Arbeitsleine in das Wasser gelassen", "mandatory": true}
 	]},
-	{"name": "8.4 Verlegen von Druckschläuchen über einen Verkehrsweg", "min_tasks": 3, "serien": [{"serie": "B", "station": "II 2 Pumpen", "lfd": 9}], "parts": [
+	{"nr": "8.4", "name": "Verlegen von Druckschläuchen über einen Verkehrsweg", "min_tasks": 3, "serien": [{"serie": "B", "station": "2 Pumpen", "lfd": 9}], "parts": [
 		{"name": "Druckschläuche drall- und knickfrei verlegt", "mandatory": true},
 		{"name": "Schluchbrücken verwendet", "mandatory": true},
 		{"name": "Straßenquerung mit Verkehrsleitkegel gesichert", "mandatory": true},
 		{"name": "Stationshelfer/in als Sicherungsposten eingeteilt", "mandatory": false}
 	], "notes": ["* Anmerkung für den/die Prüfer/in: Die Schlauchbrücken sind so aufzubauen, dass PKW und LKW darüber fahren können."]},
-	{"name": "8.5 Anlegen und Erklären der THW-Rettungsweste", "min_tasks": 3, "serien": [{"serie": "A", "station": "V 5 Pumpen", "lfd": 20}, {"serie": "C", "station": "V 5 Pumpen", "lfd": 19}], "parts": [
+	{"nr": "8.5", "name": "Anlegen und Erklären der THW-Rettungsweste", "min_tasks": 3, "serien": [{"serie": "A", "station": "5 Pumpen", "lfd": 20}, {"serie": "C", "station": "5 Pumpen", "lfd": 19}], "parts": [
 		{"name": "Auf oberflächliche Beschädigungen überprüft", "mandatory": false},
 		{"name": "Aufblasvorrichtung kontrolliert", "mandatory": true},
 		{"name": "Handauslöseleine nach außen geführt *", "mandatory": true},
 		{"name": "THW-Rettungsweste korrekt angelegt und geschlossen", "mandatory": true}
 	], "notes": ["Anmerkung für den/die Prüfer/in: * Ist dies schon im Auslieferungszustand gegeben (Weste 2022) ist der Punkt als erfüllt zu werten."]},
-	{"name": "9.1 Absicherung einer Einsatzstelle im öffentlichen Verkehrsraum zur Eigensicherung", "min_tasks": 5, "serien": [{"serie": "B", "station": "V 5 Trage", "lfd": 18}, {"serie": "C", "station": "V 5 Pumpen", "lfd": 20}], "parts": [
+	{"nr": "9.1", "name": "Absicherung einer Einsatzstelle im öffentlichen Verkehrsraum zur Eigensicherung", "min_tasks": 5, "serien": [{"serie": "B", "station": "5 Trage", "lfd": 18}, {"serie": "C", "station": "5 Pumpen", "lfd": 20}], "parts": [
 		{"name": "Angemessenen Abstand zur Schadenstelle eingehalten", "mandatory": true},
 		{"name": "Warnweste angelegt und verschlossen", "mandatory": true},
 		{"name": "Den Verkehrsweg nicht unnötig überquert", "mandatory": true},
@@ -351,7 +351,7 @@
 		{"name": "Warnschilder aufgestellt", "mandatory": true},
 		{"name": "Meldung an den/die direkte/n Vorgesetzte/n abgegeben", "mandatory": false}
 	], "notes": ["Anmerkung für den/die Prüfer/in: Dem/der Helfer/in ist eine Straßensituation \"innerorts\" (50 m Abstand zur Schadenstelle) vorzugeben (ggf. Abstand an die örtlichen Gegebenheiten des Prüfungsgelände anpassen). Der/die Prüfer/in ist hier der/die direkte Vorgesetzte."]},
-	{"name": "9.2 Absetzen einer Meldung an eine/n Vorgesetzten", "min_tasks": 3, "serien": [{"serie": "A", "station": "V 5 Pumpen", "lfd": 21}, {"serie": "C", "station": "VI 6 Trage", "lfd": 23}], "parts": [
+	{"nr": "9.2", "name": "Absetzen einer Meldung an eine/n Vorgesetzten", "min_tasks": 3, "serien": [{"serie": "A", "station": "5 Pumpen", "lfd": 21}, {"serie": "C", "station": "6 Trage", "lfd": 23}], "parts": [
 		{"name": "Richtige/n Ansprechpartner/in ausgewählt *", "mandatory": true},
 		{"name": "Einsatzsituation mit zutreffenden Stichworten wiedergegeben", "mandatory": true},
 		{"name": "Meldung kurz und verständlich formuliert", "mandatory": true},
@@ -360,7 +360,7 @@
 		"* Anmerkung für den/die Prüfer/in: siehe Ansprechpartner-Tafeln in der Materialliste. Folgende Fakten sollen vorkommen: Zugunglück, Zug in Haus, Zugunfall; Haus/Gebäude beschädigt; möglicherweise Einsturzgefahr; möglicherweise verletzte Personen",
 		"** Prüfer/in dient als Ansprechpartner/Empfänger der Meldung."
 	]},
-	{"name": "10.1 Transportsicherung auf einer Kranken-trage für den Transport über eine längere Strecke im unwegsamen Gelände", "min_tasks": 7, "serien": [{"serie": "B", "station": "V 5 Trage", "lfd": 20}, {"serie": "C", "station": "VI 6 Trage", "lfd": 24}], "parts": [
+	{"nr": "10.1", "name": "Transportsicherung auf einer Kranken-trage für den Transport über eine längere Strecke im unwegsamen Gelände", "min_tasks": 7, "serien": [{"serie": "B", "station": "5 Trage", "lfd": 20}, {"serie": "C", "station": "6 Trage", "lfd": 24}], "parts": [
 		{"name": "Arbeitsleinen mit Doppelstich verbunden", "mandatory": true},
 		{"name": "Leinenführung nach Vorgabe fest am Körper", "mandatory": true},
 		{"name": "Person in der Einbindungszeit betreut, Handgriffe erklärt und angesprochen", "mandatory": true},
@@ -369,13 +369,13 @@
 		{"name": "Achterschlag an den Füßen korrekt ausgeführt", "mandatory": true},
 		{"name": "Arbeitsleine fußseitig jeweils mit Halbschlag am Tragegriff und am Tragebein gesichert (beidseitig)", "mandatory": true}
 	], "notes": ["Anmerkung für den/die Prüfer/in: Die Arme werden mit eingebunden (Transportsicherung)."]},
-	{"name": "10.2 Zuordnung von Löschmitteln", "min_tasks": 4, "serien": [{"serie": "B", "station": "V 5 Trage", "lfd": 21}, {"serie": "C", "station": "V 5 Pumpen", "lfd": 21}], "parts": [
+	{"nr": "10.2", "name": "Zuordnung von Löschmitteln", "min_tasks": 4, "serien": [{"serie": "B", "station": "5 Trage", "lfd": 21}, {"serie": "C", "station": "5 Pumpen", "lfd": 21}], "parts": [
 		{"name": "Elektroanlagen - Kohlendioxidlöscher", "mandatory": true},
 		{"name": "Holz - Wasser", "mandatory": true},
 		{"name": "Metallspäne - Sand", "mandatory": true},
 		{"name": "Kraftstoffe - ABC-Löschpulver", "mandatory": true}
 	]},
-	{"name": "10.3 Einsatzbereitschaft des hydraulischen Rettungssatzes herstellen", "min_tasks": 5, "serien": [{"serie": "A", "station": "VI 6 Schere", "lfd": 23}, {"serie": "B", "station": "VI 6 Schere", "lfd": 23}], "parts": [
+	{"nr": "10.3", "name": "Einsatzbereitschaft des hydraulischen Rettungssatzes herstellen", "min_tasks": 5, "serien": [{"serie": "A", "station": "6 Schere", "lfd": 23}, {"serie": "B", "station": "6 Schere", "lfd": 23}], "parts": [
 		{"name": "Höchstdruckschlauch 5m gelb am Antriebsaggregat/Umschaltventil verwendet *", "mandatory": true},
 		{"name": "Externes Umschaltventil in Mittelstellung gebracht *", "mandatory": true},
 		{"name": "Höchstdruckschlauch 10m gelb am Umschaltventil bzw. Aggregat/Spreizer verwendet **", "mandatory": false},
@@ -388,12 +388,12 @@
 		"* Verfügt der jeweilige Gerätetyp über kein Umschaltventil, ist das Kriterium als erfüllt zu werten.",
 		"** Verfügt der jeweilige Gerätetyp über kein Umschaltventil, muss der Höchstdruckschlauch direkt am Aggregat angeschlossen werden."
 	]},
-	{"name": "10.4 Gebrauch der Schutzausstattung beim Betrieb des hydraulischen Rettungssatzes", "min_tasks": 3, "serien": [{"serie": "A", "station": "VI 6 Schere", "lfd": 22}, {"serie": "B", "station": "VI 6 Schere", "lfd": 22}], "parts": [
+	{"nr": "10.4", "name": "Gebrauch der Schutzausstattung beim Betrieb des hydraulischen Rettungssatzes", "min_tasks": 3, "serien": [{"serie": "A", "station": "6 Schere", "lfd": 22}, {"serie": "B", "station": "6 Schere", "lfd": 22}], "parts": [
 		{"name": "Schutzbrille und Helm mit geschlossenem Visier getragen", "mandatory": true},
 		{"name": "Lederschutzhandschuhe getragen", "mandatory": true},
 		{"name": "Jacke komplett geschlossen", "mandatory": true}
 	]},
-	{"name": "10.5 Ablängen eines Metallrohres mit der hydraulischen Schere", "min_tasks": 5, "serien": [{"serie": "A", "station": "VI 6 Schere", "lfd": 24}], "parts": [
+	{"nr": "10.5", "name": "Ablängen eines Metallrohres mit der hydraulischen Schere", "min_tasks": 5, "serien": [{"serie": "A", "station": "6 Schere", "lfd": 24}], "parts": [
 		{"name": "Stationshelfer/in am Umschaltventil positioniert *", "mandatory": false},
 		{"name": "Handventil geschlossen", "mandatory": true},
 		{"name": "Motor gestartet", "mandatory": true},
@@ -405,7 +405,7 @@
 		"Die Aufgabe ist an das örtlich verfügbare Gerät anzupassen.",
 		"* Verfügt der jeweilige Gerätetyp über kein Umschaltventil, ist das Kriterium als erfüllt zu werten."
 	]},
-	{"name": "10.6 Spreizen zweier Metallstäbe mit dem hydraulischen Spreizer", "min_tasks": 5, "serien": [{"serie": "B", "station": "VI 6 Schere", "lfd": 24}], "parts": [
+	{"nr": "10.6", "name": "Spreizen zweier Metallstäbe mit dem hydraulischen Spreizer", "min_tasks": 5, "serien": [{"serie": "B", "station": "6 Schere", "lfd": 24}], "parts": [
 		{"name": "Handventil geschlossen", "mandatory": true},
 		{"name": "Motor gestartet", "mandatory": true},
 		{"name": "Stationshelfer/in am Umschaltventil positioniert *", "mandatory": false},
@@ -417,7 +417,7 @@
 		"Die Aufgabe ist an das örtlich verfügbare Gerät anzupassen.",
 		"* Verfügt der jeweilige Gerätetyp über kein Umschaltventil, ist das Kriterium als erfüllt zu werten"
 	]},
-	{"name": "10.7 Anlegen der persönlichen Schutzusstattung gegen Absturz (PSAgA)", "min_tasks": 7, "serien": [{"serie": "B", "station": "V 5 Trage", "lfd": 19}], "parts": [
+	{"nr": "10.7", "name": "Anlegen der persönlichen Schutzusstattung gegen Absturz (PSAgA)", "min_tasks": 7, "serien": [{"serie": "B", "station": "5 Trage", "lfd": 19}], "parts": [
 		{"name": "Keine Gegenstände in den Taschen des Multifunktionalen Einsatzanzuges (MEA)", "mandatory": true},
 		{"name": "Sichtprüfung durchgeführt, um mögliche Verunreinigungen, Beschädigungen oder Risse feststellen zu können", "mandatory": true},
 		{"name": "Auffanggurt an der Rückenöse aufgenommen", "mandatory": false},

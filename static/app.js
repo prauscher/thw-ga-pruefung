@@ -380,6 +380,16 @@ function formatNumber(number) {
 	return (number < 10 ? "0" : "") + number;
 }
 
+function convertRoman(num) {
+	if (num < 1) return "";
+	if (num >= 40) return "XL" + convertRoman(num - 40);
+	if (num >= 10) return "X" + convertRoman(num - 10);
+	if (num >= 9) return "IX" + convertRoman(num - 9);
+	if (num >= 5) return "V" + convertRoman(num - 5);
+	if (num >= 4) return "IV" + convertRoman(num - 4);
+	if (num >= 1) return "I" + convertRoman(num - 1);
+}
+
 var wizardModal = null;
 
 function showWizard() {
@@ -422,9 +432,8 @@ function showWizard() {
 
 			for (const [station_name, tasks] of Object.entries(data.stations)) {
 				var names = station_name.split(" ");
-				const pdf_name = names.splice(0, 1).join(" ");
-				const name = names.join(" ");
-				socket.send({"_m": "station", "i": _gen_id(), "name": name, "name_pdf": pdf_name, "tasks": tasks});
+				const pdf_name = convertRoman(names[0]);
+				socket.send({"_m": "station", "i": _gen_id(), "name": station_name, "name_pdf": pdf_name, "tasks": tasks});
 			}
 
 			wizardModal.close();
