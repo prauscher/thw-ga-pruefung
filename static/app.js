@@ -1024,33 +1024,21 @@ function _openStationModal(s_id) {
 	modal.elem.find(".modal-body").append([
 		$("<p>").text("Hier kann die Auslastung einer Station eingesehen werden."),
 		$("<h5>").text("Offene Prüflinge"),
-		$("<div>").addClass("table-responsive").append(
-			$("<table>").addClass(["table", "table-striped"]).append([
-				$("<thead>").append(
-					$("<tr>").append([
-						$("<th>").text("Prüfling"),
-					])
-				),
-				$("<tbody>").append(
-					missingExaminees.map(function (e_id) {
-						var cell = $("<td>").addClass("text-truncate");
-						cell.append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
-							e.preventDefault();
-							_openExamineeModal(e_id);
-						}));
+		$("<div>").addClass(["container", "mb-2"]).append($("<div>").addClass("row").append(
+			missingExaminees.map(function (e_id) {
+				var cell = $("<div>").addClass(["text-truncate", "col-4"]);
+				cell.append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
+					e.preventDefault();
+					_openExamineeModal(e_id);
+				}));
 
-						if (currentExaminees.indexOf(e_id) >= 0) {
-							cell.append(" (aktuell an Station)");
-						}
+				if (currentExaminees.indexOf(e_id) >= 0) {
+					cell.append(" (aktuell an Station)");
+				}
 
-						return $("<tr>").append(cell);
-					})
-				),
-				$("<tfoot>").toggle(missingExaminees.length == 0).append(
-					$("<tr>").append($("<th>").text("(Keine Prüflinge mehr offen)")),
-				),
-			]),
-		),
+				return cell;
+			})
+		)).append($("<div>").toggle(missingExaminees.length == 0).text("(Keine Prüflinge mehr offen)")),
 		$("<h5>").text("Historie"),
 		$("<div>").addClass("table-responsive").append(
 			$("<table>").addClass(["table", "table-striped"]).append([
