@@ -599,6 +599,10 @@ function _openStationEditModal(s_id) {
 }
 
 function render() {
+	if (Object.keys(data).length == 0) {
+		return;
+	}
+
 	var examineesWaiting = Object.keys(data.examinees);
 
 	for (var a_id of Object.keys(data.assignments)) {
