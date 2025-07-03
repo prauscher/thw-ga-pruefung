@@ -1301,12 +1301,16 @@ function _generateStation(i) {
 			}
 			examinees.push(examinee_kv[0]);
 		}
+		var activeExaminers = [];
 		for (var assignment of Object.values(data.assignments)) {
 			if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
 				var _i = examinees.indexOf(assignment.examinee);
 				if (_i >= 0) {
 					examinees.splice(_i, 1);
 				}
+			}
+			if (assignment.station == i && assignment.start > Date.now() / 1000 - 60 * 60 && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0) {
+				activeExaminers.push(assignment.examiner);
 			}
 		}
 		var examinee_priorities = Object.fromEntries(examinees.map(function (e_id) {
@@ -1342,13 +1346,15 @@ function _generateStation(i) {
 				$("<form>").submit(_submit).append([
 					$("<div>").addClass("mb-3").append([
 						$("<label>").attr("for", "examinees").addClass("col-form-label").text("Prüflinge"),
-						$("<div>").addClass("overflow-auto").css("height", "200px").append(
+						$("<div>").addClass("overflow-auto").css("height", "250px").append(
 							$("<ul>").addClass(["list-group", "list-group-flush"]).append(
-								examinees.map((e_id) => _buildExamineeItem(e_id, false).prepend(
-									$("<div>").addClass("float-end").append(
-										$("<input>").attr("type", "text").data("e_id", e_id).addClass(["form-control", "examiner"])
-									)
-								))
+								examinees.map(function (e_id) {
+									var node = _buildExamineeItem(e_id, false);
+									var input = $("<input>").attr("type", "text").data("e_id", e_id).attr("autocomplete", "off").addClass(["form-control", "examiner"]);
+									node.prepend($("<div>").addClass("float-end").append(input));
+									new Autocomplete(input.get(0), {"items": Object.fromEntries(activeExaminers.map((examiner) => [examiner, examiner])), "fixed": true});
+									return node;
+								})
 							),
 						),
 					]),
