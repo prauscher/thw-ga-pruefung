@@ -738,9 +738,7 @@ function _buildExamineeItem(e_id, a_id) {
 			}
 		}
 
-		if (expectedTimeout === null) {
-			node.addClass("text-warning");
-		} else {
+		if (expectedTimeout !== null) {
 			node.addClass("best-before").data("best-before", expectedTimeout);
 			formatBestBefore(node);
 		}
