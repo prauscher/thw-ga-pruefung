@@ -1558,8 +1558,8 @@ function _generatePage(assignment) {
 	var header = $("<div>");
 	var body = $("<div>");
 
-	var examinee_name = assignment.examinee === undefined ? "OTST (Vorschau)" : data.examinees[assignment.examinee].name;
-	var examiner_name = assignment.examiner === undefined ? "Berta Beispiel" : assignment.examiner;
+	var examinee_name = assignment.examinee === undefined ? "OTST Harald Schreiber" : data.examinees[assignment.examinee].name;
+	var examiner_name = assignment.examiner === undefined ? "OTST Berta Beispiel" : assignment.examiner;
 
 	if (false) {
 		// Auswertungsbogen, maybe useful later
