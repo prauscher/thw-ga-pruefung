@@ -1026,9 +1026,8 @@ function _openStationModal(s_id) {
 		}
 	}
 
-	modal.elem.find(".modal-body").append([
-		$("<p>").text("Hier kann die Auslastung einer Station eingesehen werden."),
-		$("<h5>").text("Offene Prüflinge"),
+	var tab = new Tab();
+	tab.addPanel("Offen").panel.append(
 		$("<div>").addClass(["container", "mb-2"]).append($("<div>").addClass("row").append(
 			missingExaminees.map(function (e_id) {
 				var cell = $("<div>").addClass(["text-truncate", "col-4"]);
@@ -1044,7 +1043,9 @@ function _openStationModal(s_id) {
 				return cell;
 			})
 		)).append($("<div>").toggle(missingExaminees.length == 0).text("(Keine Prüflinge mehr offen)")),
-		$("<h5>").text("Historie"),
+	);
+
+	tab.addPanel("Historie").panel.append(
 		$("<div>").addClass("table-responsive").append(
 			$("<table>").addClass(["table", "table-striped"]).append([
 				$("<thead>").append(
@@ -1092,6 +1093,12 @@ function _openStationModal(s_id) {
 				),
 			]),
 		),
+	);
+
+
+	modal.elem.find(".modal-body").append([
+		$("<p>").text("Hier kann die Auslastung einer Station eingesehen werden."),
+		tab.elem,
 	]);
 
 	modal.elem.find(".modal-footer").append([
@@ -1914,4 +1921,57 @@ function _buildModalHeader(text) {
 	header.append(title);
 	header.append(closeBtn);
 	return header;
+}
+
+function Tab() {
+	var tablist = document.createElement('ul');
+	tablist.setAttribute('class', 'nav nav-tabs');
+	tablist.setAttribute('role', 'tablist');
+
+	var panes = document.createElement('div');
+	panes.setAttribute('class', 'tab-content');
+
+	var wrap = document.createElement('div');
+	wrap.append(tablist);
+	wrap.append(panes);
+
+	this.elem = $(wrap);
+	this.addPanel = function (name) {
+		var tab_id = "tab-" + (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+
+		var panel = document.createElement('div');
+		panel.setAttribute('id', tab_id + '-panel');
+		panel.setAttribute('class', 'tab-pane' + (tablist.childElementCount == 0 ? ' active' : ''));
+		panel.setAttribute('role', 'tabpanel');
+
+		var button = document.createElement('button');
+		button.setAttribute('id', tab_id + '-button');
+		button.setAttribute('type', 'button');
+		button.setAttribute('class', 'nav-link' + (tablist.childElementCount == 0 ? ' active' : ''));
+		button.setAttribute('role', 'tab');
+		button.setAttribute('data-bs-toggle', 'tab');
+		button.setAttribute('data-bs-target', '#' + tab_id + '-panel');
+		button.innerText = name;
+
+		var header = document.createElement('li');
+		header.setAttribute('class', 'nav-item');
+		header.setAttribute('role', 'presentation');
+		header.append(button);
+
+		tablist.append(header);
+		panes.append(panel);
+
+		var tabTrigger = new bootstrap.Tab(button);
+		button.addEventListener('click', function (event) {
+			event.preventDefault();
+			tabTrigger.show();
+		});
+
+		return  {
+			"panel": $(panel),
+			"show": function () {
+				bootstrap.Tab.getInstance(button).show();
+			},
+		};
+	};
 }
