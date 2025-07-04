@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import csv
 import json
+import hashlib
 import time
 import traceback
 from pathlib import Path
@@ -14,6 +16,77 @@ import tornado.websocket
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("index.html")
+
+
+class ReplayHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.render("index.html", replay=True)
+
+
+class BuildReplayHandler(tornado.web.RequestHandler):
+    # disable xsrf protection
+    def check_xsrf_cookie(self):
+        pass
+
+    def set_default_headers(self):
+        self.set_header("Content-Type", "application/json")
+
+    def _build_id(self, name):
+        return hashlib.sha256(name.encode("utf-8")).hexdigest()[:4]
+
+    def post(self):
+        export_file = self.request.files["export_file"][0]
+
+        examinees = {}
+        stations = {}
+        events = []
+
+        csv_reader = csv.reader(export_file["body"].decode("utf-8").splitlines())
+        header = next(csv_reader)
+        for i, row_raw in enumerate(csv_reader):
+            row = dict(zip(header, row_raw, strict=True))
+
+            e_id = self._build_id(row["Prüfling"])
+            examinees[e_id] = {
+                "name": row["Prüfling"],
+                "priority": 100,
+                "flags": [],
+                "locked": 0,
+            }
+
+            if row["Station"] == "Theorie":
+                s_id = "_theorie"
+            elif row["Station"] == "Pause":
+                s_id = "_pause"
+            else:
+                s_id = self._build_id(row["Station"])
+                stations[s_id] = {
+                    "name": row["Station"],
+                    "name_pdf": "",
+                    "tasks": [],
+                }
+
+            start = datetime.strptime(row["Start"], "%d.%m.%Y %H:%M:%S")
+            end = datetime.strptime(row["Ende"], "%d.%m.%Y %H:%M:%S")
+
+            assignment = {
+                "_m": "assignment",
+                "i": f"{i:04x}",
+                "examinee": e_id,
+                "station": s_id,
+                "examiner": row.get("Prüfer"),
+                "start": start.timestamp(),
+                "end": end.timestamp() if s_id == "_pause" else None,
+            }
+
+            events.append([start.timestamp(),
+                          {**assignment, "result": "open"}])
+            events.append([end.timestamp(),
+                          {**assignment, "result": "done", "end": end.timestamp()}])
+
+        events.sort(key=lambda item: item[0])
+
+        self.write(json.dumps({"state": {"examinees": examinees, "stations": stations, "assignments": []}, "events": events}))
 
 
 class BroadcastState:

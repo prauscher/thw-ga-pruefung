@@ -11,7 +11,7 @@ import sys
 import tornado
 import tornado.websocket
 
-from app.handlers import MainHandler, MessageHandler
+from app.handlers import MainHandler, MessageHandler, ReplayHandler, BuildReplayHandler
 
 
 def sig_handler(sig, frame):
@@ -24,6 +24,8 @@ def sig_handler(sig, frame):
 def main():
     app = tornado.web.Application(
         [(r"/", MainHandler),
+         (r"/replay", ReplayHandler),
+         (r"/replay/build", BuildReplayHandler),
          ("/socket", MessageHandler)],
         cookie_secret=os.environ["COOKIE_SECRET"],
         template_path=os.path.join(os.path.dirname(__file__), "templates"),
