@@ -1384,6 +1384,7 @@ function _generateStation(i) {
 	var assignments = [];
 	var examineesDone = [];
 	var lastStartedAssignment = null;
+	var lastFinishedAssignment = null;
 	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, []]));
 	var ownTimes = Object.fromEntries(Object.keys(data.examinees).map((_e_id) => [_e_id, Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, null]))]));
 
@@ -1403,6 +1404,9 @@ function _generateStation(i) {
 				}
 			} else if (assignment.result == "done") {
 				examineesDone.push(assignment.examinee);
+			}
+			if (lastFinishedAssignment === null || assignment.end > lastFinishedAssignment) {
+				lastFinishedAssignment = assignment.end;
 			}
 		}
 	}
@@ -1427,26 +1431,30 @@ function _generateStation(i) {
 	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
 
 	var end = null;
-	if (!i.startsWith("_") && lastStartedAssignment !== null && examineesDone.length > 0 && capacity > 0) {
-		end = lastStartedAssignment + Object.keys(data.examinees).reduce(function (carry, e_id) {
-			// Ignore examinees which completed this station
-			if (examineesDone.indexOf(e_id) >= 0) {
-				return carry;
-			}
-
-			var factors = [];
-			for (const _s_id of Object.keys(data.stations)) {
-				if (ownTimes[e_id][_s_id] !== null && stationTimes[_s_id] !== null) {
-					factors.push(ownTimes[e_id][_s_id] / stationTimes[_s_id]);
+	if (!i.startsWith("_") && examineesDone.length > 0) {
+		if (examineesDone.length == Object.keys(data.examinees).length) {
+			end = lastFinishedAssignment;
+		} else if (lastStartedAssignment !== null && capacity > 0) {
+			end = lastStartedAssignment + Object.keys(data.examinees).reduce(function (carry, e_id) {
+				// Ignore examinees which completed this station
+				if (examineesDone.indexOf(e_id) >= 0) {
+					return carry;
 				}
-			}
 
-			var factor = 1;
-			if (factors.length > 0) {
-				factor = (factors.reduce((_c, _v) => _v + _c, 0) / factors.length);
-			}
-			return carry + factor;
-		}, 0) * stationTimes[i] / capacity;
+				var factors = [];
+					for (const _s_id of Object.keys(data.stations)) {
+					if (ownTimes[e_id][_s_id] !== null && stationTimes[_s_id] !== null) {
+						factors.push(ownTimes[e_id][_s_id] / stationTimes[_s_id]);
+					}
+				}
+
+				var factor = 1;
+				if (factors.length > 0) {
+					factor = (factors.reduce((_c, _v) => _v + _c, 0) / factors.length);
+				}
+				return carry + factor;
+			}, 0) * stationTimes[i] / capacity;
+		}
 	}
 
 	var examinees = [];
