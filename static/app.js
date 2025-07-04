@@ -1001,14 +1001,24 @@ function _openStationModal(s_id) {
 	var modal = new Modal("Station " + (s_id.startsWith("_") ? fixedStations[s_id].name : data.stations[s_id].name));
 	modal.elem.find(".modal-dialog").addClass("modal-lg");
 
+	var tab = new Tab();
+
 	var missingExaminees = Object.keys(data.examinees);
 	var currentExaminees = [];
 	var assignments = [];
 	var durationSum = 0;
 	var durationCount = 0;
 
+	var examineeTimes = Object.fromEntries(Object.keys(data.examinees).map((_e_id) => [_e_id, Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, null]))]));
+	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, []]));
+
 	for (const a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
+
+		if (assignment.result == "done" && !assignment.station.startsWith("_")) {
+			examineeTimes[assignment.examinee][assignment.station] = assignment;
+			stationTimes[assignment.station].push(assignment.end - assignment.start);
+		}
 
 		if (assignment.station == s_id) {
 			assignments.push({"i": a_id, ...assignment});
@@ -1026,7 +1036,85 @@ function _openStationModal(s_id) {
 		}
 	}
 
-	var tab = new Tab();
+	stationTimes = Object.fromEntries(Object.entries(stationTimes).map(([_s_id, _times]) => [_s_id, _times.length == 0 ? null : _times.reduce((_c, _v) => _v + _c, 0) / _times.length]));
+
+	if (!s_id.startsWith("_")) {
+		var examinerTimes = {};
+		for (const e_id of Object.keys(examineeTimes)) {
+			const assignment = examineeTimes[e_id][s_id];
+			if (assignment === null) {
+				continue;
+			}
+
+			const duration = (assignment.end - assignment.start) / 60;
+			const examiner = ("examiner" in assignment) ? assignment.examiner : "(Unbekannt)";
+
+			var factors = [];
+			for (const _s_id of Object.keys(data.stations)) {
+				if (examineeTimes[e_id][_s_id] !== null && stationTimes[_s_id] !== null) {
+					factors.push((examineeTimes[e_id][_s_id].end - examineeTimes[e_id][_s_id].start) / stationTimes[_s_id]);
+				}
+			}
+
+			var factor = 1;
+			if (factors.length > 0) {
+				factor = (factors.reduce((_c, _v) => _v + _c, 0) / factors.length);
+			}
+
+			if (!(examiner in examinerTimes)) {
+				examinerTimes[examiner] = [];
+			}
+			examinerTimes[examiner].push({"assignment": assignment, "duration": duration, "factor": factor});
+		}
+
+		var chartCanvas = $("<canvas>");
+		tab.addPanel("Dauer").panel.append([
+			$("<p>").addClass("mt-2").text("Die Übersicht zeigt alle an dieser Station abgeschlossenen Prüfungen. Dabei wird die tatsächliche Zeit in Minuten entlang der X-Achse und die relative Dauer des jeweiligen Prüflings über alle Stationen auf der Y-Achse angezeigt. Die Farbe zeigt den*die angegebenen Prüfer*in an."),
+			$("<div>").append([
+				chartCanvas.toggle(Object.keys(examinerTimes).length > 0),
+				$("<p>").text("Bisher stehen keine Daten zur Verfügung.").toggle(Object.keys(examinerTimes).length == 0),
+			]),
+		]);
+
+		var chart = new Chart(chartCanvas, {
+			"type": "scatter",
+			"data": {
+				"datasets": Object.keys(examinerTimes).map((examiner) => ({
+					"label": examiner,
+					"data": examinerTimes[examiner].map((data) => ({"x": data.duration, "y": data.factor, "_assignment": data.assignment})),
+				})),
+			},
+			"options": {
+				"scales": {
+					"y": {
+						"ticks": {
+							"callback": (value, index, ticks) => Math.round((value - 1) * 100) + " %",
+						},
+					},
+				},
+				"plugins": {
+					"tooltip": {
+						"callbacks": {
+							"label": (ctx) => [
+								data.examinees[ctx.raw._assignment.examinee].name,
+								"Prüfer: " + ctx.dataset.label,
+								"Dauer [min]: " + Math.round(ctx.parsed.x),
+							],
+						},
+					},
+				},
+			},
+		});
+		$(chartCanvas)[0].onclick = function (e) {
+			const points = chart.getElementsAtEventForMode(e, 'nearest', {intersect: true}, true);
+			if (points.length == 0) {
+				return;
+			}
+			const assignment = chart.data.datasets[points[0].datasetIndex].data[points[0].index]._assignment;
+			_openAssignmentModal(assignment.i);
+		};
+	}
+
 	tab.addPanel("Offen").panel.append(
 		$("<div>").addClass(["container", "mb-2"]).append($("<div>").addClass("row").append(
 			missingExaminees.map(function (e_id) {
@@ -1095,11 +1183,7 @@ function _openStationModal(s_id) {
 		),
 	);
 
-
-	modal.elem.find(".modal-body").append([
-		$("<p>").text("Hier kann die Auslastung einer Station eingesehen werden."),
-		tab.elem,
-	]);
+	modal.elem.find(".modal-body").append(tab.elem);
 
 	modal.elem.find(".modal-footer").append([
 		$("<button>").addClass(["btn", "btn-info"]).toggle(!s_id.startsWith("_")).text("Vorschau").click(function (e) {

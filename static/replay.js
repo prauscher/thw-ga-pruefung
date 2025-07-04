@@ -4,7 +4,7 @@ function ReliableWebSocket(options) {
 	var pos = null;
 	var events = [];
 
-	var playButton = $("<button>").addClass(["btn", paused ? "btn-secondary" : "btn-outline-secondary"]).text("Play / Pause").click(function () {
+	var playButton = $("<button>").addClass(["btn", "me-2", paused ? "btn-secondary" : "btn-outline-secondary"]).text("Play / Pause").click(function () {
 		paused = !paused;
 		$(this).toggleClass("btn-secondary", !paused);
 		$(this).toggleClass("btn-outline-secondary", paused);
@@ -75,7 +75,7 @@ function ReliableWebSocket(options) {
 		]),
 	]);
 
-	var button = $("<button>").addClass(["btn", "btn-primary"]).text("Start").click(_submit);
+	var button = $("<button>").addClass(["btn", "btn-primary"]).text("Laden").click(_submit);
 	modal.elem.find(".modal-footer").append(button);
 	modal.show();
 
