@@ -136,10 +136,17 @@ class BroadcastState:
         return {"_snr": self.snr}
 
 
+def _server_time_message():
+    return {"_m": "_server_timestamp", "time": time.time()}
+
+
 class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     _clients = set()
     state = BroadcastState()
     auth = None
+
+    broadcast_time_callback = tornado.ioloop.PeriodicCallback(lambda: BroadcastWebSocketHandler.send_to_all(_server_time_message(), include_snr=False), 1000 * 10)
+    broadcast_time_callback.start()
 
     @property
     def current_user(self):
@@ -150,6 +157,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
 
     def open(self):
         print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | New Client connected")
+        self.send(_server_time_message())
         self.send({"_m": "_auth_required", "first_login": not self.state.users})
 
     def reply(self, request, reply):
@@ -159,10 +167,11 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
         self.write_message(json.dumps(msg))
 
     @classmethod
-    def send_to_all(cls, msg):
-        cls.state.snr = (cls.state.snr + 1) & 0xffff
-        msg["_snr"] = cls.state.snr
-        cls.state.message_cache = cls.state.message_cache[-1023:] + [msg]
+    def send_to_all(cls, msg, *, include_snr = True):
+        if include_snr:
+            cls.state.snr = (cls.state.snr + 1) & 0xffff
+            msg["_snr"] = cls.state.snr
+            cls.state.message_cache = cls.state.message_cache[-1023:] + [msg]
 
         for client in cls._clients:
             if client.auth is not None and client.auth in cls.state.users:

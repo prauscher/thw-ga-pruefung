@@ -7,6 +7,7 @@ function ReliableWebSocket(options) {
 		options = {};
 	}
 
+	var server_time_offset = 0;
 	var login_timeout = null;
 
 	function _send(data) {
@@ -182,6 +183,10 @@ function ReliableWebSocket(options) {
 				return;
 			}
 
+			if (data._m === "_server_timestamp") {
+				server_time_offset = data.time - (Date.now() / 1000);
+			}
+
 			if (data._m.startsWith("_")) {
 				// Ignore other messages for now, but need to sign off the _cid above
 				return;
@@ -242,6 +247,6 @@ function ReliableWebSocket(options) {
 			// Reconnect will be triggered
 			ws.close();
 		},
-		"time": () => Date.now() / 1000,
+		"time": () => (Date.now() / 1000) + server_time_offset,
 	};
 }
