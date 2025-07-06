@@ -1519,35 +1519,6 @@ function _generateStation(i) {
 		return b.start - a.start;
 	});
 
-	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
-
-	var end = null;
-	if (!i.startsWith("_") && examineesDone.length > 0) {
-		if (examineesDone.length == Object.keys(data.examinees).length) {
-			end = lastFinishedAssignment;
-		} else if (lastStartedAssignment !== null && capacity > 0) {
-			end = lastStartedAssignment + Object.keys(data.examinees).reduce(function (carry, e_id) {
-				// Ignore examinees which completed this station
-				if (examineesDone.indexOf(e_id) >= 0) {
-					return carry;
-				}
-
-				var factors = [];
-					for (const _s_id of Object.keys(data.stations)) {
-					if (ownTimes[e_id][_s_id] !== null && stationTimes[_s_id] !== null) {
-						factors.push(ownTimes[e_id][_s_id] / stationTimes[_s_id]);
-					}
-				}
-
-				var factor = 1;
-				if (factors.length > 0) {
-					factor = (factors.reduce((_c, _v) => _v + _c, 0) / factors.length);
-				}
-				return carry + factor;
-			}, 0) * stationTimes[i] / capacity;
-		}
-	}
-
 	var examinees = [];
 	var allExaminers = {};
 	var activeExaminers = [];
@@ -1578,10 +1549,38 @@ function _generateStation(i) {
 	var availableExaminers = Object.entries(allExaminers).filter((kv) => activeExaminers.indexOf(kv[0]) < 0);
 	availableExaminers.sort((kv_a, kv_b) => kv_b[1] - kv_a[1]);
 
+	var end = null;
+	if (!i.startsWith("_") && examineesDone.length > 0) {
+		if (examineesDone.length == Object.keys(data.examinees).length) {
+			end = lastFinishedAssignment;
+		} else if (lastStartedAssignment !== null && activeExaminers.length > 0) {
+			end = lastStartedAssignment + Object.keys(data.examinees).reduce(function (carry, e_id) {
+				// Ignore examinees which completed this station
+				if (examineesDone.indexOf(e_id) >= 0) {
+					return carry;
+				}
+
+				var factors = [];
+					for (const _s_id of Object.keys(data.stations)) {
+					if (ownTimes[e_id][_s_id] !== null && stationTimes[_s_id] !== null) {
+						factors.push(ownTimes[e_id][_s_id] / stationTimes[_s_id]);
+					}
+				}
+
+				var factor = 1;
+				if (factors.length > 0) {
+					factor = (factors.reduce((_c, _v) => _v + _c, 0) / factors.length);
+				}
+				return carry + factor;
+			}, 0) * stationTimes[i] / activeExaminers.length;
+		}
+	}
+
 	assignButton.prop("disabled", examinees.length == 0);
 
 	var currentExaminer = "";
 	var examinerColors = ["#fff080", "#800080", "#00806c", "#800000", "#004e80"];
+	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").css("cursor", "pointer").text(name).click(function () {
