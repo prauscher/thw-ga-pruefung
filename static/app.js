@@ -61,7 +61,7 @@ $(document).on("onbarcodescanned", function (e, code) {
 		const assignment = data.assignments[a_id];
 		// Automate return, but only for open assignments, which started at least 5 minutes ago
 		if (user.role == "operator-return") {
-			if (assignment.result == "open" && assignment.start < Date.now() / 1000 - 5 * 60) {
+			if (assignment.result == "open" && assignment.start < socket.time() - 5 * 60) {
 				socket.send({"_m": "return", "i": a_id, "result": "done"});
 				assignment_return_waiting = [a_id, setTimeout(function () {
 					snd_beep_error.play();
@@ -379,7 +379,7 @@ $(function () {
 	});
 
 	setInterval(function () {
-		const now = new Date();
+		const now = new Date(socket.time() * 1000);
 		$("#clock").text(formatNumber(now.getHours()) + ":" + formatNumber(now.getMinutes()));
 		$(".best-before").each(function (_i, elem) {
 			formatBestBefore($(elem));
@@ -509,7 +509,7 @@ function _openExamineeEditModal(e_id) {
 			]),
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "locked").addClass("col-form-label").text("Sperrwert"),
-				$("<input>").attr("type", "number").addClass("form-control").attr("id", "locked").val(e_id === null ? "-1" : (data.examinees[e_id].locked > 0 ? (data.examinees[e_id].locked > Date.now() / 1000 ? Math.round((data.examinees[e_id].locked - Date.now() / 1000) / 60) : "0") : data.examinees[e_id].locked))
+				$("<input>").attr("type", "number").addClass("form-control").attr("id", "locked").val(e_id === null ? "-1" : (data.examinees[e_id].locked > 0 ? (data.examinees[e_id].locked > socket.time() ? Math.round((data.examinees[e_id].locked - socket.time()) / 60) : "0") : data.examinees[e_id].locked))
 			]),
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "flags").addClass("col-form-label").text("Markierungen"),
@@ -695,7 +695,7 @@ function render() {
 			])
 		)
 	).append(examineesWaiting.map(function (e_id) {
-		return _buildExamineeItem(e_id, null).toggleClass("text-muted", examineesWaitingMissingStations[e_id].length == 0 || ("locked" in data.examinees[e_id] && (data.examinees[e_id].locked == -1 || data.examinees[e_id].locked > Date.now() / 1000)));
+		return _buildExamineeItem(e_id, null).toggleClass("text-muted", examineesWaitingMissingStations[e_id].length == 0 || ("locked" in data.examinees[e_id] && (data.examinees[e_id].locked == -1 || data.examinees[e_id].locked > socket.time())));
 	}));
 	if (examineesWaiting.length == 0) {
 		$("#examinees").append(
@@ -758,7 +758,7 @@ function _buildExamineeItem(e_id, a_id) {
 	if (openFixedStations.indexOf("_pause") < 0) {
 		state_indicator = "bg-success";
 	}
-	if ("locked" in data.examinees[e_id] && (data.examinees[e_id].locked == -1 || data.examinees[e_id].locked > Date.now() / 1000)) {
+	if ("locked" in data.examinees[e_id] && (data.examinees[e_id].locked == -1 || data.examinees[e_id].locked > socket.time())) {
 		state_indicator = "bg-secondary";
 	}
 	node.append($("<span>").addClass(["float-start", "badge", "me-1", state_indicator]).text(openStations.length));
@@ -786,8 +786,8 @@ function _buildExamineeItem(e_id, a_id) {
 }
 
 function formatBestBefore(node) {
-	node.toggleClass(["text-danger"], Date.now() / 1000 > node.data("best-before"));
-	node.toggleClass(["fw-bold"], Date.now() / 1000 - (10 * 60) > node.data("best-before"));
+	node.toggleClass(["text-danger"], socket.time() > node.data("best-before"));
+	node.toggleClass(["fw-bold"], socket.time() - (10 * 60) > node.data("best-before"));
 }
 
 function _openExamineeModal(e_id) {
@@ -832,7 +832,7 @@ function _openExamineeModal(e_id) {
 	var currentAssignmentText;
 	if (currentAssignment === null && "locked" in examinee && examinee.locked == -1) {
 		currentAssignmentText = "Der*die Prüfling befindet sich im Bereitstellungsraum und ist bis zur manuellen Freigabe für Zuteilungen gesperrt.";
-	} else if (currentAssignment === null && "locked" in examinee && examinee.locked > Date.now() / 1000) {
+	} else if (currentAssignment === null && "locked" in examinee && examinee.locked > socket.time()) {
 		currentAssignmentText = "Der*die Prüfling befindet sich im Bereitstellungsraum und ist bis " + formatTimestamp(examinee.locked) + " für Zuteilungen gesperrt.";
 	} else if (currentAssignment === null) {
 		currentAssignmentText = "Der*die Prüfling befindet sich im Bereitstellungsraum und ist Zuteilungsbereit.";
@@ -852,7 +852,7 @@ function _openExamineeModal(e_id) {
 		if (assignment.result === "canceled") {
 			name = name + " (Abgebrochen)";
 		}
-		var duration = (assignment.end || Date.now() / 1000) - assignment.start;
+		var duration = (assignment.end || socket.time()) - assignment.start;
 		var usage = 1.0;
 		if (!assignment.station.startsWith("_") && stationTimes[assignment.station] != null) {
 			usage = duration / stationTimes[assignment.station];
@@ -868,7 +868,7 @@ function _openExamineeModal(e_id) {
 		now = assignment.end;
 		if (assignment.result === "open" && assignment.end !== null) {
 			durationContent.push($("<br>"));
-			durationContent.push($("<span>").addClass("fst-italic").text("noch " + Math.round((now - Date.now() / 1000) / 60) + " verbleibend"));
+			durationContent.push($("<span>").addClass("fst-italic").text("noch " + Math.round((now - socket.time()) / 60) + " verbleibend"));
 			now = null;
 		}
 		assignmentEntries.push($("<tr>").append([
@@ -888,14 +888,14 @@ function _openExamineeModal(e_id) {
 	if (now !== null && missingStations.length > 0) {
 		assignmentEntries.push($("<tr>").append([
 			$("<td>").attr("colspan", 2).addClass("fst-italic").text(" "),
-			$("<td>").addClass("text-end").text(Math.round((Date.now() / 1000 - now) / 60)),
+			$("<td>").addClass("text-end").text(Math.round((socket.time() - now) / 60)),
 			$("<td>").addClass("text-end").text(" "),
 		]));
-		sums.waiting += (Date.now() / 1000 - now);
+		sums.waiting += socket.time() - now;
 	}
 
 	var lockPanel = $("<div>").addClass("mb-3");
-	if ("locked" in examinee && (examinee.locked == -1 || examinee.locked > Date.now() / 1000)) {
+	if ("locked" in examinee && (examinee.locked == -1 || examinee.locked > socket.time())) {
 		lockPanel.append($("<button>").addClass(["btn", "btn-primary"]).text("Für Zuteilung freigeben")).click(function () {
 			socket.send({"_m": "examinee_lock", "i": e_id, "locked": 0});
 			lockPanel.hide();
@@ -1166,7 +1166,7 @@ function _openStationModal(s_id) {
 					assignments.map(function (assignment) {
 						var duration = [];
 						if (assignment.end === null) {
-							duration.push($("<span>").text("bisher " + Math.round((Date.now() / 1000 - assignment.start) / 60)));
+							duration.push($("<span>").text("bisher " + Math.round((socket.time() - assignment.start) / 60)));
 						} else {
 							duration.push($("<span>").text(Math.round((assignment.end - assignment.start) / 60)));
 						}
@@ -1257,8 +1257,8 @@ function _openAssignmentModal(a_id) {
 
 	var ende = [$("<span>").text(assignment.end === null ? "-" : formatTimestamp(assignment.end))];
 	if (assignment.end !== null) {
-		if (assignment.end > Date.now() / 1000) {
-			ende.push($("<span>").addClass("fst-italic").text(" (noch " + Math.round((assignment.end - Date.now() / 1000) / 60) + " min)"));
+		if (assignment.end > socket.time()) {
+			ende.push($("<span>").addClass("fst-italic").text(" (noch " + Math.round((assignment.end - socket.time()) / 60) + " min)"));
 		} else {
 			ende.push($("<span>").addClass("fst-italic").text(" (nach " + Math.round((assignment.end - assignment.start) / 60) + " min)"));
 		}
@@ -1267,7 +1267,7 @@ function _openAssignmentModal(a_id) {
 		if (expectedDuration === null) {
 			ende.push($("<span>").addClass(["fst-italic", "text-warning"]).text(" (keine Abschätzung möglich)"));
 		} else {
-			var estimatedRemaining = assignment.start + expectedDuration - Date.now() / 1000;
+			var estimatedRemaining = assignment.start + expectedDuration - socket.time();
 			if (estimatedRemaining > 0) {
 				ende.push($("<span>").addClass("fst-italic").text(" (voraussichtlich noch " + Math.round(estimatedRemaining / 60) + " min)"));
 			} else {
@@ -1310,7 +1310,7 @@ function _openAssignmentModal(a_id) {
 					$("<th>").text("Anfang"),
 					$("<td>").append([
 						$("<span>").text(formatTimestamp(assignment.start)),
-						$("<span>").addClass("fst-italic").text(" (vor " + Math.round((Date.now() / 1000 - assignment.start) / 60) + " min)"),
+						$("<span>").addClass("fst-italic").text(" (vor " + Math.round((socket.time() - assignment.start) / 60) + " min)"),
 					]),
 				]),
 				$("<tr>").append([
@@ -1379,9 +1379,9 @@ function _generateStation(i) {
 			if (i.startsWith("_")) {
 				print.setOrientation("portrait");
 				print.write("<h2>" + (i == "_theorie" ? "Zuordnung zur Theorieprüfung" : "Pausenankündigung") + "</h2>");
-				print.write("<p>Beginn: <strong>" + formatTimestamp(Date.now() / 1000) + "</strong></p>");
+				print.write("<p>Beginn: <strong>" + formatTimestamp(socket.time()) + "</strong></p>");
 				if (autoEnd !== null) {
-					print.write("<p>Ende: <strong>" + formatTimestamp((Date.now() / 1000) + autoEnd) + "</strong></p>");
+					print.write("<p>Ende: <strong>" + formatTimestamp(socket.time() + autoEnd) + "</strong></p>");
 				}
 				if (globalExaminer != "") {
 					print.write("<p>Prüfer*in: <strong>" + globalExaminer + "</strong></p>");
@@ -1413,7 +1413,7 @@ function _generateStation(i) {
 		// Find valid examinees (which must not be locked) and sort by priorities
 		var examinees = [];
 		for (const examinee_kv of Object.entries(data.examinees)) {
-			if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > Date.now() / 1000)) {
+			if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > socket.time())) {
 				continue;
 			}
 			examinees.push(examinee_kv[0]);
@@ -1430,7 +1430,7 @@ function _generateStation(i) {
 					examinees.splice(_i, 1);
 				}
 			}
-			if (assignment.station == i && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0 && (assignment.start > Date.now() / 1000 - 60 * 60 || assignment.result == "open")) {
+			if (assignment.station == i && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0 && (assignment.start > socket.time() - 60 * 60 || assignment.result == "open")) {
 				activeExaminers.push(assignment.examiner);
 			}
 		}
@@ -1552,7 +1552,7 @@ function _generateStation(i) {
 	var allExaminers = {};
 	var activeExaminers = [];
 	for (const examinee_kv of Object.entries(data.examinees)) {
-		if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > Date.now() / 1000)) {
+		if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > socket.time())) {
 			continue;
 		}
 		examinees.push(examinee_kv[0]);
@@ -1746,7 +1746,7 @@ function _generatePage(assignment) {
 
 	if (false) {
 		// Auswertungsbogen, maybe useful later
-		const now = new Date();
+		const now = new Date(socket.time() * 1000);
 		const cell_style = {"border": "1px solid black", "padding": "2pt", "min-width": "1.5em"};
 
 		body.css("font-family", "Arial, sans-serif");
@@ -1863,7 +1863,7 @@ function _generatePage(assignment) {
 		codeContainer.appendChild(code);
 		var barcode = "data:image/svg+xml;base64," + window.btoa(codeContainer.innerHTML);
 
-		var start = Date.now() / 1000;
+		var start = socket.time();
 
 		header.append($("<table>").attr("width", "100%").append([
 			$("<tr>").append([

@@ -242,5 +242,6 @@ function ReliableWebSocket(options) {
 			// Reconnect will be triggered
 			ws.close();
 		},
+		"time": () => Date.now() / 1000,
 	};
 }

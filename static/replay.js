@@ -150,5 +150,6 @@ function ReliableWebSocket(options) {
 
 	return {
 		"send": send,
+		"time": () => (pos !== null) ? pos : Date.now() / 1000,
 	};
 }
