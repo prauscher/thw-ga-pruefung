@@ -144,7 +144,7 @@ function ReliableWebSocket(options) {
 		if (event._m == "station_capacity") {
 			handle(pos, {"_m": "station", "i": event.i, ...data.stations[event.i], "capacity": event.capacity});
 		} else {
-			console.log("Unknown event", data);
+			console.log("Unknown event", event);
 		}
 	}
 
