@@ -1452,6 +1452,12 @@ function _generateStation(i) {
 
 		modal.elem.find(".modal-body").append($("<p>").addClass("fw-bold").text("Station " + name));
 		if (i.startsWith("_")) {
+			var autoEnd = 0;
+			if (i === "_pause") {
+				autoEnd = 30;
+			} else if (i === "_theorie") {
+				autoEnd = 60;
+			}
 			modal.elem.find(".modal-body").append([
 				$("<p>").text("Um Prüflinge zuzuweisen, werden ein oder mehrere Prüflinge in der unten stehenden Liste ausgewählt. Diese enthält nur verfügbare Prüflinge und ist sortiert nach Priorität und bereits absolvierten Stationen. Es können mehrere Prüflinge gleichzeitig zugewiesen werden und optional ein automatisches Ende der Zuweisung (z.B. für Pausen) eingestellt werden. Optional kann der Name des*der Prüfer*in hinterlegt werden:"),
 				$("<form>").append([
