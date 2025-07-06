@@ -4,6 +4,8 @@ function ReliableWebSocket(options) {
 	var pos = null;
 	var events = [];
 
+	var stationEstimates = {};
+
 	var playButton = $("<button>").addClass(["btn", "me-2", paused ? "btn-secondary" : "btn-outline-secondary"]).text("Play / Pause").click(function () {
 		paused = !paused;
 		$(this).toggleClass("btn-secondary", !paused);
@@ -11,17 +13,76 @@ function ReliableWebSocket(options) {
 
 	});
 	var timestampLabel = $("<span>");
-	$("body").append($("<div>").css({"position": "fixed", "bottom": "1em", "left": "50%", "right": "50%", "margin": "0px -150px", "padding": ".3em", "width": "300px", "background": "#cccccc", "border-radius": ".5em"}).append(
+	var estimateChartButton = $("<button>").addClass(["btn", "ms-2", "btn-secondary"]).text("Schätzungen").click(function () {
+		var modal = new Modal("Schätzungsübersicht");
+		modal.elem.find(".modal-dialog").addClass("modal-xl");
+
+		var chartCanvas = $("<canvas>");
+		modal.elem.find(".modal-body").append([
+			$("<div>").append(chartCanvas),
+		]);
+		var datasets = Object.entries(stationEstimates).map(entry => ({
+			"label": data.stations[entry[0]].name,
+			"data": entry[1].filter((estimate) => estimate.estimate != null).map(function (estimate) {
+				return {
+					"x": estimate.timestamp,
+					"y": (estimate.estimate - entry[1][entry[1].length - 1].estimate),
+				}
+			}),
+		}));
+		datasets.sort(function (a, b) {
+			let _a = a.label.toLowerCase();
+			let _b = b.label.toLowerCase();
+			if (_a < _b) {return -1;}
+			if (_a > _b) {return 1;}
+			return 0;
+		});
+		var chart = new Chart(chartCanvas, {
+			"type": "line",
+			"data": {
+				"datasets": datasets,
+			},
+			"options": {
+				"scales": {
+					"x": {
+						"type": "linear",
+						"ticks": {
+							"callback": function (value, index, ticks) {
+								var date = new Date(value * 1000);
+								return (date.getHours() < 10 ? "0" : "") + date.getHours() + ":" + (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
+							},
+						},
+					},
+				},
+			},
+		});
+		modal.show();
+	});
+	$("body").append($("<div>").css({"position": "fixed", "bottom": "1em", "left": "50%", "right": "50%", "margin": "0px -250px", "padding": ".3em", "width": "500px", "background": "#cccccc", "border-radius": ".5em"}).append(
 		playButton,
 		timestampLabel,
+		estimateChartButton
 	));
 
 	var modal = new Modal("Prüfungswiederholung");
 	const user = {"name": "Replay", "role": "operator"};
 
-	function handle(data) {
-		if ("handlers" in options && data._m in options.handlers) {
-			options.handlers[data._m](data);
+	function handle(timestamp, event_data) {
+		if ("handlers" in options && event_data._m in options.handlers) {
+			options.handlers[event_data._m](event_data);
+		}
+
+		// Handler will redraw and calculate times
+		for (const s_id of Object.keys(data.stations)) {
+			if (!(s_id in stationEstimates)) {
+				stationEstimates[s_id] = [];
+			}
+			const estimate = $(".station-" + s_id).find(".abschluss-value").data("timestamp");
+			const lastEstimate = stationEstimates[s_id][stationEstimates[s_id].length - 1];
+			// avoid spamming the same value
+			if (lastEstimate == null || lastEstimate.timestamp != timestamp || lastEstimate.estimate != estimate) {
+				stationEstimates[s_id].push({"timestamp": timestamp, "estimate": estimate});
+			}
 		}
 	}
 
@@ -34,7 +95,7 @@ function ReliableWebSocket(options) {
 
 		while (events.length > 0 && events[0][0] <= pos) {
 			var event = events.shift();
-			handle(event[1]);
+			handle(event[0], event[1]);
 		}
 	}, 50)
 
@@ -81,7 +142,7 @@ function ReliableWebSocket(options) {
 
 	function send(event) {
 		if (event._m == "station_capacity") {
-			handle({"_m": "station", "i": event.i, ...data.stations[event.i], "capacity": event.capacity});
+			handle(pos, {"_m": "station", "i": event.i, ...data.stations[event.i], "capacity": event.capacity});
 		} else {
 			console.log("Unknown event", data);
 		}

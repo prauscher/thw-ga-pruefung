@@ -1599,7 +1599,7 @@ function _generateStation(i) {
 					])
 				),
 				$("<li>").addClass("list-group-item").toggle(!i.startsWith("_")).append([
-					$("<span>").addClass("float-end").text(end === null ? "unbekannt" : formatTimestamp(end)),
+					$("<span>").addClass(["float-end", "abschluss-value"]).data("timestamp", end).text(end === null ? "unbekannt" : formatTimestamp(end)),
 					$("<span>").text("Abschluss"),
 				]),
 			]).append(assignments.map(function (a_id) {
