@@ -26,7 +26,7 @@ function ReliableWebSocket(options) {
 			"data": entry[1].filter((estimate) => estimate.estimate != null).map(function (estimate) {
 				return {
 					"x": estimate.timestamp,
-					"y": (estimate.estimate - entry[1][entry[1].length - 1].estimate),
+					"y": (estimate.estimate - entry[1][entry[1].length - 1].estimate) / 3600,
 				}
 			}),
 		}));
