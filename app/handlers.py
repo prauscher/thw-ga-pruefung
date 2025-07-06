@@ -67,7 +67,12 @@ class BuildReplayHandler(tornado.web.RequestHandler):
                 }
 
             start = datetime.strptime(row["Start"], "%d.%m.%Y %H:%M:%S")
-            end = datetime.strptime(row["Ende"], "%d.%m.%Y %H:%M:%S")
+            try:
+                end = datetime.strptime(row["Ende"], "%d.%m.%Y %H:%M:%S")
+            except ValueError:
+                end = None
+            result = {"Aktiv": "open", "Abgebrochen": "canceled", "Abgeschlossen": "done",
+                      }[row.get("Ergebnis", "Abgeschlossen")]
 
             assignment = {
                 "_m": "assignment",
@@ -76,13 +81,14 @@ class BuildReplayHandler(tornado.web.RequestHandler):
                 "station": s_id,
                 "examiner": row.get("Prüfer"),
                 "start": start.timestamp(),
-                "end": end.timestamp() if s_id == "_pause" else None,
+                "end": end.timestamp() if s_id == "_pause" and end is not None else None,
             }
 
             events.append([start.timestamp(),
                           {**assignment, "result": "open"}])
-            events.append([end.timestamp(),
-                          {**assignment, "result": "done", "end": end.timestamp()}])
+            if result != "open" and end is not None:
+                events.append([end.timestamp(),
+                              {**assignment, "result": result, "end": end.timestamp()}])
 
         events.sort(key=lambda item: item[0])
 
