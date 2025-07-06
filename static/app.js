@@ -745,7 +745,10 @@ function _buildExamineeItem(e_id, a_id) {
 		}
 	}
 
-	var state_indicator = "bg-danger";
+	var state_indicator = "bg-warning";
+	if (openFixedStations.indexOf("_theorie") < 0) {
+		state_indicator = "bg-danger";
+	}
 	if (openFixedStations.indexOf("_pause") < 0) {
 		state_indicator = "bg-success";
 	}
@@ -1410,7 +1413,11 @@ function _generateStation(i) {
 			examinees.push(examinee_kv[0]);
 		}
 		var activeExaminers = [];
+		var examineesTheorieDone = [];
 		for (var assignment of Object.values(data.assignments)) {
+			if (assignment.result == "done" && assignment.station == "_theorie") {
+				examineesTheorieDone.push(assignment.examinee);
+			}
 			if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
 				var _i = examinees.indexOf(assignment.examinee);
 				if (_i >= 0) {
@@ -1428,6 +1435,12 @@ function _generateStation(i) {
 			];
 		}));
 		examinees.sort(function (a, b) {
+			if (examineesTheorieDone.indexOf(a) >= 0 && examineesTheorieDone.indexOf(b) < 0) {
+				return 1;
+			}
+			if (examineesTheorieDone.indexOf(a) < 0 && examineesTheorieDone.indexOf(b) >= 0) {
+				return -1;
+			}
 			return examinee_priorities[b] - examinee_priorities[a];
 		});
 
