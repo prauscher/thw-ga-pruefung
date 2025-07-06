@@ -27,6 +27,7 @@ const scannerChars = {173: "-", 13: "", 16: ""};
 const assignment_states = {"open": "Aktiv", "done": "Abgeschlossen", "canceled": "Abgebrochen"};
 
 var socket = null;
+var assignment_return_waiting = null;
 
 function _gen_id() {
 	var S4 = function() {
@@ -62,7 +63,10 @@ $(document).on("onbarcodescanned", function (e, code) {
 		if (user.role == "operator-return") {
 			if (assignment.result == "open" && assignment.start < Date.now() / 1000 - 5 * 60) {
 				socket.send({"_m": "return", "i": a_id, "result": "done"});
-				snd_beep_success.play();
+				assignment_return_waiting = [a_id, setTimeout(function () {
+					snd_beep_error.play();
+					assignment_return_waiting = null;
+				}, 5000)];
 				return;
 			}
 			snd_beep_error.play();
@@ -239,6 +243,12 @@ $(function () {
 			},
 			"assignment": function (msg) {
 				data.assignments[msg.i] = msg;
+				// notiy about success
+				if (assignment_return_waiting !== null && msg.i == assignment_return_waiting[0] && msg.result == "done") {
+					clearTimeout(assignment_return_waiting[1]);
+					assignment_return_waiting = null;
+					snd_beep_success.play();
+				}
 				render();
 				$(".examinee-" + msg.examinee).hide().slideDown(1000);
 			},
@@ -404,7 +414,7 @@ var wizardModal = null;
 function showWizard() {
 	// wait until aufgaben is filled from remote
 	if (aufgaben == null) {
-		window.setTimeout(showWizard, 100);
+		setTimeout(showWizard, 100);
 		return;
 	}
 
