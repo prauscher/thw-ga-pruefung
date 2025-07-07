@@ -6,6 +6,7 @@ import json
 import hashlib
 import time
 import traceback
+from contextlib import suppress
 from pathlib import Path
 from datetime import datetime
 
@@ -21,6 +22,13 @@ class MainHandler(tornado.web.RequestHandler):
 class ReplayHandler(tornado.web.RequestHandler):
     def get(self):
         self.render("index.html", replay=True)
+
+
+def parse_timestamp(text: str):
+    for format in ["%d.%m.%Y %H:%M:%S", "%d.%m.%Y %H:%M"]:
+        with suppress(ValueError):
+            return datetime.strptime(text, format)
+    raise ValueError(f"{text} does not match any format")
 
 
 class BuildReplayHandler(tornado.web.RequestHandler):
@@ -66,9 +74,9 @@ class BuildReplayHandler(tornado.web.RequestHandler):
                     "tasks": [],
                 }
 
-            start = datetime.strptime(row["Start"], "%d.%m.%Y %H:%M:%S")
+            start = parse_timestamp(row["Start"])
             try:
-                end = datetime.strptime(row["Ende"], "%d.%m.%Y %H:%M:%S")
+                end = parse_timestamp(row["Ende"])
             except ValueError:
                 end = None
             result = {"Aktiv": "open", "Abgebrochen": "canceled", "Abgeschlossen": "done",
