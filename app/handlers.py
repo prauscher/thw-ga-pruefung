@@ -9,6 +9,7 @@ import traceback
 from contextlib import suppress
 from pathlib import Path
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import tornado
 import tornado.websocket
@@ -27,7 +28,7 @@ class ReplayHandler(tornado.web.RequestHandler):
 def parse_timestamp(text: str):
     for format in ["%d.%m.%Y %H:%M:%S", "%d.%m.%Y %H:%M"]:
         with suppress(ValueError):
-            return datetime.strptime(text, format)
+            return datetime.strptime(text, format).replace(tzinfo=ZoneInfo("Europe/Berlin"))
     raise ValueError(f"{text} does not match any format")
 
 
