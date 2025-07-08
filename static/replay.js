@@ -21,15 +21,16 @@ function ReliableWebSocket(options) {
 		modal.elem.find(".modal-body").append([
 			$("<div>").append(chartCanvas),
 		]);
-		var datasets = Object.entries(stationEstimates).map(entry => ({
-			"label": data.stations[entry[0]].name,
-			"data": entry[1].filter((estimate) => estimate.estimate != null).map(function (estimate) {
-				return {
+		var datasets = Object.entries(stationEstimates).map(function (entry) {
+			const validEstimates = entry[1].filter((estimate) => estimate.estimate != null);
+			return {
+				"label": data.stations[entry[0]].name,
+				"data": validEstimates.map((estimate) => ({
 					"x": estimate.timestamp,
-					"y": (estimate.estimate - entry[1][entry[1].length - 1].estimate) / 3600,
-				}
-			}),
-		}));
+					"y": (estimate.estimate - validEstimates[validEstimates.length - 1].estimate) / 3600,
+				})),
+			};
+		});
 		datasets.sort(function (a, b) {
 			let _a = a.label.toLowerCase();
 			let _b = b.label.toLowerCase();
