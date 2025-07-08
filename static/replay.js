@@ -65,7 +65,7 @@ function ReliableWebSocket(options) {
 	));
 
 	var modal = new Modal("Prüfungswiederholung");
-	const user = {"name": "Replay", "role": "operator"};
+	const user = {"name": "Replay", "role": "viewer"};
 
 	function handle(timestamp, event_data) {
 		if ("handlers" in options && event_data._m in options.handlers) {
