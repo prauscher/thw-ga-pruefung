@@ -721,10 +721,10 @@ function render() {
 		}
 		if (examineesWaitingReturnTime[a] != examineesWaitingReturnTime[b]) {
 			// Group unconfirmed users down below
-			if (examineeWaitingReturnTime[a] == -1) {
+			if (examineesWaitingReturnTime[a] == -1) {
 				return 1;
 			}
-			if (examineeWaitingReturnTime[b] == -1) {
+			if (examineesWaitingReturnTime[b] == -1) {
 				return -1;
 			}
 			return examineesWaitingReturnTime[a] - examineesWaitingReturnTime[b];
