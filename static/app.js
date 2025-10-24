@@ -59,23 +59,39 @@ $(document).on("onbarcodescanned", function (e, code) {
 	if (code.startsWith("A-")) {
 		const a_id = code.substring(2).toLowerCase();
 		const assignment = data.assignments[a_id];
-		// Automate return, but only for open assignments, which started at least 5 minutes ago
-		if (user.role == "operator-return") {
-			if (assignment.result == "open" && assignment.start < socket.time() - 5 * 60) {
+
+		const action = _setting("scan_assignment_action");
+
+		if (action == "modal") {
+			_openAssignmentModal(a_id);
+		} else if (action == "return") {
+			// Automate return, but only for open assignments, which started at least 5 minutes ago
+			if (user.role.startsWith("operator") && assignment.result == "open" && assignment.start < socket.time() - 5 * 60) {
 				socket.send({"_m": "return", "i": a_id, "result": "done"});
 				assignment_return_waiting = [a_id, setTimeout(function () {
 					snd_beep_error.play();
 					assignment_return_waiting = null;
 				}, 5000)];
-				return;
+			} else {
+				snd_beep_error.play();
+				_openAssignmentModal(a_id);
 			}
-			snd_beep_error.play();
 		}
-		_openAssignmentModal(a_id);
 	}
 });
 
 var aufgaben = null;
+var settings = null;
+const defaultSettings = {
+	"scan_assignment_action": "modal",
+};
+
+function _setting(item) {
+	if (settings === null || settings[item] === undefined) {
+		return defaultSettings[item];
+	}
+	return settings[item];
+}
 
 $(function () {
 	// Overwrite app_token if one is given
@@ -83,6 +99,8 @@ $(function () {
 		localStorage.setItem("app_token", location.hash.substring(1));
 		location.hash = "";
 	}
+
+	settings = localStorage.getItem("settings") || {};
 
 	var startModal = null;
 
@@ -337,6 +355,34 @@ $(function () {
 
 	// Rerender periodically to update locked examinees
 	setInterval(render, 10000);
+
+	$("#settings").click(function () {
+		var modal = new Modal("Einstellungen");
+
+		modal.elem.find(".modal-body").append([
+			$("<p>").text("Diese Einstellungen betreffen ausschließlich deine Ansicht. Sie werden in deinem Browser gespeichert"),
+			$("<form>").append([
+				$("<div>").addClass("mb-3").append([
+					$("<label>").attr("for", "scan_assignment_action").addClass("col-form-label").text("Aktion beim Scannen einer Zuweisung"),
+					$("<select>").attr("id", "scan_assignment_action").addClass("form-select").append([
+						$("<option>").attr("value", "none").text("Nichts"),
+						$("<option>").attr("value", "modal").text("Dialog anzeigen"),
+						$("<option>").attr("value", "return").text("Zuweisung erfolgreich beenden"),
+					]).val(_setting("scan_assignment_action")),
+				]),
+			]),
+		]);
+
+		function _submit() {
+			settings.scan_assignment_action = modal.elem.find("#scan_assignment_action").val();
+			localStorage.setItem("settings", settings);
+			modal.close();
+		}
+
+		var button = $("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(_submit);
+		modal.elem.find(".modal-footer").append(button);
+		modal.show();
+	});
 
 	$("#export").click(function () {
 		var csvContent = "data:text/csv;charset=utf-8,";
