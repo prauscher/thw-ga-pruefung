@@ -9,6 +9,7 @@ import traceback
 from contextlib import suppress
 from pathlib import Path
 from datetime import datetime
+from threading import RLock
 from zoneinfo import ZoneInfo
 
 import tornado
@@ -110,10 +111,12 @@ class BroadcastState:
     # First entry in cache is never transmitted, but needed during search of _fetch
     message_cache = [{"_snr": 0}]
     _storage = Path("data.json")
+    _save_lock = RLock()
 
     def __init__(self):
         if self._storage.exists():
-            self.from_file(json.loads(self._storage.read_text()))
+            self._storage_content = self._storage.read_text()
+            self.from_file(json.loads(self._storage_content))
         tornado.ioloop.PeriodicCallback(self.store, 1000 * 5).start()
 
     def iterate_cache_since(self, since_snr):
@@ -128,8 +131,28 @@ class BroadcastState:
         for cached_msg in reversed(msgs):
             yield cached_msg
 
+    def save(self):
+        # should be called after every change, do not use (yet)
+        pass
+
     def store(self):
-        self._storage.write_text(json.dumps(self.to_file()))
+        locked = self._save_lock.aquire(timeout=5)
+        if not locked:
+            print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | Failed to secure save_lock, skipping save")
+            return
+
+        try:
+            new_content = json.dumps(self.to_file())
+
+            # avoid recurring writes
+            if self._storage_content == new_content:
+                return
+
+            self._storage_content = new_content
+            self._storage.write_text(self._storage_content)
+        finally:
+            if locked:
+                self._save_lock.release()
 
     def from_file(self, data):
         self.snr = data.get("snr", 0)
@@ -181,6 +204,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
             cls.state.snr = (cls.state.snr + 1) & 0xffff
             msg["_snr"] = cls.state.snr
             cls.state.message_cache = cls.state.message_cache[-1023:] + [msg]
+            self.state.save()
 
         for client in cls._clients:
             if client.auth is not None and client.auth in cls.state.users:
@@ -271,6 +295,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
             return
 
         self.state.users[msg.get("token")] = {"name": msg.get("name"), "role": msg.get("role")}
+        self.state.save()
 
         if first_run:
             # Special case: Login after creation of first user
@@ -294,6 +319,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
 
         current_user = self.current_user
         self.state.users.pop(msg["token"], "")
+        self.state.save()
 
         print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |       | {current_user['name']:<14} | {msg['_cid']:<8} | Deleted user {msg.get('name')}")
         self.reply(msg, {"_m": "_confirm"})
@@ -339,6 +365,7 @@ def release_assignments():
             continue
 
         assignment["result"] = "done"
+        MessageHandler.state.save()
         MessageHandler.send_to_all({"_m": "assignment", "i": assignment_id, **assignment})
 
 
@@ -354,6 +381,7 @@ class MessageHandler(BroadcastWebSocketHandler):
              return
 
         self.state.serie_id = msg.get("serie_id");
+        self.state.save()
         self.broadcast(msg, {"_m": "set_global_settings", "serie_id": self.state.serie_id})
 
     def process_station(self, msg):
@@ -366,6 +394,7 @@ class MessageHandler(BroadcastWebSocketHandler):
             **self.state.stations.get(i, {}),
             "name": msg.get("name"), "name_pdf": msg.get("name_pdf"), "tasks": msg.get("tasks"),
         }
+        self.state.save()
         self.broadcast(msg, {"_m": "station", "i": i, **self.state.stations[i]})
 
     def process_station_delete(self, msg):
@@ -378,6 +407,7 @@ class MessageHandler(BroadcastWebSocketHandler):
                                   for a_id, assignment in self.state.assignments.items()
                                   if assignment.get("station") != i}
         self.state.stations.pop(i, None)
+        self.state.save()
         self.broadcast(msg, {"_m": "station_delete", "i": i})
 
     def process_station_capacity(self, msg):
@@ -387,6 +417,7 @@ class MessageHandler(BroadcastWebSocketHandler):
 
         i = msg.get("i")
         self.state.stations.get(i, {}).update({"capacity": msg["capacity"]})
+        self.state.save()
         self.broadcast(msg, {"_m": "station", "i": i, **self.state.stations[i]})
 
     def process_examinee(self, msg):
@@ -406,6 +437,7 @@ class MessageHandler(BroadcastWebSocketHandler):
             "flags": msg.get("flags", []),
             "locked": locked,
         }
+        self.state.save()
         self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
 
     def process_examinee_delete(self, msg):
@@ -418,6 +450,7 @@ class MessageHandler(BroadcastWebSocketHandler):
                                   for a_id, assignment in self.state.assignments.items()
                                   if assignment.get("examinee") != i}
         self.state.examinees.pop(i, None)
+        self.state.save()
         self.broadcast(msg, {"_m": "examinee_delete", "i": i})
 
     def process_examinee_lock(self, msg):
@@ -430,6 +463,7 @@ class MessageHandler(BroadcastWebSocketHandler):
         if locked > 0:
             locked = time.time() + locked * 60
         self.state.examinees.get(i, {}).update({"locked": locked})
+        self.state.save()
         self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
 
     def process_examinee_flags(self, msg):
@@ -439,6 +473,7 @@ class MessageHandler(BroadcastWebSocketHandler):
 
         i = msg.get("i")
         self.state.examinees.get(i, {}).update({"flags": msg["flags"]})
+        self.state.save()
         self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
 
     def process_assign(self, msg):
@@ -455,6 +490,7 @@ class MessageHandler(BroadcastWebSocketHandler):
             "start": time.time(),
             "end": None if "autoEnd" not in msg else time.time() + msg["autoEnd"],
             "result": "open"}
+        self.state.save()
         self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
 
     def process_return(self, msg):
@@ -466,4 +502,5 @@ class MessageHandler(BroadcastWebSocketHandler):
         self.state.assignments.get(i, {}).update({
             "end": time.time(),
             "result": msg.get("result")})
+        self.state.save()
         self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
