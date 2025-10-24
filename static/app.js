@@ -447,6 +447,13 @@ function formatNumber(number) {
 
 function convertRoman(num) {
 	if (num < 1) return "";
+	if (num >= 1000) return "M" + convertRoman(num - 1000);
+	if (num >= 900) return "CM" + convertRoman(num - 900);
+	if (num >= 500) return "D" + convertRoman(num - 500);
+	if (num >= 400) return "CD" + convertRoman(num - 400);
+	if (num >= 100) return "C" + convertRoman(num - 100);
+	if (num >= 90) return "XC" + convertRoman(num - 90);
+	if (num >= 50) return "L" + convertRoman(num - 50);
 	if (num >= 40) return "XL" + convertRoman(num - 40);
 	if (num >= 10) return "X" + convertRoman(num - 10);
 	if (num >= 9) return "IX" + convertRoman(num - 9);
