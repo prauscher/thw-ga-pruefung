@@ -136,7 +136,7 @@ class BroadcastState:
         pass
 
     def store(self):
-        locked = self._save_lock.aquire(timeout=5)
+        locked = self._save_lock.acquire(timeout=5)
         if not locked:
             print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | Failed to secure save_lock, skipping save")
             return
