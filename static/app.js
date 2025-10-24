@@ -1721,6 +1721,11 @@ var Examinee = {
 		return remaining;
 	},
 	estimateStationDuration: function (e_id, s_id) {
+		// We do not process assignments for generic stations, so no estimate can be generated
+		if (s_id.startsWith("_")) {
+			return null;
+		}
+
 		var stationTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, []]));
 		var ownTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, null]));
 
