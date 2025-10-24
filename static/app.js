@@ -644,7 +644,7 @@ function render() {
 		}
 	}
 
-	var examineesWaitingReturnTime = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, ("locked" in data.examinees[e_id] && data.examinees[e_id].locked > 0) ? data.examinees[e_id].locked : 0]));
+	var examineesWaitingReturnTime = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, ("locked" in data.examinees[e_id]) ? data.examinees[e_id].locked : 0]));
 	var examineesWaitingMissingStations = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, ["_theorie", ...Object.keys(data.stations)]]));
 	for (var assignment of Object.values(data.assignments)) {
 		if (assignment.end !== null) {
@@ -674,6 +674,13 @@ function render() {
 			return -1;
 		}
 		if (examineesWaitingReturnTime[a] != examineesWaitingReturnTime[b]) {
+			// Group unconfirmed users down below
+			if (examineeWaitingReturnTime[a] == -1) {
+				return 1;
+			}
+			if (examineeWaitingReturnTime[b] == -1) {
+				return -1;
+			}
 			return examineesWaitingReturnTime[a] - examineesWaitingReturnTime[b];
 		}
 		if (data.examinees[a].name < data.examinees[b].name) {
