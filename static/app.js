@@ -1470,7 +1470,7 @@ function _generateStation(i) {
 				$("<form>").append([
 					$("<div>").addClass("mb-3").append([
 						$("<label>").attr("for", "minutes").addClass("col-form-label").text("Automatisches Ende"),
-						$("<input>").attr("type", "number").addClass("form-control").attr("id", "minutes").val(i === "_pause" ? 30 : 0)
+						$("<input>").attr("type", "number").addClass("form-control").attr("id", "minutes").val(autoEnd)
 					]),
 					$("<div>").addClass("mb-3").append([
 						$("<label>").attr("for", "examiner").addClass("col-form-label").text("Prüfer*in"),
