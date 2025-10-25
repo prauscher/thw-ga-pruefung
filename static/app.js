@@ -1490,7 +1490,7 @@ function _generateStation(i) {
 					examinees.splice(_i, 1);
 				}
 			}
-			if (assignment.station == i && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0 && (assignment.start > socket.time() - 60 * 60 || assignment.result == "open")) {
+			if (assignment.station == i && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0 && (assignment.start > socket.time() - 90 * 60 || assignment.result == "open")) {
 				activeExaminers.push(assignment.examiner);
 			}
 		}
