@@ -120,6 +120,8 @@ class BroadcastState:
             self._storage_content = self._storage.read_text()
             print("read", len(self._storage_content))
             self.from_file(json.loads(self._storage_content))
+            print("from_file complete")
+            print("new", len(json.dumps(self.to_file())))
 
         tornado.ioloop.PeriodicCallback(self.store, 1000 * 5).start()
 
