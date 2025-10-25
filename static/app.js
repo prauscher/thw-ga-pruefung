@@ -822,11 +822,11 @@ function _buildExamineeItem(e_id, a_id) {
 		state_indicator = "bg-secondary";
 	}
 	node.append($("<span>").addClass(["float-start", "badge", "me-1", state_indicator]).text(openStations.length));
-	node.append(data.examinees[e_id].name);
+	node.append($("<span>").addClass("examinee-name").text(data.examinees[e_id].name));
 	node.append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []);
 
-	var expectedTimeout = null;
 	if (a_id !== null && a_id !== false) {
+		var expectedTimeout = null;
 		if (data.assignments[a_id].end !== null) {
 			expectedTimeout = data.assignments[a_id].end;
 		} else {
@@ -837,7 +837,7 @@ function _buildExamineeItem(e_id, a_id) {
 		}
 
 		if (expectedTimeout !== null) {
-			node.addClass("best-before").data("best-before", expectedTimeout);
+			node.find("examinee-name").addClass("best-before").data("best-before", expectedTimeout);
 			formatBestBefore(node);
 		}
 	}
