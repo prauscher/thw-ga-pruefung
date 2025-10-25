@@ -111,10 +111,10 @@ class BroadcastState:
     # First entry in cache is never transmitted, but needed during search of _fetch
     message_cache = [{"_snr": 0}]
 
-    _storage = Path("data.json")
     _save_lock = RLock()
 
-    def __init__(self):
+    def __init__(self, storage_path: Path):
+        self._storage = storage_path
         self._storage_content = ""
         if self._storage.exists():
             self._storage_content = self._storage.read_text()
@@ -184,8 +184,10 @@ def _server_time_message():
 
 class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     _clients = set()
-    state = BroadcastState()
     auth = None
+
+    # state must be set to BroadcastState (or a subclass)
+    state = None
 
     broadcast_time_callback = tornado.ioloop.PeriodicCallback(lambda: BroadcastWebSocketHandler.send_to_all(_server_time_message(), include_snr=False), 1000 * 10)
     broadcast_time_callback.start()
@@ -380,7 +382,8 @@ def release_assignments():
 
 
 class MessageHandler(BroadcastWebSocketHandler):
-    state = AppState()
+    # note that this will start reading and writing data
+    state = AppState(Path("data.json"))
 
     cleanup_callback = tornado.ioloop.PeriodicCallback(release_assignments, 1000 * 10)
     cleanup_callback.start()
