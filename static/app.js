@@ -1214,11 +1214,11 @@ function _openStationModal(s_id) {
 
 	tab.addPanel("Offen").panel.append(
 		$("<div>").addClass(["container", "mb-2"]).append($("<div>").addClass("row")
-			.append($("<div>").toggle(waitingExaminees.length > 0).addClass("w-100").append($("<h5>").text("Aktuell verfügbar im Bereitstellungsraum"))),
+			.append($("<div>").toggle(waitingExaminees.length > 0).addClass("w-100").append($("<h5>").text("Aktuell verfügbar im Bereitstellungsraum")))
 			.append(waitingExaminees.map(_buildExamineeCell))
-			.append($("<div>").toggle(currentExaminees.length > 0).addClass(["w-100", "mb-2"]).append($("<h5>").text("Aktuell an dieser Station"))),
+			.append($("<div>").toggle(currentExaminees.length > 0).addClass(["w-100", "mb-2"]).append($("<h5>").text("Aktuell an dieser Station")))
 			.append(currentExaminees.map(_buildExamineeCell))
-			.append($("<div>").toggle(otherStationExaminees.length > 0).addClass(["w-100", "mb-2"]).append($("<h5>").text("Aktuell an der Station"))),
+			.append($("<div>").toggle(otherStationExaminees.length > 0).addClass(["w-100", "mb-2"]).append($("<h5>").text("Aktuell an der Station")))
 			.append(otherStationExaminees.map(_buildExamineeCell))
 			.append($("<div>").toggle((waitingExaminees.length + currentExaminees.length + otherStationExaminees.length) == 0).text("(Keine Prüflinge mehr offen)")),
 	);
