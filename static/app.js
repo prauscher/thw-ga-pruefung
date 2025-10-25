@@ -374,7 +374,9 @@ $(function () {
 		]);
 
 		function _submit() {
-			settings.scan_assignment_action = modal.elem.find("#scan_assignment_action").val();
+			settings = {
+				"scan_assignment_action": modal.elem.find("#scan_assignment_action").val(),
+			};
 			localStorage.setItem("settings", settings);
 			modal.close();
 		}
