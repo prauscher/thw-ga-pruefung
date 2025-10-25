@@ -114,9 +114,11 @@ class BroadcastState:
     _save_lock = RLock()
 
     def __init__(self):
+        self._storage_content = ""
         if self._storage.exists():
             self._storage_content = self._storage.read_text()
             self.from_file(json.loads(self._storage_content))
+
         tornado.ioloop.PeriodicCallback(self.store, 1000 * 5).start()
 
     def iterate_cache_since(self, since_snr):

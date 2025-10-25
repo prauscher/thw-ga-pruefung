@@ -722,6 +722,7 @@ function render() {
 				return -1;
 			}
 		}
+		// Sort examinees waiting for theorie down
 		if (examineesWaitingMissingStations[a].indexOf("_theorie") >= 0 && examineesWaitingMissingStations[b].indexOf("_theorie") < 0) {
 			return 1;
 		}
