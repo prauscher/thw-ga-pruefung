@@ -1085,7 +1085,6 @@ function _openStationModal(s_id) {
 
 	var tab = new Tab();
 
-	var missingExaminees = Object.keys(data.examinees);
 	var currentExaminees = [];
 	var assignments = [];
 	var durationSum = 0;
@@ -1093,9 +1092,23 @@ function _openStationModal(s_id) {
 
 	var examineeTimes = Object.fromEntries(Object.keys(data.examinees).map((_e_id) => [_e_id, Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, null]))]));
 	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, []]));
+	var otherStationExaminees = [];
+	var waitingExaminees = Object.keys(data.examinees);
 
 	for (const a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
+
+		if (assignment.result == "open") {
+			var _i = waitingExaminees.indexOf(assignment.examinee);
+			if (_i >= 0) {
+				waitingExaminees.splice(_i, 1);
+			}
+			if (assignment.station == s_id) {
+				currentExaminees.push(assignment.examinee);
+			} else {
+				otherStationExaminees.push(assignment.examinee);
+			}
+		}
 
 		if (assignment.result == "done" && !assignment.station.startsWith("_")) {
 			examineeTimes[assignment.examinee][assignment.station] = assignment;
@@ -1107,13 +1120,6 @@ function _openStationModal(s_id) {
 			if (assignment.result == "done") {
 				durationSum += assignment.end - assignment.start;
 				durationCount += 1;
-
-				var _i = missingExaminees.indexOf(assignment.examinee);
-				if (_i >= 0) {
-					missingExaminees.splice(_i, 1);
-				}
-			} else if (assignment.result == "open") {
-				currentExaminees.push(assignment.examinee);
 			}
 		}
 	}
@@ -1197,22 +1203,24 @@ function _openStationModal(s_id) {
 		};
 	}
 
+	function _buildExamineeCell(e_id) {
+		var cell = $("<div>").addClass(["text-truncate", "col-4"]);
+		cell.append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
+			e.preventDefault();
+			_openExamineeModal(e_id);
+		}));
+		return cell;
+	}
+
 	tab.addPanel("Offen").panel.append(
-		$("<div>").addClass(["container", "mb-2"]).append($("<div>").addClass("row").append(
-			missingExaminees.map(function (e_id) {
-				var cell = $("<div>").addClass(["text-truncate", "col-4"]);
-				cell.append($("<a>").attr("href", "#").text(data.examinees[e_id].name).click(function (e) {
-					e.preventDefault();
-					_openExamineeModal(e_id);
-				}));
-
-				if (currentExaminees.indexOf(e_id) >= 0) {
-					cell.append(" (aktuell an Station)");
-				}
-
-				return cell;
-			})
-		)).append($("<div>").toggle(missingExaminees.length == 0).text("(Keine Prüflinge mehr offen)")),
+		$("<div>").addClass(["container", "mb-2"]).append($("<div>").addClass("row").append([
+			$("<div>").toggle(waitingExaminees.length > 0).addClass("w-100").append($("<h5>").text("Aktuell verfügbar im Bereitstellungsraum")),
+			waitingExaminees.map(_buildExamineeCell),
+			$("<div>").toggle(currentExaminees.length > 0).addClass(["w-100", "mb-2"]).append($("<h5>").text("Aktuell an dieser Station")),
+			currentExaminees.map(_buildExamineeCell),
+			$("<div>").toggle(otherStationExaminees.length > 0).addClass(["w-100", "mb-2"]).append($("<h5>").text("Aktuell an der Station")),
+			otherStationExaminees.map(_buildExamineeCell),
+		])).append($("<div>").toggle((waitingExaminees.length + currentExaminees.length + otherStationExaminees.length) == 0).text("(Keine Prüflinge mehr offen)")),
 	);
 
 	tab.addPanel("Historie").panel.append(
