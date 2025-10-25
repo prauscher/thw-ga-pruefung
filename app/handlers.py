@@ -66,7 +66,7 @@ class BuildReplayHandler(tornado.web.RequestHandler):
 
             if row["Station"] == "Theorie":
                 s_id = "_theorie"
-            elif row["Station"] == "Pause":
+            elif row["Station"] == "Mittagspause":
                 s_id = "_pause"
             else:
                 s_id = self._build_id(row["Station"])
