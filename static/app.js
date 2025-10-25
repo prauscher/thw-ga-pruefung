@@ -824,7 +824,7 @@ function _buildExamineeItem(e_id, a_id) {
 		state_indicator = "bg-danger";
 	}
 
-	node.append($("<span>").addClass(["float-start", "badge", "me-1", state_indicator]).text(openStations.length));
+	node.append($("<span>").addClass(["float-start", "badge", "me-1", state_indicator]).css("min-width", "2em").text(openStations.length));
 	node.append($("<span>").addClass("examinee-name").text(data.examinees[e_id].name));
 	node.append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []);
 
