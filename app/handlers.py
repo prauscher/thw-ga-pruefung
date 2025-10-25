@@ -110,6 +110,7 @@ class BroadcastState:
     users = {}
     # First entry in cache is never transmitted, but needed during search of _fetch
     message_cache = [{"_snr": 0}]
+
     _storage = Path("data.json")
     _save_lock = RLock()
 
@@ -117,6 +118,7 @@ class BroadcastState:
         self._storage_content = ""
         if self._storage.exists():
             self._storage_content = self._storage.read_text()
+            print("read", len(self._storage_content))
             self.from_file(json.loads(self._storage_content))
 
         tornado.ioloop.PeriodicCallback(self.store, 1000 * 5).start()
@@ -138,6 +140,7 @@ class BroadcastState:
         pass
 
     def store(self):
+        print("start store")
         locked = self._save_lock.acquire(timeout=5)
         if not locked:
             print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | Failed to secure save_lock, skipping save")
@@ -145,10 +148,13 @@ class BroadcastState:
 
         try:
             new_content = json.dumps(self.to_file())
+            print("check", len(new_content))
 
             # avoid recurring writes
             if self._storage_content == new_content:
                 return
+
+            print("write", len(new_content))
 
             self._storage_content = new_content
             self._storage.write_text(self._storage_content)
