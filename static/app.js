@@ -1221,9 +1221,9 @@ function _openStationModal(s_id) {
 				.append(currentExaminees.map(_buildExamineeCell))
 				.append($("<div>").toggle(otherStationExaminees.length > 0).addClass(["w-100", "mb-2"]).append($("<h5>").text("Aktuell an der Station")))
 				.append(otherStationExaminees.map(_buildExamineeCell))
-				.append($("<div>").toggle((waitingExaminees.length + currentExaminees.length + otherStationExaminees.length) == 0).text("(Keine Prüflinge mehr offen)")))
-			)
-		);
+				.append($("<div>").toggle((waitingExaminees.length + currentExaminees.length + otherStationExaminees.length) == 0).text("(Keine Prüflinge mehr offen)"))
+		)
+	);
 
 	tab.addPanel("Historie").panel.append(
 		$("<div>").addClass("table-responsive").append(
