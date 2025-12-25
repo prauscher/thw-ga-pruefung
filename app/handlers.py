@@ -171,19 +171,12 @@ class BroadcastState:
         return {"_snr": self.snr}
 
 
-def _server_time_message():
-    return {"_m": "_server_timestamp", "time": time.time()}
-
-
 class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     _clients = set()
     auth = None
 
     # state must be set to BroadcastState (or a subclass)
     state = None
-
-    broadcast_time_callback = tornado.ioloop.PeriodicCallback(lambda: BroadcastWebSocketHandler.send_to_all(_server_time_message(), include_snr=False), 1000 * 10)
-    broadcast_time_callback.start()
 
     @property
     def current_user(self):
@@ -374,12 +367,19 @@ def release_assignments():
         MessageHandler.send_to_all({"_m": "assignment", "i": assignment_id, **assignment})
 
 
+def _server_time_message():
+    return {"_m": "_server_timestamp", "time": time.time()}
+
+
 class MessageHandler(BroadcastWebSocketHandler):
     # note that this will start reading and writing data
     state = AppState(Path("data.json"))
 
     cleanup_callback = tornado.ioloop.PeriodicCallback(release_assignments, 1000 * 10)
     cleanup_callback.start()
+
+    broadcast_time_callback = tornado.ioloop.PeriodicCallback(lambda: MessageHandler.send_to_all(_server_time_message(), include_snr=False), 1000 * 10)
+    broadcast_time_callback.start()
 
     def process_set_global_settings(self, msg):
         if self.current_user.get("role", "") != "admin":
