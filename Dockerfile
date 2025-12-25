@@ -1,36 +1,47 @@
-FROM python:3.12-alpine AS base
+FROM python:3.14-alpine3.23 AS base
+
+ARG TINI_VERSION=0.19.0-r3
+ARG SUEXEC_VERSION=0.3-r0
 
 WORKDIR /opt/app
 
-RUN python3 -m pip install --upgrade pip
-
-# Cache
-RUN python3 -m pip install tornado
-RUN apk add --no-cache tini su-exec
+RUN apk add --no-cache "tini=${TINI_VERSION}" "su-exec=${SUEXEC_VERSION}"
 
 FROM base AS build
 
-COPY ./ /opt/app
+ARG PYPI_PIP_VERSION=25.3
 
-RUN chown root:root docker-entrypoint.sh && chmod 500 docker-entrypoint.sh
-RUN tar cf /build.tar requirements.txt main.py app/ templates/ static/
+RUN python3 -m venv /opt/venv
+COPY requirements.txt /tmp/requirements.txt
 
-FROM base AS app
+RUN /opt/venv/bin/python -m pip install --no-cache-dir "pip==${PYPI_PIP_VERSION}" && \
+    /opt/venv/bin/python -m pip install --no-cache-dir -r /tmp/requirements.txt
+
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+COPY main.py ./main.py
+COPY templates/ ./templates/
+COPY static/ ./static/
+COPY app/ ./app/
+
+RUN find "." -exec chown root:root '{}' +  && \
+    find "." -type d -exec chmod 755 '{}' +  && \
+    find "." -type f -exec chmod 644 '{}' +  && \
+    chmod 555 "/docker-entrypoint.sh" && \
+    chown root:root "/docker-entrypoint.sh"
+
+FROM base
 
 RUN adduser -S -D -H worker
 
 ENV WEB_PORT=8888
 ENV WEB_DEBUG=no
 
-COPY --from=build /build.tar /tmp/build.tar
-RUN tar xf /tmp/build.tar \
-    && rm /tmp/build.tar && \
-    python3 -m pip install --no-cache-dir -r requirements.txt
-
-COPY --from=build /opt/app/docker-entrypoint.sh /docker-entrypoint.sh
-
 VOLUME /data
 WORKDIR /data
 
 ENTRYPOINT ["tini", "--", "/docker-entrypoint.sh"]
-CMD ["python3", "-u", "/opt/app/main.py"]
+CMD ["/opt/venv/bin/python3", "-u", "/opt/app/main.py"]
+
+COPY --from=build /docker-entrypoint.sh /docker-entrypoint.sh
+COPY --from=build /opt/app /opt/app
+COPY --from=build /opt/venv /opt/venv
