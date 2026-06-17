@@ -211,7 +211,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     def broadcast(self, request, msg):
         msg["_cid"] = request.get("_cid", "")
         self.send_to_all(msg)
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {msg['_snr']:05d} | {self.current_user['name']:<14} | {msg['_cid']:<8} | {msg}")
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {msg['_snr']:05d} | {self.current_user['name']:<25} | {msg['_cid']:<8} | {msg}")
 
     def on_close(self):
         self._clients.discard(self)
@@ -300,7 +300,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
             self.process__login(msg)
             return
 
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |       | {self.current_user['name']:<14} | {msg['_cid']:<8} | Created user {msg.get('name')}")
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |       | {self.current_user['name']:<25} | {msg['_cid']:<8} | Created user {msg.get('name')}")
         self.reply(msg, {"_m": "_success"})
 
     def process_request_users(self, msg):
@@ -319,7 +319,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
         self.state.users.pop(msg["token"], "")
         self.state.save()
 
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |       | {current_user['name']:<14} | {msg['_cid']:<8} | Deleted user {msg.get('name')}")
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |       | {current_user['name']:<25} | {msg['_cid']:<8} | Deleted user {msg.get('name')}")
         self.reply(msg, {"_m": "_confirm"})
 
 
