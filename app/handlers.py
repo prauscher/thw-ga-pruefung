@@ -6,7 +6,7 @@ import json
 import hashlib
 import time
 import traceback
-from contextlib import suppress
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from datetime import datetime
 from threading import RLock
@@ -102,7 +102,7 @@ class BuildReplayHandler(tornado.web.RequestHandler):
 
         events.sort(key=lambda item: item[0])
 
-        self.write(json.dumps({"state": {"examinees": examinees, "stations": stations, "assignments": []}, "events": events}))
+        self.write(json.dumps({"state": {"examinees": examinees, "stations": stations, "examiners": {}, "assignments": []}, "events": events}))
 
 
 class BroadcastState:
@@ -327,6 +327,7 @@ class AppState(BroadcastState):
     serie_id = None
     stations = {}
     examinees = {}
+    examiners = {}
     assignments = {}
 
     def to_client(self):
@@ -334,6 +335,7 @@ class AppState(BroadcastState):
                 "serie_id": self.serie_id,
                 "stations": self.stations,
                 "examinees": self.examinees,
+                "examiners": self.examiners,
                 "assignments": self.assignments}
 
     def to_file(self):
@@ -341,6 +343,7 @@ class AppState(BroadcastState):
                 "serie_id": self.serie_id,
                 "stations": self.stations,
                 "examinees": self.examinees,
+                "examiners": self.examiners,
                 "assignments": self.assignments}
 
     def from_file(self, data):
@@ -348,6 +351,7 @@ class AppState(BroadcastState):
         self.serie_id = data.get("serie_id", None)
         self.stations = data.get("stations", {})
         self.examinees = data.get("examinees", {})
+        self.examiners = data.get("examiners", {})
         self.assignments = data.get("assignments", {})
 
 
@@ -416,16 +420,6 @@ class MessageHandler(BroadcastWebSocketHandler):
         self.state.save()
         self.broadcast(msg, {"_m": "station_delete", "i": i})
 
-    def process_station_capacity(self, msg):
-        if self.current_user.get("role", "") != "operator":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
-
-        i = msg.get("i")
-        self.state.stations.get(i, {}).update({"capacity": msg["capacity"]})
-        self.state.save()
-        self.broadcast(msg, {"_m": "station", "i": i, **self.state.stations[i]})
-
     def process_examinee(self, msg):
         if self.current_user.get("role", "") != "admin":
              self.reply(msg, {"_m": "unauthorized"})
@@ -487,6 +481,11 @@ class MessageHandler(BroadcastWebSocketHandler):
              self.reply(msg, {"_m": "unauthorized"})
              return
 
+        # Decrease examinees_requested of examiner if set
+        if msg.get("examiner") in self.state.examiners:
+            with self._update_examiner(msg, msg.get("examiner")) as examiner:
+                examiner["examinees_requested"] = max(0, examiner["examinees_requested"] - 1)
+
         i = msg.get("i")
         self.state.assignments[i] = {
             **self.state.assignments.get(i, {}),
@@ -510,3 +509,44 @@ class MessageHandler(BroadcastWebSocketHandler):
             "result": msg.get("result")})
         self.state.save()
         self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
+
+    @contextmanager
+    def _update_examiner(self, msg, user_name):
+        examiner = self.state.examiners.get(
+            user_name,
+            {"examinees_requested": 0, "station": "_"},
+        )
+        try:
+            yield examiner
+        finally:
+            self.state.examiners[user_name] = examiner
+            self.state.save()
+            self.broadcast(msg, {"_m": "examiner", "name": user_name, **examiner})
+
+    def process_examiner_station(self, msg):
+        if self.current_user.get("role", "") != "examiner":
+             self.reply(msg, {"_m": "unauthorized"})
+             return
+
+        station = msg.get("station")
+        if msg.get("station") not in self.state.stations:
+             station = "_"
+
+        with self._update_examiner(msg, self.current_user.get("name")) as examiner:
+            examiner["station"] = station
+
+    def process_examiner_request(self, msg):
+        if self.current_user.get("role", "") != "examiner":
+             self.reply(msg, {"_m": "unauthorized"})
+             return
+
+        with self._update_examiner(msg, self.current_user.get("name")) as examiner:
+            examiner["examinees_requested"] += 1
+
+    def process_examiner_request_cancel(self, msg):
+        if self.current_user.get("role", "") != "examiner":
+             self.reply(msg, {"_m": "unauthorized"})
+             return
+
+        with self._update_examiner(msg, self.current_user.get("name")) as examiner:
+            examiner["examinees_requested"] = max(0, examiner["examinees_requested"] - 1)

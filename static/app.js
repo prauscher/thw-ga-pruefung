@@ -117,6 +117,9 @@ $(function () {
 			$("#station-add").toggle(user.role == "admin");
 			$(".assign-examinee").toggle(user.role == "operator");
 			$("nav.navbar").toggleClass("bg-dark", user.role != "admin").toggleClass("bg-danger", user.role == "admin");
+			$("#container_operator").toggle(["admin", "operator", "operator-return", "viewer"].includes(user.role));
+			$("#container_examiner").toggle(user.role == "examiner");
+
 		},
 		on_auth_required: function (data) {
 			if (data.first_login) {
@@ -270,6 +273,10 @@ $(function () {
 				render();
 				$(".examinee-" + msg.examinee).hide().slideDown(1000);
 			},
+			"examiner": function (msg) {
+				data.examiners[msg.name] = msg;
+				render();
+			},
 			"users": function (msg) {
 				var modal = new Modal("Benutzerverwaltung");
 
@@ -337,6 +344,7 @@ $(function () {
 												$("<option>").attr("value", "admin").text("Administrator"),
 												$("<option>").attr("value", "operator").text("Operator"),
 												$("<option>").attr("value", "operator-return").text("Beschränkter Operator nur für Rückkehrer"),
+												$("<option>").attr("value", "examiner").text("Prüfer"),
 												$("<option>").attr("value", "viewer").text("Betrachter"),
 											]),
 										]),
@@ -416,6 +424,14 @@ $(function () {
 
 	$("#admin").click(function () {
 		socket.send({"_m": "request_users"});
+	});
+
+	$("#examiner-request").click(function (e) {
+		socket.send({"_m": "examiner_request"});
+	});
+
+	$("#examiner-request-cancel").click(function (e) {
+		socket.send({"_m": "examiner_request_cancel"});
 	});
 
 	$("#examinee-add").click(function () {
@@ -687,6 +703,60 @@ function render() {
 		return;
 	}
 
+	if (user.role == "examiner") {
+		render_examiner();
+	} else {
+		render_operator();
+	}
+}
+
+function render_examiner() {
+	var currentAssignments = [];
+	for (var a_id of Object.keys(data.assignments)) {
+		const assignment = data.assignments[a_id];
+		if (assignment.result == "open" && assignment.examiner == user.name) {
+			currentAssignments.push(assignment);
+		}
+	}
+	currentAssignments.sort(function (a, b) {return a.start - b.start;});
+
+	var examiner = data.examiners[user.name] || {"station": "_", "examinees_requested": 0};
+
+	$("#examiner-examinees").empty().append(currentAssignments.map(function (assignment) {
+		const examinee = data.examinees[assignment.examinee];
+		var node = $("<li>").addClass(["list-group-item", "text-truncate"]);
+		node.append(examinee.name);
+		node.append("flags" in examinee ? examinee.flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []);
+		node.append($("<span>").addClass("float-end").text(Math.round((socket.time() - assignment.start) / 60) + " min"));
+		return node;
+	})).append(Array.from(new Array(examiner.examinees_requested)).map(function () {
+		var node = $("<li>").addClass(["list-group-item"]);
+		node.append("(Angefordert)");
+		return node;
+	}));
+
+	$("#examiner-request-cancel").toggle(examiner.examinees_requested > 0);
+
+	var station_ids = Object.keys(data.stations);
+	station_ids.sort(function (a, b) {
+		let _a = data.stations[a].name.toLowerCase();
+		let _b = data.stations[b].name.toLowerCase();
+		if (_a < _b) {return -1;}
+		if (_a > _b) {return 1;}
+		return 0;
+	});
+
+	$("#examiner-station").empty().prop("disabled", false).append([
+		$("<option>").prop("value", "_").text("(Keine)"),
+	]).append(station_ids.map(function (s_id) {
+		return $("<option>").prop("selected", s_id == examiner.station).prop("value", s_id).text(data.stations[s_id].name);
+	})).change(function () {
+		$(this).prop("disabled", true);
+		socket.send({"_m": "examiner_station", "station": $(this).val()});
+	});
+}
+
+function render_operator() {
 	var examineesWaiting = Object.keys(data.examinees);
 
 	for (var a_id of Object.keys(data.assignments)) {
@@ -1503,6 +1573,7 @@ function _generateStation(i) {
 			}
 			examinees.push(examinee_kv[0]);
 		}
+		var openSlots = [];
 		var activeExaminers = [];
 		var examineesTheorieDone = [];
 		for (var assignment of Object.values(data.assignments)) {
@@ -1517,6 +1588,18 @@ function _generateStation(i) {
 			}
 			if (assignment.station == i && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0 && (assignment.start > socket.time() - 90 * 60 || assignment.result == "open")) {
 				activeExaminers.push(assignment.examiner);
+			}
+		}
+		// Add active examiners
+		for (var examiner_kv of Object.entries(data.examiners)) {
+			if (examiner_kv[1].station != i) {
+				continue;
+			}
+			if (activeExaminers.indexOf(examiner_kv[0]) < 0) {
+				activeExaminers.push(examiner_kv[0]);
+			}
+			for (var j = 0; j < examiner_kv[1].examinees_requested; j++) {
+				openSlots.push({"examiner": examiner_kv[0]});
 			}
 		}
 		var examinee_priorities = Object.fromEntries(examinees.map(function (e_id) {
@@ -1570,9 +1653,12 @@ function _generateStation(i) {
 						$("<label>").attr("for", "examinees").addClass("col-form-label").text("Prüflinge"),
 						$("<div>").addClass("overflow-auto").css("height", "250px").append(
 							$("<ul>").addClass(["list-group", "list-group-flush"]).append(
-								examinees.map(function (e_id) {
+								examinees.map(function (e_id, j) {
 									var node = _buildExamineeItem(e_id, false);
 									var input = $("<input>").attr("type", "text").data("e_id", e_id).attr("autocomplete", "off").addClass(["form-control", "examiner"]);
+									if (j < openSlots.length) {
+										input.val(openSlots[j].examiner);
+									}
 									node.prepend($("<div>").addClass("float-end").append(input));
 									new Autocomplete(input.get(0), {"items": Object.fromEntries(activeExaminers.map((examiner) => [examiner, examiner])), "fixed": true});
 									return node;
@@ -1640,7 +1726,6 @@ function _generateStation(i) {
 	});
 
 	var examinees = [];
-	var allExaminers = {};
 	var activeExaminers = [];
 	for (const examinee_kv of Object.entries(data.examinees)) {
 		if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > socket.time())) {
@@ -1650,9 +1735,6 @@ function _generateStation(i) {
 	}
 	for (var assignment of Object.values(data.assignments)) {
 		if ("examiner" in assignment && assignment.station == i) {
-			if (!(assignment.examiner in allExaminers) || assignment.start > allExaminers[assignment.examiner]) {
-				allExaminers[assignment.examiner] = assignment.start;
-			}
 			if (assignment.result == "open" && activeExaminers.indexOf(assignment.examiner) < 0) {
 				activeExaminers.push(assignment.examiner);
 			}
@@ -1665,9 +1747,16 @@ function _generateStation(i) {
 		}
 	}
 
-	// Find examiners which were once active, but are no longer, sorted by their last started assignment
-	var availableExaminers = Object.entries(allExaminers).filter((kv) => activeExaminers.indexOf(kv[0]) < 0);
-	availableExaminers.sort((kv_a, kv_b) => kv_b[1] - kv_a[1]);
+	var openSlots = [];
+	for (var examiner_kv of Object.entries(data.examiners)) {
+		if (examiner_kv[1].station != i) {
+			continue;
+		}
+		for (var j = 0; j < examiner_kv[1].examinees_requested; j++) {
+			activeExaminers.push(examiner_kv[0]);
+			openSlots.push({"examiner": examiner_kv[0]});
+		}
+	}
 
 	var end = null;
 	if (!i.startsWith("_") && examineesDone.length > 0) {
@@ -1700,7 +1789,6 @@ function _generateStation(i) {
 
 	var currentExaminer = "";
 	var examinerColors = ["#fff080", "#800080", "#00806c", "#800000", "#004e80"];
-	const capacity = i.startsWith("_") ? null : ("capacity" in data.stations[i] ? data.stations[i].capacity : 1);
 	elem = $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").css("cursor", "pointer").text(name).click(function () {
@@ -1735,29 +1823,18 @@ function _generateStation(i) {
 				}
 
 				return item;
-			})).append(
-				(i.startsWith("_") || capacity < activeExaminers.length) ? [] : Array.from(Array(capacity - activeExaminers.length)).map(function (_, j) {
-					var item = $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)");
-					if (j < availableExaminers.length) {
-						examinerColors.push(examinerColors.shift());
-						item.append($("<small>").addClass("float-end").text(availableExaminers[j][0]));
-						item.addClass("pe-1");
-						item.css("border-right", ".8em solid " + examinerColors[0]);
-					}
-					return item;
-				})
-			),
+			})).append(openSlots.map(function (openSlot, j) {
+				var item = $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)");
+				if (currentExaminer != openSlot.examiner) {
+					currentExaminer = openSlot.examiner;
+					examinerColors.push(examinerColors.shift());
+					item.append($("<small>").addClass("float-end").text(currentExaminer));
+				}
+				item.addClass("pe-1");
+				item.css("border-right", ".8em solid " + examinerColors[0]);
+				return item;
+			})),
 			$("<div>").addClass("card-footer").append([
-				i.startsWith("_") ? "" : $("<div>").addClass("btn-group").toggle(user && user.role == "operator").append([
-					$("<button>").addClass(["btn", "btn-secondary"]).text("-").toggle(capacity > 0).click(function () {
-						socket.send({"_m": "station_capacity", "i": i, "capacity": capacity - 1});
-					}),
-					$("<button>").addClass(["btn", "btn-outline-secondary"]).text(capacity),
-					$("<button>").addClass(["btn", "btn-secondary"]).text("+").click(function () {
-						socket.send({"_m": "station_capacity", "i": i, "capacity": capacity + 1});
-					}),
-				]),
-				" ",
 				assignButton.toggle(user && user.role == "operator"),
 			])
 		])

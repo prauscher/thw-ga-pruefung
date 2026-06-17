@@ -38,7 +38,7 @@
     </div>
    </nav>
 
-   <div class="container-fluid">
+   <div class="container-fluid" style="display:none;" id="container_operator">
     <div class="row">
      <div class="col-sm-3 col-xl-2 mb-3">
       <div class="card">
@@ -60,6 +60,24 @@
       </button>
      </div>
      <div class="col-sm-3 col-xl-2" id="pause-container"></div>
+    </div>
+   </div>
+
+   <div class="container-fluid" style="display:none;" id="container_examiner">
+    <div class="card mb-4">
+     <div class="card-header">Station</div>
+     <div class="card-body">
+      <select class="form-select" id="examiner-station"></select>
+     </div>
+    </div>
+
+    <div class="card">
+     <div class="card-header">Prüflinge</div>
+     <ul class="list-group list-group-flush" id="examiner-examinees"></ul>
+     <div class="card-footer">
+      <button class="btn btn-success my-1" id="examiner-request">Neuen Prüfling anfordern</button>
+      <button class="btn btn-danger my-1" id="examiner-request-cancel">Anforderung zurückziehen</button>
+     </div>
     </div>
    </div>
 
