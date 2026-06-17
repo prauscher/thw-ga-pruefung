@@ -712,16 +712,19 @@ function render() {
 }
 
 function render_examiner() {
+	var examiner = data.examiners[user.name] || {"station": "_", "examinees_requested": 0};
+
 	var currentAssignments = [];
+	var currentStations = [examiner.station];
 	for (var a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
 		if (assignment.result == "open" && assignment.examiner == user.name) {
 			currentAssignments.push(assignment);
+			currentStations.push(assignment.station);
 		}
 	}
 	currentAssignments.sort(function (a, b) {return a.start - b.start;});
-
-	var examiner = data.examiners[user.name] || {"station": "_", "examinees_requested": 0};
+	currentStations = currentStations.filter((value, index, array) => (array.indexOf(value) === index));
 
 	$("#examiner-examinees").empty().append(currentAssignments.map(function (assignment) {
 		const examinee = data.examinees[assignment.examinee];
@@ -735,6 +738,14 @@ function render_examiner() {
 		node.append("(Angefordert)");
 		return node;
 	}));
+
+	$("#examiner-alerts").empty().append(currentStations.length > 1 ? [
+		$("<div>").addClass(["alert", "alert-danger"]).text("Die von dir ausgewählte Station stimmt zumindest mit einer aktuellen Zuweisung nicht überein. Bitte überprüfe deine Stationsauswahl."),
+	] : []).append(currentStations.length === 1 && examiner.station == "_" ? [
+		$("<div>").addClass(["alert", "alert-success"]).text("Aktuell bist du auf keine Station gebucht. Wähle die dir zugeteilte Station aus."),
+	] : []).append(currentAssignments.length + examiner.examinees_requested == 0 && !examiner.station.startsWith("_") ? [
+		$("<div>").addClass(["alert", "alert-warning"]).text("Momentan sind dir keine Prüflinge zugeordnet. Mit einem Klick auf den unteren Button kannst du einen Prüfling anfordern: Dies wird dir zunächst durch einen Eintrag \"(Angefordert)\" angezeigt, sobald die Zuteilung erfolgt ist wird dieser Eintrag durch den Namen ersetzt."),
+	] : []);
 
 	$("#examiner-request-cancel").toggle(examiner.examinees_requested > 0);
 
