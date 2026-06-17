@@ -115,6 +115,7 @@ $(function () {
 			$("#admin").toggle(user.role == "admin");
 			$("#examinee-add").toggle(user.role == "admin");
 			$("#station-add").toggle(user.role == "admin");
+			$("#export").toggle(["admin", "operator", "operator-return", "viewer"].includes(user.role));
 			$(".assign-examinee").toggle(user.role == "operator");
 			$("nav.navbar").toggleClass("bg-dark", user.role != "admin").toggleClass("bg-danger", user.role == "admin");
 			$("#container_operator").toggle(["admin", "operator", "operator-return", "viewer"].includes(user.role));
