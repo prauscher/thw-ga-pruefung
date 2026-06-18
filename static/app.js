@@ -93,6 +93,13 @@ function _setting(item) {
 	return settings[item];
 }
 
+var visualAlertTimeout = null;
+function visualAlert(body) {
+	body.addClass("bg-danger");
+	clearTimeout(visualAlertTimeout);
+	visualAlertTimeout = setTimeout(function () {body.removeClass("bg-danger")}, 1000);
+}
+
 $(function () {
 	// Overwrite app_token if one is given
 	if (location.hash.length > 1) {
@@ -276,6 +283,9 @@ $(function () {
 				$(".examinee-" + msg.examinee).hide().slideDown(1000);
 			},
 			"examiner": function (msg) {
+				if (data.examiners[msg.name] && data.examiners[msg.name].examinee_requests && data.examiners[msg.name].examinee_requests.length < msg.examinee_requests.length) {
+					visualAlert($("body.view_operator"));
+				}
 				data.examiners[msg.name] = msg;
 				render();
 			},
