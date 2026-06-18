@@ -780,8 +780,12 @@ function render_examiner() {
 	]).append(station_ids.map(function (s_id) {
 		return $("<option>").prop("selected", s_id == examiner.station).prop("value", s_id).text(data.stations[s_id].name);
 	})).change(function () {
+		var station = $(this).val();
+		if (station == examiner.station) {
+			return;
+		}
 		$(this).prop("disabled", true);
-		socket.send({"_m": "examiner_station", "station": $(this).val()});
+		socket.send({"_m": "examiner_station", "station": station});
 	});
 }
 
