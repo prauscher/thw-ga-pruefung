@@ -193,8 +193,14 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
     def reply(self, request, reply):
         self.send({**reply, "_cid": request.get("_cid", "")})
 
+    def format_message(self, msg):
+        return msg
+
+    def format_state(self, state):
+        return state
+
     def send(self, msg):
-        self.write_message(json.dumps(msg))
+        self.write_message(json.dumps(self.format_message(msg)))
 
     @classmethod
     def send_to_all(cls, msg, *, include_snr = True):
@@ -267,7 +273,7 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
                 pass
 
         # send
-        state = json.dumps(self.state.to_client())
+        state = json.dumps(self.format_state(self.state.to_client()))
         chunk_len = 256
         chunk_count = -(len(state) // -chunk_len)
         self.reply(msg, {"_m": "_init", "user": user, "chunks": chunk_count})
@@ -384,6 +390,41 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     broadcast_time_callback = tornado.ioloop.PeriodicCallback(lambda: MessageHandler.send_to_all(_server_time_message(), include_snr=False), 1000 * 10)
     broadcast_time_callback.start()
+
+    def format_message(self, msg):
+        # remove details from examiner events
+        if self.current_user.get("role", "") == "examiner":
+            # do not inflict with administrative messages
+            if msg.get("_m", "").startswith("_"):
+                return msg
+
+            allowlist = {
+                "station": ["i", "name"],
+                "station_delete": ["i"],
+                "examinee": ["i", "name", "flags"],
+                "examinee_delete": ["i"],
+                "examiner": ["name", "station", "examinee_requests"],
+                "assignment": ["i", "result", "examinee", "examiner", "station", "start"],
+            }
+
+            # only show our data
+            if msg.get("_m") == "examiner" and msg.get("name") != self.current_user.get("name"):
+                return {"_m": "_redacted"}
+
+            # strip assignments even more
+            if msg.get("_m") == "assignment" and msg.get("examiner") != self.current_user.get("name"):
+                return {"_m": "_redacted"}
+
+            # only allow known messages
+            allowed = allowlist.get(msg.get("_m"))
+            if allowed is None:
+                return {"_m": "_redacted"}
+
+            return {k: v
+                    for k, v in msg.items()
+                    if k in ["_m", *allowed]}
+
+        return super().format_message(msg)
 
     def process_set_global_settings(self, msg):
         if self.current_user.get("role", "") != "admin":
