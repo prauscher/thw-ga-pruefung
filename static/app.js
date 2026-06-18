@@ -1611,9 +1611,10 @@ function _generateStation(i) {
 				activeExaminers.push(examiner_kv[0]);
 			}
 			for (var j = 0; j < examiner_kv[1].examinees_requested; j++) {
-				openSlots.push({"examiner": examiner_kv[0]});
+				openSlots.push({"examiner": examiner_kv[0], "j": j});
 			}
 		}
+		openSlots.sort(function (a, b) {return a.j - b.j;});
 		var examinee_priorities = Object.fromEntries(examinees.map(function (e_id) {
 			return [
 				e_id,
