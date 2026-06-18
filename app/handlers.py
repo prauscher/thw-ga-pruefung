@@ -481,10 +481,10 @@ class MessageHandler(BroadcastWebSocketHandler):
             self.reply(msg, {"_m": "unauthorized"})
             return
 
-        # Decrease examinees_requested of examiner if set
-        if msg.get("examiner") in self.state.examiners:
+        # Pop examinee_request
+        if self.state.examiners.get(msg.get("examiner"), {}).get("examinee_requests"):
             with self._update_examiner(msg, msg.get("examiner")) as examiner:
-                examiner["examinees_requested"] = max(0, examiner["examinees_requested"] - 1)
+                examiner["examinee_requests"].pop(0);
 
         i = msg.get("i")
         self.state.assignments[i] = {
@@ -514,7 +514,7 @@ class MessageHandler(BroadcastWebSocketHandler):
     def _update_examiner(self, msg, user_name):
         examiner = self.state.examiners.get(
             user_name,
-            {"examinees_requested": 0, "station": "_"},
+            {"examinee_requests": [], "station": "_"},
         )
         try:
             yield examiner
@@ -541,12 +541,16 @@ class MessageHandler(BroadcastWebSocketHandler):
             return
 
         with self._update_examiner(msg, self.current_user.get("name")) as examiner:
-            examiner["examinees_requested"] += 1
+            examiner["examinee_requests"].append({"request": time.time()})
 
     def process_examiner_request_cancel(self, msg):
         if self.current_user.get("role", "") != "examiner":
             self.reply(msg, {"_m": "unauthorized"})
             return
 
+        if not self.state.examiners.get(self.current_user.get("name"), {}).get("examinee_requests"):
+            return
+
         with self._update_examiner(msg, self.current_user.get("name")) as examiner:
-            examiner["examinees_requested"] = max(0, examiner["examinees_requested"] - 1)
+            if examiner["examinee_requests"]:
+                examiner["examinee_requests"].pop();

@@ -712,7 +712,7 @@ function render() {
 }
 
 function render_examiner() {
-	var examiner = data.examiners[user.name] || {"station": "_", "examinees_requested": 0};
+	var examiner = data.examiners[user.name] || {"station": "_", "examinee_requests": []};
 
 	var currentAssignments = [];
 	var currentStations = [examiner.station];
@@ -733,7 +733,7 @@ function render_examiner() {
 		node.append("flags" in examinee ? examinee.flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []);
 		node.append($("<span>").addClass("float-end").text(Math.round((socket.time() - assignment.start) / 60) + " min"));
 		return node;
-	})).append(Array.from(new Array(examiner.examinees_requested)).map(function () {
+	})).append(examiner.examinee_requests.map(function (request) {
 		var node = $("<li>").addClass(["list-group-item"]);
 		node.append("(Angefordert)");
 		return node;
@@ -743,11 +743,11 @@ function render_examiner() {
 		$("<div>").addClass(["alert", "alert-danger"]).text("Die von dir ausgewählte Station stimmt zumindest mit einer aktuellen Zuweisung nicht überein. Bitte überprüfe deine Stationsauswahl."),
 	] : []).append(currentStations.length === 1 && examiner.station == "_" ? [
 		$("<div>").addClass(["alert", "alert-success"]).text("Aktuell bist du auf keine Station gebucht. Wähle die dir zugeteilte Station aus."),
-	] : []).append(currentAssignments.length + examiner.examinees_requested == 0 && !examiner.station.startsWith("_") ? [
+	] : []).append(currentAssignments.length + examiner.examinee_requests.length == 0 && !examiner.station.startsWith("_") ? [
 		$("<div>").addClass(["alert", "alert-warning"]).text("Momentan sind dir keine Prüflinge zugeordnet. Mit einem Klick auf den unteren Button kannst du einen Prüfling anfordern: Dies wird dir zunächst durch einen Eintrag \"(Angefordert)\" angezeigt, sobald die Zuteilung erfolgt ist wird dieser Eintrag durch den Namen ersetzt."),
 	] : []);
 
-	$("#examiner-request-cancel").toggle(examiner.examinees_requested > 0);
+	$("#examiner-request-cancel").toggle(examiner.examinee_requests.length > 0);
 
 	var station_ids = Object.keys(data.stations);
 	station_ids.sort(function (a, b) {
@@ -1610,11 +1610,13 @@ function _generateStation(i) {
 			if (activeExaminers.indexOf(examiner_kv[0]) < 0) {
 				activeExaminers.push(examiner_kv[0]);
 			}
-			for (var j = 0; j < examiner_kv[1].examinees_requested; j++) {
-				openSlots.push({"examiner": examiner_kv[0], "j": j});
+			if (examiner_kv[1].examinee_requests) {
+				for (var request of examiner_kv[1].examinee_requests) {
+					openSlots.push({"examiner": examiner_kv[0], "request_time": request.request});
+				}
 			}
 		}
-		openSlots.sort(function (a, b) {return a.j - b.j;});
+		openSlots.sort(function (a, b) {return a.request_time - b.request_time;});
 		var examinee_priorities = Object.fromEntries(examinees.map(function (e_id) {
 			return [
 				e_id,
@@ -1765,9 +1767,11 @@ function _generateStation(i) {
 		if (examiner_kv[1].station != i) {
 			continue;
 		}
-		for (var j = 0; j < examiner_kv[1].examinees_requested; j++) {
-			activeExaminers.push(examiner_kv[0]);
-			openSlots.push({"examiner": examiner_kv[0]});
+		if (examiner_kv[1].examinee_requests) {
+			for (var request of examiner_kv[1].examinee_requests) {
+				activeExaminers.push(examiner_kv[0]);
+				openSlots.push({"examiner": examiner_kv[0], "request_time": request.request});
+			}
 		}
 	}
 
