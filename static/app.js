@@ -286,6 +286,10 @@ $(function () {
 				if (data.examiners[msg.name] && data.examiners[msg.name].examinee_requests && data.examiners[msg.name].examinee_requests.length < msg.examinee_requests.length) {
 					visualAlert($("body.view_operator"));
 				}
+				if (user.role == "examiner" && user.name == msg.name) {
+					$("#examiner-request").prop("disabled", false);
+					$("#examiner-request-cancel").prop("disabled", false);
+				}
 				data.examiners[msg.name] = msg;
 				render();
 			},
@@ -439,10 +443,12 @@ $(function () {
 	});
 
 	$("#examiner-request").click(function (e) {
+		$(this).prop("disabled", true);
 		socket.send({"_m": "examiner_request"});
 	});
 
 	$("#examiner-request-cancel").click(function (e) {
+		$(this).prop("disabled", true);
 		socket.send({"_m": "examiner_request_cancel"});
 	});
 
