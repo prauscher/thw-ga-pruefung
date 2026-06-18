@@ -1841,7 +1841,8 @@ function _generateStation(i) {
 
 				return item;
 			})).append(openSlots.map(function (openSlot, j) {
-				var item = $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j).text("(Unbesetzt)");
+				var item = $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j);
+				item.text("(Angefragt seit " + Math.round((socket.time() - openSlot.request_time) / 60) + " min)");
 				if (currentExaminer != openSlot.examiner) {
 					currentExaminer = openSlot.examiner;
 					examinerColors.push(examinerColors.shift());
