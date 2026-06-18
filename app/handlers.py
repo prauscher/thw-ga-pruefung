@@ -387,8 +387,8 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_set_global_settings(self, msg):
         if self.current_user.get("role", "") != "admin":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         self.state.serie_id = msg.get("serie_id");
         self.state.save()
@@ -396,8 +396,8 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_station(self, msg):
         if self.current_user.get("role", "") != "admin":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         i = msg.get("i")
         self.state.stations[i] = {
@@ -409,8 +409,8 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_station_delete(self, msg):
         if self.current_user.get("role", "") != "admin":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         i = msg.get("i")
         self.state.assignments = {a_id: assignment
@@ -422,8 +422,8 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_examinee(self, msg):
         if self.current_user.get("role", "") != "admin":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         i = msg.get("i")
         locked = int(msg.get("locked", "0"))
@@ -442,8 +442,8 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_examinee_delete(self, msg):
         if self.current_user.get("role", "") != "admin":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         i = msg.get("i")
         self.state.assignments = {a_id: assignment
@@ -455,8 +455,8 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_examinee_lock(self, msg):
         if self.current_user.get("role", "") != "operator":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         i = msg.get("i")
         locked = int(msg.get("locked", "0"))
@@ -468,8 +468,8 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_examinee_flags(self, msg):
         if self.current_user.get("role", "") != "operator":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         i = msg.get("i")
         self.state.examinees.get(i, {}).update({"flags": msg["flags"]})
@@ -478,8 +478,8 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_assign(self, msg):
         if self.current_user.get("role", "") != "operator":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         # Decrease examinees_requested of examiner if set
         if msg.get("examiner") in self.state.examiners:
@@ -500,8 +500,8 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_return(self, msg):
         if not self.current_user.get("role", "").startswith("operator"):
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         i = msg.get("i")
         self.state.assignments.get(i, {}).update({
@@ -525,28 +525,28 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     def process_examiner_station(self, msg):
         if self.current_user.get("role", "") != "examiner":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         station = msg.get("station")
         if msg.get("station") not in self.state.stations:
-             station = "_"
+            station = "_"
 
         with self._update_examiner(msg, self.current_user.get("name")) as examiner:
             examiner["station"] = station
 
     def process_examiner_request(self, msg):
         if self.current_user.get("role", "") != "examiner":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         with self._update_examiner(msg, self.current_user.get("name")) as examiner:
             examiner["examinees_requested"] += 1
 
     def process_examiner_request_cancel(self, msg):
         if self.current_user.get("role", "") != "examiner":
-             self.reply(msg, {"_m": "unauthorized"})
-             return
+            self.reply(msg, {"_m": "unauthorized"})
+            return
 
         with self._update_examiner(msg, self.current_user.get("name")) as examiner:
             examiner["examinees_requested"] = max(0, examiner["examinees_requested"] - 1)
