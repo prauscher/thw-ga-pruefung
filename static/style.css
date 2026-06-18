@@ -1,0 +1,3 @@
+#container_examiner, #container_operator {display: none;}
+body.view_examiner #container_examiner {display: block;}
+body.view_operator #container_operator {display: block;}

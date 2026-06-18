@@ -118,8 +118,9 @@ $(function () {
 			$("#export").toggle(["admin", "operator", "operator-return", "viewer"].includes(user.role));
 			$(".assign-examinee").toggle(user.role == "operator");
 			$("nav.navbar").toggleClass("bg-dark", user.role != "admin").toggleClass("bg-danger", user.role == "admin");
-			$("#container_operator").toggle(["admin", "operator", "operator-return", "viewer"].includes(user.role));
-			$("#container_examiner").toggle(user.role == "examiner");
+			$("body")
+				.toggleClass("view_operator", ["admin", "operator", "operator-return", "viewer"].includes(user.role))
+				.toggleClass("view_examiner", user.role == "examiner");
 
 		},
 		on_auth_required: function (data) {

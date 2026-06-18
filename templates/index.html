@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="{{ static_url("bootstrap-5.0.2-dist/css/bootstrap.min.css") }}" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="{{ static_url("style.css") }}" rel="stylesheet">
 
     <title>GA-Prüfungsmonitor</title>
   </head>
@@ -38,7 +39,7 @@
     </div>
    </nav>
 
-   <div class="container-fluid" style="display:none;" id="container_operator">
+   <div class="container-fluid" id="container_operator">
     <div class="row">
      <div class="col-sm-3 col-xl-2 mb-3">
       <div class="card">
@@ -63,7 +64,7 @@
     </div>
    </div>
 
-   <div class="container-fluid" style="display:none;" id="container_examiner">
+   <div class="container-fluid" id="container_examiner">
     <p>Willkommen als Prüfer zur Grundausbildungsprüfung. Mit dieser Oberfläche kannst du neue Prüflinge für dich anfordern. Diese werden anschließend zu deiner Station gebracht und du kannst deinen bisherigen Prüfling übergeben. Bei Fragen wende dich an die Prüfungsorganisation.</p>
 
     <div id="examiner-alerts"></div>
