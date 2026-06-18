@@ -7,6 +7,7 @@ import hashlib
 import time
 import traceback
 from contextlib import contextmanager, suppress
+from functools import partial
 from pathlib import Path
 from datetime import datetime
 from threading import RLock
@@ -360,6 +361,12 @@ class AppState(BroadcastState):
         self.examiners = data.get("examiners", {})
         self.assignments = data.get("assignments", {})
 
+    def get_examiner(self, user_name):
+        return self.examiners.get(
+            user_name,
+            {"examinee_requests": [], "station": "_"},
+        )
+
 
 def release_assignments():
     for assignment_id, assignment in MessageHandler.state.assignments.items():
@@ -425,6 +432,29 @@ class MessageHandler(BroadcastWebSocketHandler):
                     if k in ["_m", *allowed]}
 
         return super().format_message(msg)
+
+    def format_state(self, state):
+        if self.current_user.get("role", "") == "examiner":
+            user_name = self.current_user.get("name")
+
+            def filter_dict(allowed_keys, data, entry_filter = None):
+                return {i: {k: v for k, v in item.items() if k in allowed_keys}
+                        for i, item in data.items()
+                        if entry_filter is None or entry_filter(i, item)}
+
+            filters = {
+                "serie_id": lambda _out: None,
+                "stations": partial(filter_dict, ["name"]),
+                "examinees": partial(filter_dict, ["name", "flags"]),
+                "examiners": lambda examiners: {k: v for k, v in examiners.items() if k == user_name},
+                "assignments": partial(filter_dict, ["name", "result", "examinee", "examiner", "station", "start"],
+                                       entry_filter=lambda i, assignment: assignment.get("examiner") == user_name),
+            }
+
+            return {k: filters.get(k, lambda out: out)(v)
+                    for k, v in state.items()}
+
+        return super().format_state(state)
 
     def process_set_global_settings(self, msg):
         if self.current_user.get("role", "") != "admin":
@@ -553,10 +583,7 @@ class MessageHandler(BroadcastWebSocketHandler):
 
     @contextmanager
     def _update_examiner(self, msg, user_name):
-        examiner = self.state.examiners.get(
-            user_name,
-            {"examinee_requests": [], "station": "_"},
-        )
+        examiner = self.state.get_examiner(user_name)
         try:
             yield examiner
         finally:
