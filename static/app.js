@@ -1,3 +1,5 @@
+var render_active = true;
+
 var data = {};
 var user = null;
 // Default colors
@@ -726,7 +728,7 @@ function _openStationEditModal(s_id) {
 }
 
 function render() {
-	if (Object.keys(data).length == 0) {
+	if (Object.keys(data).length == 0 || !render_active) {
 		return;
 	}
 
