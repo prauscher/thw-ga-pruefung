@@ -442,6 +442,15 @@ $(function () {
 		socket.send({"_m": "request_users"});
 	});
 
+	$("#examiner-station").change(function () {
+		const current_station = $(this).data("socket-state");
+		var station = $(this).val();
+		if (current_station && station != current_station) {
+			$(this).prop("disabled", true);
+			socket.send({"_m": "examiner_station", "station": station});
+		}
+	});
+
 	$("#examiner-request").click(function (e) {
 		$(this).prop("disabled", true);
 		socket.send({"_m": "examiner_request"});
@@ -779,14 +788,7 @@ function render_examiner() {
 		$("<option>").prop("value", "_").text("(Keine)"),
 	]).append(station_ids.map(function (s_id) {
 		return $("<option>").prop("selected", s_id == examiner.station).prop("value", s_id).text(data.stations[s_id].name);
-	})).change(function () {
-		var station = $(this).val();
-		if (station == examiner.station) {
-			return;
-		}
-		$(this).prop("disabled", true);
-		socket.send({"_m": "examiner_station", "station": station});
-	});
+	})).data("socket-state", examiner.station);
 }
 
 function render_operator() {
