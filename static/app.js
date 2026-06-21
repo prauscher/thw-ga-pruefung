@@ -1905,8 +1905,13 @@ function _generateStation(i) {
 				return item;
 			})).append(openSlots.map(function (openSlot, j) {
 				var item = $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j);
-				item.text("(Angefragt seit " + Math.round((socket.time() - openSlot.request_time) / 60) + " min)");
+				item.append("(Angefragt seit " + Math.round((socket.time() - openSlot.request_time) / 60) + " min)");
 				if (currentExaminer != openSlot.examiner) {
+					item.append($("<button>").toggle(user.role == "operator").addClass(["float-end", "btn", "btn-sm", "btn-danger", "ms-1"]).text("Löschen").click(function () {
+						$(this).prop("disabled", true);
+						socket.send({"_m": "examiner_request_remove", "name": openSlot.examiner});
+					}));
+
 					currentExaminer = openSlot.examiner;
 					examinerColors.push(examinerColors.shift());
 					item.append($("<small>").addClass("float-end").text(currentExaminer));

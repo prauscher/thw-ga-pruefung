@@ -605,6 +605,15 @@ class MessageHandler(BroadcastWebSocketHandler):
         with self._update_examiner(msg, self.current_user.get("name")) as examiner:
             examiner["station"] = station
 
+    def process_examiner_request_remove(self, msg):
+        if self.current_user.get("role", "") != "operator":
+            self.reply(msg, {"_m": "unauthorized"})
+            return
+
+        with self._update_examiner(msg, msg.get("name")) as examiner:
+            with suppress(IndexError):
+                examiner["examinee_requests"].pop()
+
     def process_examiner_request(self, msg):
         if self.current_user.get("role", "") != "examiner":
             self.reply(msg, {"_m": "unauthorized"})
