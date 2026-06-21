@@ -570,7 +570,7 @@ class MessageHandler(BroadcastWebSocketHandler):
         self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
 
     def process_return(self, msg):
-        if not self.current_user.get("role", "").startswith("operator"):
+        if self.current_user.get("role", "") not in ["operator", "evaluator"]:
             self.reply(msg, {"_m": "unauthorized"})
             return
 

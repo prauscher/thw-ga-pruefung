@@ -68,7 +68,7 @@ $(document).on("onbarcodescanned", function (e, code) {
 			_openAssignmentModal(a_id);
 		} else if (action == "return") {
 			// Automate return, but only for open assignments, which started at least 5 minutes ago
-			if (user.role.startsWith("operator") && assignment.result == "open" && assignment.start < socket.time() - 5 * 60) {
+			if (["operator", "evaluator"].includes(user.role) && assignment.result == "open" && assignment.start < socket.time() - 5 * 60) {
 				socket.send({"_m": "return", "i": a_id, "result": "done"});
 				assignment_return_waiting = [a_id, setTimeout(function () {
 					snd_beep_error.play();
@@ -124,11 +124,11 @@ $(function () {
 			$("#admin").toggle(user.role == "admin");
 			$("#examinee-add").toggle(user.role == "admin");
 			$("#station-add").toggle(user.role == "admin");
-			$("#export").toggle(["admin", "operator", "operator-return", "viewer"].includes(user.role));
+			$("#export").toggle(["admin", "operator", "viewer"].includes(user.role));
 			$(".assign-examinee").toggle(user.role == "operator");
 			$("nav.navbar").toggleClass("bg-dark", user.role != "admin").toggleClass("bg-danger", user.role == "admin");
 			$("body")
-				.toggleClass("view_operator", ["admin", "operator", "operator-return", "viewer"].includes(user.role))
+				.toggleClass("view_operator", ["admin", "operator", "evaluator", "viewer"].includes(user.role))
 				.toggleClass("view_examiner", user.role == "examiner");
 
 		},
@@ -360,8 +360,8 @@ $(function () {
 											$("<label>").attr("for", "role").addClass("col-form-label").text("Rolle"),
 											$("<select>").attr("id", "role").addClass("form-select").append([
 												$("<option>").attr("value", "admin").text("Administrator"),
-												$("<option>").attr("value", "operator").text("Operator"),
-												$("<option>").attr("value", "operator-return").text("Beschränkter Operator nur für Rückkehrer"),
+												$("<option>").attr("value", "operator").text("Prüflingsdisposition"),
+												$("<option>").attr("value", "evaluator").text("Auswerter"),
 												$("<option>").attr("value", "examiner").text("Prüfer"),
 												$("<option>").attr("value", "viewer").text("Betrachter"),
 											]),
@@ -1457,14 +1457,15 @@ function _openAssignmentModal(a_id) {
 	var options = [];
 
 	if (assignment.result == "open") {
-		options.push($("<button>").addClass(["btn", "btn-primary"]).toggle(user.role.startsWith("operator")).text("Beenden").click(function () {
+		options.push($("<button>").addClass(["btn", "btn-primary"]).toggle(["operator", "evaluator"].includes(user.role)).text("Beenden").click(function () {
 			socket.send({"_m": "return", "i": a_id, "result": "done"});
 			modal.close();
 		}));
 		options.push("&nbsp;");
 	}
+
 	if (assignment.result != "canceled") {
-		options.push($("<button>").addClass(["btn", "btn-warning"]).toggle(user.role.startsWith("operator")).text("Abbrechen").click(function () {
+		options.push($("<button>").addClass(["btn", "btn-warning"]).toggle(["operator", "evaluator"].includes(user.role)).text("Abbrechen").click(function () {
 			if (confirm("Sicher, dass die Station ohne Ergebnis abgebrochen werden soll?")) {
 				socket.send({"_m": "return", "i": a_id, "result": "canceled"});
 				modal.close();
