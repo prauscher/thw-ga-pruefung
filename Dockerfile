@@ -1,4 +1,4 @@
-FROM python:3.14-alpine3.23 AS base
+FROM python:3.14-alpine3.24 AS base
 
 ARG TINI_VERSION=0.19.0-r3
 ARG SUEXEC_VERSION=0.3-r0
@@ -9,7 +9,7 @@ RUN apk add --no-cache "tini=${TINI_VERSION}" "su-exec=${SUEXEC_VERSION}"
 
 FROM base AS build
 
-ARG PYPI_PIP_VERSION=25.3
+ARG PYPI_PIP_VERSION=26.1.2
 
 RUN python3 -m venv /opt/venv
 COPY requirements.txt /tmp/requirements.txt
