@@ -1653,10 +1653,10 @@ function _generateStation(i) {
 		}
 		var openSlots = [];
 		var activeExaminers = [];
-		var examineesTheorieDone = [];
+		var examineeFixedStationsDone = Object.fromEntries(examinees.map((e_id) => [e_id, []]));
 		for (var assignment of Object.values(data.assignments)) {
-			if (assignment.result == "done" && assignment.station == "_theorie") {
-				examineesTheorieDone.push(assignment.examinee);
+			if (assignment.result == "done" && assignment.station.startsWith("_")) {
+				examineeFixedStationsDone[assignment.examinee].push(assignment.station);
 			}
 			if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
 				var _i = examinees.indexOf(assignment.examinee);
@@ -1690,11 +1690,8 @@ function _generateStation(i) {
 			];
 		}));
 		examinees.sort(function (a, b) {
-			if (examineesTheorieDone.indexOf(a) >= 0 && examineesTheorieDone.indexOf(b) < 0) {
-				return 1;
-			}
-			if (examineesTheorieDone.indexOf(a) < 0 && examineesTheorieDone.indexOf(b) >= 0) {
-				return -1;
+			if (examineeFixedStationsDone[a].length != examineeFixedStationsDone[b].length) {
+				return examineeFixedStationsDone[b].length - examineeFixedStationsDone[a].length;
 			}
 			return examinee_priorities[b] - examinee_priorities[a];
 		});
