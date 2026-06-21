@@ -3,7 +3,7 @@ var render_active = true;
 var data = {};
 var user = null;
 // Default colors
-var flag_colors = ["#007bff", "#dc3545", "#ffc107", "#28a745"];
+var flag_colors = ["#3584e4", "#33d17a", "#f6d32d", "#ff7800", "#e01b24", "#9141ac", "#986a44"];
 const fixedStations = {
 	"_theorie": {"name": "Theorie"},
 	"_pause": {"name": "Mittagspause"},
