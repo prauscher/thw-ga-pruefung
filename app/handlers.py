@@ -423,9 +423,10 @@ class MessageHandler(BroadcastWebSocketHandler):
             if allowed is None:
                 return {"_m": "_redacted"}
 
+            # always leave administrative attributes like _m and _cid alone
             return {k: v
                     for k, v in msg.items()
-                    if k in ["_m", *allowed]}
+                    if k.startswith("_") or k in allowed}
 
         return super().format_message(msg)
 
