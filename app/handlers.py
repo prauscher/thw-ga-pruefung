@@ -577,6 +577,12 @@ class MessageHandler(BroadcastWebSocketHandler):
         self.state.save()
         self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
 
+        examiner = self.state.assignments.get(i, {}).get("examiner")
+        if msg.get("result") == "canceled" and examiner:
+            with self._update_examiner(msg, examiner) as examiner:
+                if examiner.get("station") == self.state.assignments.get(i, {}).get("station"):
+                    examiner["examinee_requests"].append({"request": time.time()})
+
     @contextmanager
     def _update_examiner(self, msg, user_name):
         examiner = self.state.get_examiner(user_name)

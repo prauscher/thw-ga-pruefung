@@ -1481,7 +1481,7 @@ function _openAssignmentModal(a_id) {
 
 	if (assignment.result != "canceled") {
 		options.push($("<button>").addClass(["btn", "btn-warning"]).toggle(["operator", "evaluator"].includes(user.role)).text("Abbrechen").click(function () {
-			if (confirm("Sicher, dass die Station ohne Ergebnis abgebrochen werden soll?")) {
+			if (confirm("Sicher, dass die Station ohne Ergebnis abgebrochen werden soll? Hinweis: Dabei wird ggf. eine neue Anforderung für diesen Prüfer erzeugt.")) {
 				socket.send({"_m": "return", "i": a_id, "result": "canceled"});
 				modal.close();
 			}
