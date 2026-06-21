@@ -758,7 +758,6 @@ function render_examiner() {
 		const examinee = data.examinees[assignment.examinee];
 		var node = $("<li>").addClass(["list-group-item", "text-truncate"]);
 		node.append(examinee.name);
-		node.append("flags" in examinee ? examinee.flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : []);
 		node.append($("<span>").addClass("float-end").text(Math.round((socket.time() - assignment.start) / 60) + " min"));
 		return node;
 	})).append(examiner.examinee_requests.map(function (request) {
