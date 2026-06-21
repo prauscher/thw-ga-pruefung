@@ -1201,6 +1201,7 @@ function _openStationModal(s_id) {
 	var otherStationExaminees = [];
 	var waitingExaminees = [];
 	var lockedExaminees = [];
+	var doneExaminees = [];
 
 	for (const [e_id, examinee] of Object.entries(data.examinees)) {
 		if ("locked" in examinee && (examinee.locked == -1 || examinee.locked > socket.time())) {
@@ -1233,9 +1234,23 @@ function _openStationModal(s_id) {
 		if (assignment.station == s_id) {
 			assignments.push({"i": a_id, ...assignment});
 			if (assignment.result == "done") {
+				doneExaminees.push(assignment.examinee);
 				durationSum += assignment.end - assignment.start;
 				durationCount += 1;
 			}
+		}
+	}
+
+	// Filter out completed
+	for (const doneExaminee of doneExaminees) {
+		var _i = waitingExaminees.indexOf(doneExaminee);
+		if (_i >= 0) {
+			waitingExaminees.splice(_i, 1);
+		}
+
+		var _i = otherStationExaminees.indexOf(doneExaminee);
+		if (_i >= 0) {
+			otherStationExaminees.splice(_i, 1);
 		}
 	}
 
