@@ -947,7 +947,7 @@ function _buildExamineeItem(e_id, a_id) {
 		}
 
 		if (expectedTimeout !== null) {
-			node.find("examinee-name").addClass("best-before").data("best-before", expectedTimeout);
+			node.find(".examinee-name").addClass("best-before").data("best-before", expectedTimeout);
 			formatBestBefore(node);
 		}
 	}
