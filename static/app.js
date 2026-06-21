@@ -1342,19 +1342,30 @@ function _openStationModal(s_id) {
 		return cell;
 	}
 
+	const openEntries = [
+		[currentExaminees, "primary", "Bereits an dieser Station"],
+		[waitingExaminees, "danger", "Im Bereitstellungsraum verfügbar"],
+		[otherStationExaminees, "secondary", "Aktuell an anderen Stationen"],
+		[lockedExaminees, "secondary", "Für Zuteilung gesperrt"],
+	];
+
 	tab.addPanel("Offen").panel.append(
-		$("<div>").addClass(["container", "mb-2"]).append(
-			$("<div>").addClass("row")
-				.append($("<div>").toggle(currentExaminees.length > 0).addClass(["w-100"]).append($("<h5>").text("Bereits an dieser Station")))
-				.append(currentExaminees.map(_buildExamineeCell))
-				.append($("<div>").toggle(waitingExaminees.length > 0).addClass(["w-100", "mt-2"]).append($("<h5>").text("Im Bereitstellungsraum verfügbar")))
-				.append(waitingExaminees.map(_buildExamineeCell))
-				.append($("<div>").toggle(otherStationExaminees.length > 0).addClass(["w-100", "mt-2"]).append($("<h5>").text("Aktuell an anderen Stationen")))
-				.append(otherStationExaminees.map(_buildExamineeCell))
-				.append($("<div>").toggle(lockedExaminees.length > 0).addClass(["w-100", "mt-2"]).append($("<h5>").text("Gesperrt im Bereitstellungsraum")))
-				.append(lockedExaminees.map(_buildExamineeCell))
-				.append($("<div>").toggle((lockedExaminees.length + waitingExaminees.length + currentExaminees.length + otherStationExaminees.length) == 0).text("(Keine Prüflinge mehr offen)"))
-		)
+		$("<div>").addClass(["container", "mb-2"])
+			.append(openEntries.map(function (openEntry, _i) {
+				const _examinees = openEntry[0];
+				const _bootstrapColor = openEntry[1];
+				const _label = openEntry[2];
+				if (_examinees.length == 0) {
+					return $("<div>");
+				}
+				return $("<div>").addClass(["row", "mt-2"])
+					.append($("<div>").addClass("w-100").append($("<h5>").append([
+						$("<span>").addClass(["badge", "me-1", "bg-" + _bootstrapColor]).text(_examinees.length),
+						_label,
+					])))
+					.append(_examinees.map(_buildExamineeCell));
+			}))
+			.append($("<div>").toggle((lockedExaminees.length + waitingExaminees.length + currentExaminees.length + otherStationExaminees.length) == 0).text("(Keine Prüflinge mehr offen)"))
 	);
 
 	tab.addPanel("Historie").panel.append(
