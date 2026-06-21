@@ -443,8 +443,7 @@ class MessageHandler(BroadcastWebSocketHandler):
                 "stations": partial(filter_dict, ["name"]),
                 "examinees": partial(filter_dict, ["name", "flags"]),
                 "examiners": lambda examiners: {k: v for k, v in examiners.items() if k == user_name},
-                "assignments": partial(filter_dict, ["name", "result", "examinee", "examiner", "station", "start"],
-                                       entry_filter=lambda i, assignment: assignment.get("examiner") == user_name),
+                "assignments": partial(filter_dict, ["name", "result", "examinee", "examiner", "station", "start"]),
             }
 
             return {k: filters.get(k, lambda out: out)(v)
