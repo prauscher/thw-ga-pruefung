@@ -418,10 +418,6 @@ class MessageHandler(BroadcastWebSocketHandler):
             if msg.get("_m") == "examiner" and msg.get("name") != self.current_user.get("name"):
                 return {"_m": "_redacted"}
 
-            # strip assignments even more
-            if msg.get("_m") == "assignment" and msg.get("examiner") != self.current_user.get("name"):
-                return {"_m": "_redacted"}
-
             # only allow known messages
             allowed = allowlist.get(msg.get("_m"))
             if allowed is None:
