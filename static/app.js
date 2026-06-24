@@ -1871,18 +1871,64 @@ function _generateStation(i) {
 			}
 		}
 	}
+	assignButton.prop("disabled", examinees.length == 0);
 
-	var openSlots = [];
+	var examinerNodes = {};
+	var examinerColors = ["#fff080", "#800080", "#00806c", "#800000", "#004e80"];
+
+	for (const a_id of assignments) {
+		var item = _buildExamineeItem(data.assignments[a_id].examinee, a_id);
+		var examiner = ("examiner" in data.assignments[a_id] && data.assignments[a_id].examiner != "") ? data.assignments[a_id].examiner : "(Unbekannt)";
+
+		if (!(examiner in examinerNodes)) {
+			examinerNodes[examiner] = [];
+		}
+		examinerNodes[examiner].push(item);
+	}
+
 	for (var examiner_kv of Object.entries(data.examiners)) {
 		if (examiner_kv[1].station != i) {
 			continue;
 		}
-		if (examiner_kv[1].examinee_requests) {
-			for (var request of examiner_kv[1].examinee_requests) {
-				activeExaminers.push(examiner_kv[0]);
-				openSlots.push({"examiner": examiner_kv[0], "request_time": request.request});
-			}
+		if (!examiner_kv[1].examinee_requests || examiner_kv[1].examinee_requests.length == 0) {
+			continue;
 		}
+
+		activeExaminers.push(examiner_kv[0]);
+
+		if (!(examiner_kv[0] in examinerNodes)) {
+			examinerNodes[examiner_kv[0]] = [];
+		}
+
+		for (var _i = 0; _i < examiner_kv[1].examinee_requests.length; _i++) {
+			const request = examiner_kv[1].examinee_requests[_i];
+
+			var item = $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > 0).toggleClass("text-muted", examinees.length <= 0);
+			item.append("(Angefragt seit " + Math.round((socket.time() - request.request) / 60) + " min)");
+
+			if (_i == 0 && user.role == "operator") {
+				item.append($("<button>").addClass(["float-end", "btn", "btn-sm", "btn-danger", "ms-1"]).text("Löschen").click(function () {
+					$(this).prop("disabled", true);
+					socket.send({"_m": "examiner_request_remove", "name": examiner_kv[0]});
+				}));
+			}
+
+			examinerNodes[examiner_kv[0]].push(item);
+		}
+	}
+
+	var examiners = Object.entries(examinerNodes);
+	examiners.sort((a, b) => (b > a) ? -1 : 1);
+
+	var entryNodes = [];
+	for (const examiner_kv of examiners) {
+
+		entryNodes.push($("<li>").addClass(["list-group-item", "fw-bold", "pe-1"]).css("border-right", ".8em solid " + examinerColors[0]).text(examiner_kv[0]));
+		for (const item of examiner_kv[1]) {
+			entryNodes.push(item);
+		}
+
+		examinerColors.push(examinerColors.shift());
 	}
 
 	var end = null;
@@ -1910,46 +1956,6 @@ function _generateStation(i) {
 				return carry + factor;
 			}, 0) * stationTimes[i] / activeExaminers.length;
 		}
-	}
-
-	assignButton.prop("disabled", examinees.length == 0);
-
-	var entryNodes = [];
-	var currentExaminer = "";
-	var examinerColors = ["#fff080", "#800080", "#00806c", "#800000", "#004e80"];
-	for (const a_id of assignments) {
-		var item = _buildExamineeItem(data.assignments[a_id].examinee, a_id);
-
-		if ("examiner" in data.assignments[a_id] && data.assignments[a_id].examiner != "") {
-			if (currentExaminer != data.assignments[a_id].examiner) {
-				currentExaminer = data.assignments[a_id].examiner;
-				examinerColors.push(examinerColors.shift());
-				item.append($("<small>").addClass("float-end").text(currentExaminer));
-			}
-			item.addClass("pe-1");
-			item.css("border-right", ".8em solid " + examinerColors[0]);
-		}
-		entryNodes.push(item);
-	}
-
-	for (var j = 0; j < openSlots.length; j++) {
-		const openSlot = openSlots[j];
-
-		var item = $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j);
-		item.append("(Angefragt seit " + Math.round((socket.time() - openSlot.request_time) / 60) + " min)");
-		if (currentExaminer != openSlot.examiner) {
-			item.append($("<button>").toggle(user.role == "operator").addClass(["float-end", "btn", "btn-sm", "btn-danger", "ms-1"]).text("Löschen").click(function () {
-				$(this).prop("disabled", true);
-				socket.send({"_m": "examiner_request_remove", "name": openSlot.examiner});
-			}));
-
-			currentExaminer = openSlot.examiner;
-			examinerColors.push(examinerColors.shift());
-			item.append($("<small>").addClass("float-end").text(currentExaminer));
-		}
-		item.addClass("pe-1");
-		item.css("border-right", ".8em solid " + examinerColors[0]);
-		entryNodes.push(item);
 	}
 
 	return $("<div>").addClass("col").append(
