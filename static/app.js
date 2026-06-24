@@ -1508,21 +1508,22 @@ function _openAssignmentModal(a_id) {
 
 	var options = [];
 
-	if (assignment.result == "open") {
-		options.push($("<button>").addClass(["btn", "btn-primary"]).toggle(["operator", "evaluator"].includes(user.role)).text("Beenden").click(function () {
-			socket.send({"_m": "return", "i": a_id, "result": "done"});
-			modal.close();
-		}));
-		options.push("&nbsp;");
-	}
-
-	if (assignment.result != "canceled") {
-		options.push($("<button>").addClass(["btn", "btn-warning"]).toggle(["operator", "evaluator"].includes(user.role)).text("Abbrechen").click(function () {
-			if (confirm("Sicher, dass die Station ohne Ergebnis abgebrochen werden soll? Hinweis: Dabei wird ggf. eine neue Anforderung für diesen Prüfer erzeugt.")) {
-				socket.send({"_m": "return", "i": a_id, "result": "canceled"});
+	if (["operator", "evaluator"].includes(user.role)) {
+		if (assignment.result == "open") {
+			options.push($("<button>").addClass(["btn", "btn-primary", "me-2"]).text("Beenden").click(function () {
+				socket.send({"_m": "return", "i": a_id, "result": "done"});
 				modal.close();
-			}
-		}));
+			}));
+		}
+
+		if (assignment.result != "canceled") {
+			options.push($("<button>").addClass(["btn", "btn-warning", "me-2"]).text("Abbrechen").click(function () {
+				if (confirm("Sicher, dass die Station ohne Ergebnis abgebrochen werden soll? Hinweis: Dabei wird ggf. eine neue Anforderung für diesen Prüfer erzeugt.")) {
+					socket.send({"_m": "return", "i": a_id, "result": "canceled"});
+					modal.close();
+				}
+			}));
+		}
 	}
 
 	var ende = [$("<span>").text(assignment.end === null ? "-" : formatTimestamp(assignment.end))];
