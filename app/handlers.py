@@ -553,6 +553,16 @@ class MessageHandler(BroadcastWebSocketHandler):
         with self._update_examinee(msg, msg.get("i")) as examinee:
             examinee["flags"] = msg.get("flags", [])
 
+    @contextmanager
+    def _update_assignment(self, msg, i):
+        assignment = self.state.assignments.get(i, {})
+        try:
+            yield assignment
+        finally:
+            self.state.assignments[i] = assignment
+            self.state.save()
+            self.broadcast(msg, {"_m": "assignment", "i": i, **assignment})
+
     @require_role("operator")
     def process_assign(self, msg):
         # Pop examinee_request
@@ -561,32 +571,28 @@ class MessageHandler(BroadcastWebSocketHandler):
             with self._update_examiner(msg, msg.get("examiner")) as examiner:
                 request = examiner["examinee_requests"].pop(0);
 
-        i = msg.get("i")
-        self.state.assignments[i] = {
-            **self.state.assignments.get(i, {}),
-            "examinee": msg.get("examinee"),
-            "station": msg.get("station"),
-            "examiner": msg.get("examiner", ""),
-            "start": time.time(),
-            "request": request,
-            "end": None if "autoEnd" not in msg else time.time() + msg["autoEnd"],
-            "result": "open"}
-        self.state.save()
-        self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
+        with self._update_assignment(msg, msg.get("i")) as assignment:
+            assignment.update({
+                "examinee": msg.get("examinee"),
+                "station": msg.get("station"),
+                "examiner": msg.get("examiner", ""),
+                "start": time.time(),
+                "request": request,
+                "end": None if "autoEnd" not in msg else time.time() + msg["autoEnd"],
+                "result": "open"
+            })
 
     @require_role("operator", "evaluator")
     def process_return(self, msg):
-        i = msg.get("i")
-        self.state.assignments.get(i, {}).update({
-            "end": time.time(),
-            "result": msg.get("result")})
-        self.state.save()
-        self.broadcast(msg, {"_m": "assignment", "i": i, **self.state.assignments[i]})
+        with self._update_assignment(msg, msg.get("i")) as assignment:
+            assignment.update({
+                "end": time.time(),
+                "result": msg.get("result"),
+            })
 
-        assignment = self.state.assignments.get(i, {})
-        examiner = assignment.get("examiner")
-        if msg.get("result") == "canceled" and examiner:
-            with self._update_examiner(msg, examiner) as examiner:
+        examiner_id = assignment.get("examiner")
+        if msg.get("result") == "canceled" and examiner_id:
+            with self._update_examiner(msg, examiner_id) as examiner:
                 if examiner.get("station") == assignment.get("station"):
                     examiner["examinee_requests"].append(
                         assignment.get("request", None) or {"request": time.time()})
