@@ -1777,7 +1777,7 @@ function _generateStation(i) {
 									if (j < openSlots.length) {
 										input.val(openSlots[j].examiner);
 									}
-									node.prepend($("<div>").addClass("float-end").append(input));
+									node.prepend($("<div>").addClass(["float-end", "ms-2"]).append(input));
 									new Autocomplete(input.get(0), {"items": Object.fromEntries(activeExaminers.map((examiner) => [examiner, examiner])), "fixed": true});
 									return node;
 								})
