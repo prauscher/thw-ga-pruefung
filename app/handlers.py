@@ -597,6 +597,13 @@ class MessageHandler(BroadcastWebSocketHandler):
                     examiner["examinee_requests"].append(
                         assignment.get("request", None) or {"request": time.time()})
 
+    @require_role("operator")
+    def process_assignment_change_examiner(self, msg):
+        with self._update_assignment(msg, msg.get("i")) as assignment:
+            assignment.update({
+                "examiner": msg.get("examiner"),
+            })
+
     @require_role("admin")
     def process_assignment_delete(self, msg):
         i = msg.get("i")

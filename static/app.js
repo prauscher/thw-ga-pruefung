@@ -1560,6 +1560,36 @@ function _openAssignmentModal(a_id) {
 		}
 	}
 
+	var examiner = "examiner" in assignment ? assignment.examiner : "-";
+	var examinerDisplay = $("<span>").text(examiner);
+	var examinerInput = $("<input>").attr("type", "text").addClass("form-control").attr("autocomplete", "off");
+	var examinerForm = $("<div>").hide().addClass("input-group").append([
+		examinerInput,
+		$("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(function () {
+			var _button = $(this);
+
+			var newExaminer = examinerInput.val();
+			socket.send({"_m": "assignment_change_examiner", "i": a_id, "examiner": newExaminer});
+
+			examinerForm.hide();
+			examinerDisplay.text(newExaminer).show();
+			_button.show();
+		}),
+	]);
+	var examinerPanel = $("<div>").append([
+		examinerDisplay,
+		$("<button>").addClass(["btn", "btn-sm", "btn-warning", "ms-2"]).toggle(user.role == "operator").text("Ändern").click(function () {
+			var _button = $(this);
+
+			examinerInput.val(examinerDisplay.text());
+
+			examinerDisplay.hide();
+			_button.hide();
+			examinerForm.show();
+		}),
+		examinerForm,
+	]);
+
 	modal.elem.find(".modal-body").append([
 		$("<p>").text("Eine Zuweisung spiegelt den Besuch eines Prüflings an einer Station wieder. Wird eine Zuweisung beendet, zählt die Station als besucht und wird nicht erneut zugeteilt. Wird ihr Besuch abgebrochen, erfolgt später eine erneute Zuteilung."),
 		$("<table>").addClass(["table", "table-striped"]).append(
@@ -1584,7 +1614,7 @@ function _openAssignmentModal(a_id) {
 				]),
 				$("<tr>").append([
 					$("<th>").text("Prüfer*in"),
-					$("<td>").text("examiner" in assignment ? assignment.examiner : "-"),
+					$("<td>").append(examinerPanel),
 				]),
 				$("<tr>").append([
 					$("<th>").text("Ergebnis"),
@@ -1604,6 +1634,8 @@ function _openAssignmentModal(a_id) {
 			])
 		),
 	]).append(options);
+
+	new Autocomplete(examinerInput.get(0), {"items": Object.fromEntries(getStationActiveExaminers(assignment.station).map((examiner) => [examiner, examiner])), "fixed": true});
 
 	modal.show();
 }
@@ -1705,7 +1737,7 @@ function _generateStation(i) {
 			examinees.push(examinee_kv[0]);
 		}
 		var openSlots = [];
-		var activeExaminers = [];
+		var activeExaminers = getStationActiveExaminers(i);
 		var examineeFixedStationsDone = Object.fromEntries(examinees.map((e_id) => [e_id, []]));
 		for (var assignment of Object.values(data.assignments)) {
 			if (assignment.result == "done" && assignment.station.startsWith("_")) {
@@ -1717,17 +1749,11 @@ function _generateStation(i) {
 					examinees.splice(_i, 1);
 				}
 			}
-			if (assignment.station == i && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0 && (assignment.start > socket.time() - 90 * 60 || assignment.result == "open")) {
-				activeExaminers.push(assignment.examiner);
-			}
 		}
 		// Add active examiners
 		for (var examiner_kv of Object.entries(data.examiners)) {
 			if (examiner_kv[1].station != i) {
 				continue;
-			}
-			if (activeExaminers.indexOf(examiner_kv[0]) < 0) {
-				activeExaminers.push(examiner_kv[0]);
 			}
 			if (examiner_kv[1].examinee_requests) {
 				for (var request of examiner_kv[1].examinee_requests) {
@@ -2002,6 +2028,25 @@ function _generateStation(i) {
 			])
 		])
 	);
+}
+
+function getStationActiveExaminers(s_id) {
+	var activeExaminers = [];
+	for (var assignment of Object.values(data.assignments)) {
+		if (assignment.station == s_id && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0 && (assignment.start > socket.time() - 90 * 60 || assignment.result == "open")) {
+			activeExaminers.push(assignment.examiner);
+		}
+	}
+
+	for (var examiner_kv of Object.entries(data.examiners)) {
+		if (examiner_kv[1].station != s_id) {
+			continue;
+		}
+		if (activeExaminers.indexOf(examiner_kv[0]) < 0) {
+			activeExaminers.push(examiner_kv[0]);
+		}
+	}
+	return activeExaminers;
 }
 
 var Examinee = {
