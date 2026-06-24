@@ -752,7 +752,7 @@ function render_examiner() {
 	for (var a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
 
-		if (assignment.result == "done" && assignment.station == examiner.station) {
+		if (["done", "open"].includes(assignment.result) && assignment.station == examiner.station) {
 			var _i = remainingExaminees.indexOf(assignment.examinee);
 			if (_i >= 0) {
 				remainingExaminees.splice(_i, 1);
