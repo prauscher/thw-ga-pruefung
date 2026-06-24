@@ -1930,14 +1930,15 @@ function _generateStation(i) {
 		if (examiner_kv[1].station != i) {
 			continue;
 		}
-		if (!examiner_kv[1].examinee_requests || examiner_kv[1].examinee_requests.length == 0) {
-			continue;
-		}
 
 		activeExaminers.push(examiner_kv[0]);
 
 		if (!(examiner_kv[0] in examinerNodes)) {
 			examinerNodes[examiner_kv[0]] = [];
+		}
+
+		if (!examiner_kv[1].examinee_requests || examiner_kv[1].examinee_requests.length == 0) {
+			continue;
 		}
 
 		for (var _i = 0; _i < examiner_kv[1].examinee_requests.length; _i++) {
