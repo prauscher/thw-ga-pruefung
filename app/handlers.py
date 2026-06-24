@@ -14,7 +14,7 @@ from threading import RLock
 from zoneinfo import ZoneInfo
 
 import tornado
-import tornado.websocket
+from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -186,7 +186,7 @@ class BroadcastState:
         return {"_snr": self.snr}
 
 
-class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
+class BroadcastWebSocketHandler(WebSocketHandler):
     _clients = set()
     auth = None
 
@@ -215,7 +215,11 @@ class BroadcastWebSocketHandler(tornado.websocket.WebSocketHandler):
         return state
 
     def send(self, msg):
-        self.write_message(json.dumps(self.format_message(msg)))
+        try:
+            self.write_message(json.dumps(self.format_message(msg)))
+        except WebSocketClosedError:
+            print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | Connection broken")
+            self._clients.discard(self)
 
     @classmethod
     def send_to_all(cls, msg, *, include_snr = True):
