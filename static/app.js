@@ -793,7 +793,7 @@ function render_examiner() {
 		$("<div>").addClass(["alert", "alert-primary"]).text("Für deine Station sind keine Prüflinge mehr offen."),
 	] : []);
 
-	$("#examiner-request").prop("disabled", remainingExaminees.length == 0);
+	$("#examiner-request").prop("disabled", remainingExaminees.length == 0 || examiner.station.startsWith("_"));
 	$("#examiner-request-cancel").toggle(examiner.examinee_requests.length > 0);
 
 	var station_ids = Object.keys(data.stations);
