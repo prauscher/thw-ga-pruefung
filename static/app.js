@@ -1596,7 +1596,6 @@ function _openAssignmentModal(a_id) {
 
 function _generateStation(i) {
 	var name = i.startsWith("_") ? fixedStations[i].name : data.stations[i].name + " (" + data.stations[i].name_pdf + ")";
-	var elem;
 	var assignButton = $("<button>").addClass(["btn", "btn-success", "assign-examinee"]).text("Zuweisen").click(function (e) {
 		e.preventDefault();
 
@@ -1915,9 +1914,45 @@ function _generateStation(i) {
 
 	assignButton.prop("disabled", examinees.length == 0);
 
+	var entryNodes = [];
 	var currentExaminer = "";
 	var examinerColors = ["#fff080", "#800080", "#00806c", "#800000", "#004e80"];
-	elem = $("<div>").addClass("col").append(
+	for (const a_id of assignments) {
+		var item = _buildExamineeItem(data.assignments[a_id].examinee, a_id);
+
+		if ("examiner" in data.assignments[a_id] && data.assignments[a_id].examiner != "") {
+			if (currentExaminer != data.assignments[a_id].examiner) {
+				currentExaminer = data.assignments[a_id].examiner;
+				examinerColors.push(examinerColors.shift());
+				item.append($("<small>").addClass("float-end").text(currentExaminer));
+			}
+			item.addClass("pe-1");
+			item.css("border-right", ".8em solid " + examinerColors[0]);
+		}
+		entryNodes.push(item);
+	}
+
+	for (var j = 0; j < openSlots.length; j++) {
+		const openSlot = openSlots[j];
+
+		var item = $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j);
+		item.append("(Angefragt seit " + Math.round((socket.time() - openSlot.request_time) / 60) + " min)");
+		if (currentExaminer != openSlot.examiner) {
+			item.append($("<button>").toggle(user.role == "operator").addClass(["float-end", "btn", "btn-sm", "btn-danger", "ms-1"]).text("Löschen").click(function () {
+				$(this).prop("disabled", true);
+				socket.send({"_m": "examiner_request_remove", "name": openSlot.examiner});
+			}));
+
+			currentExaminer = openSlot.examiner;
+			examinerColors.push(examinerColors.shift());
+			item.append($("<small>").addClass("float-end").text(currentExaminer));
+		}
+		item.addClass("pe-1");
+		item.css("border-right", ".8em solid " + examinerColors[0]);
+		entryNodes.push(item);
+	}
+
+	return $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").css("cursor", "pointer").text(name).click(function () {
 				_openStationModal(i);
@@ -1941,44 +1976,12 @@ function _generateStation(i) {
 					$("<span>").addClass(["float-end", "abschluss-value"]).data("timestamp", end).text(end === null ? "unbekannt" : formatTimestamp(end)),
 					$("<span>").text("Abschluss"),
 				]),
-			]).append(assignments.map(function (a_id) {
-				var item = _buildExamineeItem(data.assignments[a_id].examinee, a_id);
-
-				if ("examiner" in data.assignments[a_id] && data.assignments[a_id].examiner != "") {
-					if (currentExaminer != data.assignments[a_id].examiner) {
-						currentExaminer = data.assignments[a_id].examiner;
-						examinerColors.push(examinerColors.shift());
-						item.append($("<small>").addClass("float-end").text(currentExaminer));
-					}
-					item.addClass("pe-1");
-					item.css("border-right", ".8em solid " + examinerColors[0]);
-				}
-
-				return item;
-			})).append(openSlots.map(function (openSlot, j) {
-				var item = $("<li>").addClass("list-group-item").toggleClass(["text-danger", "fw-bold"], examinees.length > j).toggleClass("text-muted", examinees.length <= j);
-				item.append("(Angefragt seit " + Math.round((socket.time() - openSlot.request_time) / 60) + " min)");
-				if (currentExaminer != openSlot.examiner) {
-					item.append($("<button>").toggle(user.role == "operator").addClass(["float-end", "btn", "btn-sm", "btn-danger", "ms-1"]).text("Löschen").click(function () {
-						$(this).prop("disabled", true);
-						socket.send({"_m": "examiner_request_remove", "name": openSlot.examiner});
-					}));
-
-					currentExaminer = openSlot.examiner;
-					examinerColors.push(examinerColors.shift());
-					item.append($("<small>").addClass("float-end").text(currentExaminer));
-				}
-				item.addClass("pe-1");
-				item.css("border-right", ".8em solid " + examinerColors[0]);
-				return item;
-			})),
+			]).append(entryNodes),
 			$("<div>").addClass("card-footer").append([
 				assignButton.toggle(user && user.role == "operator"),
 			])
 		])
 	);
-
-	return elem;
 }
 
 var Examinee = {
