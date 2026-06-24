@@ -284,6 +284,10 @@ $(function () {
 				render();
 				$(".examinee-" + msg.examinee).hide().slideDown(1000);
 			},
+			"assignment_delete": function (msg) {
+				delete data.assignments[msg.i];
+				render();
+			},
 			"examiner": function (msg) {
 				if (data.examiners[msg.name] && data.examiners[msg.name].examinee_requests && data.examiners[msg.name].examinee_requests.length < msg.examinee_requests.length) {
 					visualAlert($("body.view_operator"));
@@ -1524,6 +1528,15 @@ function _openAssignmentModal(a_id) {
 				}
 			}));
 		}
+	}
+
+	if (user.role == "admin") {
+		options.push($("<button>").addClass(["btn", "btn-danger", "me-2"]).text("Löschen").click(function () {
+			if (confirm("Sicher, dass die Zuweisung gelöscht werden soll?")) {
+				socket.send({"_m": "assignment_delete", "i": a_id});
+				modal.close();
+			}
+		}));
 	}
 
 	var ende = [$("<span>").text(assignment.end === null ? "-" : formatTimestamp(assignment.end))];
