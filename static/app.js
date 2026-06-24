@@ -939,12 +939,12 @@ function _buildExamineeItem(e_id, a_id) {
 	var state_indicator;
 	if ("locked" in data.examinees[e_id] && (data.examinees[e_id].locked == -1 || data.examinees[e_id].locked > socket.time())) {
 		state_indicator = "bg-secondary";
-	} else if (openFixedStations.indexOf("_pause") < 0) {
-		state_indicator = "bg-success";
-	} else if (openFixedStations.indexOf("_theorie") < 0) {
+	} else if (openFixedStations.indexOf("_theorie") >= 0) {
+		state_indicator = "bg-danger";
+	} else if (openFixedStations.indexOf("_pause") >= 0) {
 		state_indicator = "bg-warning";
 	} else {
-		state_indicator = "bg-danger";
+		state_indicator = "bg-success";
 	}
 
 	node.append("flags" in data.examinees[e_id] ? $("<span>").addClass("float-end").append(data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()]))) : []);
