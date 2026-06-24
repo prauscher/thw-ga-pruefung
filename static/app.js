@@ -742,7 +742,7 @@ function render() {
 function render_examiner() {
 	var examiner = data.examiners[user.name] || {"station": "_", "examinee_requests": []};
 
-	var remainingExaminees = Object.keys(data.examinees);
+	var remainingExaminees = Object.keys(data.examinees).filter((e_id) => !("skip_stations" in data.examinees[e_id] && data.examinees[e_id].skip_stations.indexOf(examiner.station) >= 0));
 	var currentAssignments = [];
 	var currentStations = [examiner.station];
 	for (var a_id of Object.keys(data.assignments)) {
@@ -822,7 +822,7 @@ function render_operator() {
 	}
 
 	var examineesWaitingReturnTime = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, ("locked" in data.examinees[e_id]) ? data.examinees[e_id].locked : 0]));
-	var examineesWaitingMissingStations = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, ["_theorie", ...Object.keys(data.stations)]]));
+	var examineesWaitingMissingStations = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, ["_theorie", ...Object.keys(data.stations)].filter((s_id) => !("skip_stations" in data.examinees[e_id] && data.examinees[e_id].skip_stations.indexOf(s_id) >= 0))]));
 	for (var assignment of Object.values(data.assignments)) {
 		if (assignment.end !== null) {
 			examineesWaitingReturnTime[assignment.examinee] = Math.max(examineesWaitingReturnTime[assignment.examinee], assignment.end);
@@ -918,8 +918,8 @@ function _buildExamineeItem(e_id, a_id) {
 		});
 	}
 
-	var openFixedStations = Object.keys(fixedStations);
-	var openStations = Object.keys(data.stations);
+	var openFixedStations = Object.keys(fixedStations).filter((s_id) => !("skip_stations" in data.examinees[e_id] && data.examinees[e_id].skip_stations.indexOf(s_id) >= 0));
+	var openStations = Object.keys(data.stations).filter((s_id) => !("skip_stations" in data.examinees[e_id] && data.examinees[e_id].skip_stations.indexOf(s_id) >= 0));
 	for (var assignment of Object.values(data.assignments)) {
 		if (assignment.examinee == e_id && assignment.result == "done") {
 			if (assignment.station.startsWith("_")) {
@@ -983,7 +983,7 @@ function _openExamineeModal(e_id) {
 
 	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, {"sum": 0, "count": 0}]));
 	var assignments = [];
-	var missingStations = Object.keys(data.stations);
+	var missingStations = Object.keys(data.stations).concat(Object.keys(fixedStations));
 	var currentAssignment = null;
 	var firstStart = null;
 	for (const a_id of Object.keys(data.assignments)) {
@@ -1126,7 +1126,8 @@ function _openExamineeModal(e_id) {
 				),
 				$("<tbody>").append(
 					missingStations.map(function (s_id) {
-						var stationCell = $("<td>").append($("<a>").attr("href", "#").text(data.stations[s_id].name).click(function (e) {
+						const stationName = s_id.startsWith("_") ? fixedStations[s_id].name : data.stations[s_id].name;
+						var stationCell = $("<td>").append($("<a>").attr("href", "#").text(stationName).click(function (e) {
 							e.preventDefault();
 							_openStationModal(s_id);
 						}));
@@ -1134,9 +1135,29 @@ function _openExamineeModal(e_id) {
 							stationCell.append(" (aktuell an Station)");
 						}
 
+						if (user.role == "operator") {
+							var skipButton = $("<button>").addClass(["btn", "btn-sm", "btn-secondary"]).text("Künstliche Teilnahme");
+							skipButton.click(function () {
+								socket.send({"_m": "examinee_skip_station_add", "i": e_id, "station": s_id});
+								skipButton.hide();
+								unskipButton.show();
+							});
+							var unskipButton = $("<button>").addClass(["btn", "btn-sm", "btn-primary"]).text("Aktivieren");
+							unskipButton.click(function () {
+								socket.send({"_m": "examinee_skip_station_delete", "i": e_id, "station": s_id});
+								skipButton.show();
+								unskipButton.hide();
+							});
+
+							skipButton.toggle(!("skip_stations" in examinee && examinee.skip_stations.indexOf(s_id) >= 0));
+							unskipButton.toggle("skip_stations" in examinee && examinee.skip_stations.indexOf(s_id) >= 0);
+
+							stationCell.append([" ", skipButton, unskipButton]);
+						}
+
 						return $("<tr>").append([
 							stationCell,
-							$("<td>").addClass("text-end").text(stationTimes[s_id] === null ? "unbekannt" : Math.round(stationTimes[s_id] / 60)),
+							$("<td>").addClass("text-end").text(s_id in stationTimes ? stationTimes[s_id] === null ? "unbekannt" : Math.round(stationTimes[s_id] / 60) : ""),
 						]);
 					})
 				),
@@ -1146,7 +1167,7 @@ function _openExamineeModal(e_id) {
 					]),
 					$("<tr>").toggle(missingStations.length > 0).append([
 						$("<th>").text("Gesamt"),
-						$("<th>").addClass("text-end").text(Math.round(missingStations.reduce((sum, s_id) => sum + (stationTimes[s_id] === null ? 0 : stationTimes[s_id]), 0) / 60))
+						$("<th>").addClass("text-end").text(Math.round(missingStations.reduce((sum, s_id) => sum + (!(s_id in stationTimes) || stationTimes[s_id] === null ? 0 : stationTimes[s_id]), 0) / 60))
 					]),
 					$("<tr>").toggle(missingStations.length > 0).append([
 						$("<th>").text("Schätzung für Prüfling"),
@@ -1219,10 +1240,13 @@ function _openStationModal(s_id) {
 	var waitingExaminees = [];
 	var lockedExaminees = [];
 	var doneExaminees = [];
+	var skippedExaminees = [];
 
 	for (const [e_id, examinee] of Object.entries(data.examinees)) {
 		if ("locked" in examinee && (examinee.locked == -1 || examinee.locked > socket.time())) {
 			lockedExaminees.push(e_id);
+		} else if ("skip_stations" in examinee && examinee.skip_stations.indexOf(s_id) >= 0) {
+			skippedExaminees.push(e_id);
 		} else {
 			waitingExaminees.push(e_id);
 		}
@@ -1232,10 +1256,16 @@ function _openStationModal(s_id) {
 		const assignment = data.assignments[a_id];
 
 		if (assignment.result == "open") {
+			var _i = skippedExaminees.indexOf(assignment.examinee);
+			if (_i >= 0) {
+				skippedExaminees.splice(_i, 1);
+			}
+
 			var _i = waitingExaminees.indexOf(assignment.examinee);
 			if (_i >= 0) {
 				waitingExaminees.splice(_i, 1);
 			}
+
 			if (assignment.station == s_id) {
 				currentExaminees.push(assignment.examinee);
 			} else {
@@ -1260,6 +1290,11 @@ function _openStationModal(s_id) {
 
 	// Filter out completed
 	for (const doneExaminee of doneExaminees) {
+		var _i = skippedExaminees.indexOf(doneExaminee);
+		if (_i >= 0) {
+			skippedExaminees.splice(_i, 1);
+		}
+
 		var _i = waitingExaminees.indexOf(doneExaminee);
 		if (_i >= 0) {
 			waitingExaminees.splice(_i, 1);
@@ -1364,6 +1399,7 @@ function _openStationModal(s_id) {
 		[waitingExaminees, "danger", "Im Bereitstellungsraum verfügbar"],
 		[otherStationExaminees, "secondary", "Aktuell an anderen Stationen"],
 		[lockedExaminees, "secondary", "Für Zuteilung gesperrt"],
+		[skippedExaminees, "dark", "Künstliche Teilnahme"],
 	];
 
 	tab.addPanel("Offen").panel.append(
@@ -1382,7 +1418,7 @@ function _openStationModal(s_id) {
 					])))
 					.append(_examinees.map(_buildExamineeCell));
 			}))
-			.append($("<div>").toggle((lockedExaminees.length + waitingExaminees.length + currentExaminees.length + otherStationExaminees.length) == 0).text("(Keine Prüflinge mehr offen)"))
+			.append($("<div>").toggle(openEntries.reduce((_carry, _kv) => _carry + _kv[0].length, 0) == 0).text("(Keine Prüflinge mehr offen)"))
 	);
 
 	tab.addPanel("Historie").panel.append(
@@ -1644,10 +1680,13 @@ function _generateStation(i) {
 			modal.close();
 		}
 
-		// Find valid examinees (which must not be locked) and sort by priorities
+		// Find valid examinees (which must not be locked and not skip this station) and sort by priorities
 		var examinees = [];
 		for (const examinee_kv of Object.entries(data.examinees)) {
 			if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > socket.time())) {
+				continue;
+			}
+			if ("skip_stations" in examinee_kv[1] && examinee_kv[1].skip_stations.indexOf(i) >= 0) {
 				continue;
 			}
 			examinees.push(examinee_kv[0]);
@@ -1806,8 +1845,16 @@ function _generateStation(i) {
 
 	var examinees = [];
 	var activeExaminers = [];
+	var totalExaminees = Object.keys(data.examinees);
 	for (const examinee_kv of Object.entries(data.examinees)) {
 		if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > socket.time())) {
+			continue;
+		}
+		if ("skip_stations" in examinee_kv[1] && examinee_kv[1].skip_stations.indexOf(i) >= 0) {
+			var _i = totalExaminees.indexOf(examinee_kv[0]);
+			if (_i >= 0) {
+				totalExaminees.splice(_i, 1);
+			}
 			continue;
 		}
 		examinees.push(examinee_kv[0]);
@@ -1841,10 +1888,10 @@ function _generateStation(i) {
 
 	var end = null;
 	if (!i.startsWith("_") && examineesDone.length > 0) {
-		if (examineesDone.length == Object.keys(data.examinees).length) {
+		if (examineesDone.length >= totalExaminees.length) {
 			end = lastFinishedAssignment;
 		} else if (lastStartedAssignment !== null && activeExaminers.length > 0) {
-			end = lastStartedAssignment + Object.keys(data.examinees).reduce(function (carry, e_id) {
+			end = lastStartedAssignment + totalExaminees.reduce(function (carry, e_id) {
 				// Ignore examinees which completed this station
 				if (examineesDone.indexOf(e_id) >= 0) {
 					return carry;
@@ -1877,14 +1924,18 @@ function _generateStation(i) {
 			}),
 			$("<ul>").addClass(["list-group", "list-group-flush", "examinees"]).append([
 				$("<li>").addClass("list-group-item").append(
-					$("<div>").addClass(["progress"]).append(Object.keys(data.examinees).length == 0 ? [
+					$("<div>").addClass(["progress"]).append(totalExaminees.length == 0 ? [
 						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", "100%").text(""),
 					] : [
-						$("<div>").addClass(["progress-bar", "bg-success"]).css("width", (examineesDone.length / Object.keys(data.examinees).length) * 100 + "%").text(examineesDone.length > 0 ? examineesDone.length : ""),
-						$("<div>").addClass(["progress-bar", "bg-primary"]).css("width", (assignments.length / Object.keys(data.examinees).length) * 100 + "%").text(assignments.length > 0 ? assignments.length : ""),
-						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", (examinees.length / Object.keys(data.examinees).length) * 100 + "%").text(examinees.length > 0 ? examinees.length : ""),
-						$("<div>").addClass(["progress-bar", "bg-secondary"]).css("width", ((Object.keys(data.examinees).length - examineesDone.length - assignments.length - examinees.length) / Object.keys(data.examinees).length) * 100 + "%").text(Object.keys(data.examinees).length > examineesDone.length + assignments.length + examinees.length ? Object.keys(data.examinees).length - examineesDone.length - assignments.length - examinees.length : ""),
-					])
+						[examineesDone.length, "success"],
+						[assignments.length, "primary"],
+						[examinees.length, "danger"],
+						[totalExaminees.length - examineesDone.length - assignments.length - examinees.length, "secondary"],
+					].map(function (_kv) {
+						var _count = _kv[0];
+						var _bootstrapColor = _kv[1];
+						return $("<div>").addClass(["progress-bar", "bg-" + _bootstrapColor]).css("width", (_count / totalExaminees.length) * 100 + "%").text(_count > 0 ? _count : "");
+					}))
 				),
 				$("<li>").addClass("list-group-item").toggle(!i.startsWith("_")).append([
 					$("<span>").addClass(["float-end", "abschluss-value"]).data("timestamp", end).text(end === null ? "unbekannt" : formatTimestamp(end)),

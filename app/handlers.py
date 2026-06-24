@@ -408,7 +408,7 @@ class MessageHandler(BroadcastWebSocketHandler):
             allowlist = {
                 "station": ["i", "name"],
                 "station_delete": ["i"],
-                "examinee": ["i", "name", "flags"],
+                "examinee": ["i", "name", "flags", "skip_stations"],
                 "examinee_delete": ["i"],
                 "examiner": ["name", "station", "examinee_requests"],
                 "assignment": ["i", "result", "examinee", "examiner", "station", "start"],
@@ -442,7 +442,7 @@ class MessageHandler(BroadcastWebSocketHandler):
             filters = {
                 "serie_id": lambda _out: None,
                 "stations": partial(filter_dict, ["name"]),
-                "examinees": partial(filter_dict, ["name", "flags"]),
+                "examinees": partial(filter_dict, ["name", "flags", "skip_stations"]),
                 "examiners": lambda examiners: {k: v for k, v in examiners.items() if k == user_name},
                 "assignments": partial(filter_dict, ["name", "result", "examinee", "examiner", "station", "start"]),
             }
@@ -487,25 +487,32 @@ class MessageHandler(BroadcastWebSocketHandler):
         self.state.save()
         self.broadcast(msg, {"_m": "station_delete", "i": i})
 
+    @contextmanager
+    def _update_examinee(self, msg, i):
+        examinee = self.state.examinees.get(i, {})
+        try:
+            yield examinee
+        finally:
+            self.state.examinees[i] = examinee
+            self.state.save()
+            self.broadcast(msg, {"_m": "examinee", "i": i, **examinee})
+
     def process_examinee(self, msg):
         if self.current_user.get("role", "") != "admin":
             self.reply(msg, {"_m": "unauthorized"})
             return
 
-        i = msg.get("i")
         locked = int(msg.get("locked", "0"))
         if locked > 0:
             locked = time.time() + locked * 60
 
-        self.state.examinees[i] = {
-            **self.state.examinees.get(i, {}),
-            "name": msg.get("name"),
-            "priority": int(msg.get("priority")),
-            "flags": msg.get("flags", []),
-            "locked": locked,
-        }
-        self.state.save()
-        self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
+        with self._update_examinee(msg, msg.get("i")) as examinee:
+            examinee.update({
+                "name": msg.get("name"),
+                "priority": int(msg.get("priority")),
+                "flags": msg.get("flags", []),
+                "locked": locked,
+            })
 
     def process_examinee_delete(self, msg):
         if self.current_user.get("role", "") != "admin":
@@ -529,19 +536,37 @@ class MessageHandler(BroadcastWebSocketHandler):
         locked = int(msg.get("locked", "0"))
         if locked > 0:
             locked = time.time() + locked * 60
-        self.state.examinees.get(i, {}).update({"locked": locked})
-        self.state.save()
-        self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
+
+        with self._update_examinee(msg, msg.get("i")) as examinee:
+            examinee["locked"] = locked
+
+    def process_examinee_skip_station_add(self, msg):
+        if self.current_user.get("role", "") != "operator":
+            self.reply(msg, {"_m": "unauthorized"})
+            return
+
+        with self._update_examinee(msg, msg.get("i")) as examinee:
+            skip_stations = examinee.get("skip_stations", [])
+            examinee["skip_stations"] = list(set(skip_stations) | {msg.get("station", "")})
+
+    def process_examinee_skip_station_delete(self, msg):
+        if self.current_user.get("role", "") != "operator":
+            self.reply(msg, {"_m": "unauthorized"})
+            return
+
+        with self._update_examinee(msg, msg.get("i")) as examinee:
+            skip_stations = examinee.get("skip_stations", [])
+            with suppress(ValueError):
+                skip_stations.remove(msg.get("station", ""))
+            examinee["skip_stations"] = skip_stations
 
     def process_examinee_flags(self, msg):
         if self.current_user.get("role", "") != "operator":
             self.reply(msg, {"_m": "unauthorized"})
             return
 
-        i = msg.get("i")
-        self.state.examinees.get(i, {}).update({"flags": msg["flags"]})
-        self.state.save()
-        self.broadcast(msg, {"_m": "examinee", "i": i, **self.state.examinees[i]})
+        with self._update_examinee(msg, msg.get("i")) as examinee:
+            examinee["flags"] = msg.get("flags", [])
 
     def process_assign(self, msg):
         if self.current_user.get("role", "") != "operator":
