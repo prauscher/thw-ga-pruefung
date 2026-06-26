@@ -56,9 +56,9 @@ function ReliableWebSocket(options) {
 		);
 	}
 
-	// Retry send_queue constantly
+	// Retry send_queue constantly, but avoid spamming by only resending up to 3 messages each
 	window.setInterval(function () {
-		for (var i in send_queue) {
+		for (var i = 0; i < Math.min(3, send_queue.length); i++) {
 			_send(send_queue[i]);
 		}
 	}, 5000);
@@ -198,9 +198,11 @@ function ReliableWebSocket(options) {
 				if (snr_delta == 1) {
 					// Everything is good, we are not missing anything
 					last_snr = data._snr;
-				} else if (snr_delta <= (0xffff + 1) / 4) {
-					// We miss some messages, but can still be certain that no overflow happened, so we ask for retransmission
-					_send({"_m": "_fetch", "since_snr": last_snr})
+				} else if (snr_delta <= (0xffff + 1) * 0.25) {
+					// We miss some messages, but can still be certain that no overflow happened, so we ask for retransmission (only once!)
+					if (send_queue.filter((msg) => msg._m == "_fetch" && msg.since_snr >= last_snr).length <= 0) {
+						_send({"_m": "_fetch", "since_snr": last_snr})
+					}
 					return;
 				} else if (snr_delta >= (0xffff + 1) * 0.9) {
 					// Messages are quite new, so we suspect a retransmission
