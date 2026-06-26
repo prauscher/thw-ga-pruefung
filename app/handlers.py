@@ -423,7 +423,7 @@ class MessageHandler(BroadcastWebSocketHandler):
             allowlist = {
                 "station": ["i", "name"],
                 "station_delete": ["i"],
-                "examinee": ["i", "name", "flags", "skip_stations"],
+                "examinee": ["i", "name", "note", "skip_stations"],
                 "examinee_delete": ["i"],
                 "examiner": ["name", "station", "examinee_requests"],
                 "assignment": ["i", "result", "examinee", "examiner", "station", "start"],
@@ -455,7 +455,7 @@ class MessageHandler(BroadcastWebSocketHandler):
             filters = {
                 "serie_id": lambda _out: None,
                 "stations": partial(filter_dict, ["name"]),
-                "examinees": partial(filter_dict, ["name", "flags", "skip_stations"]),
+                "examinees": partial(filter_dict, ["name", "note", "skip_stations"]),
                 "examiners": lambda examiners: {k: v for k, v in examiners.items() if k == user_name},
                 "assignments": partial(filter_dict, ["name", "result", "examinee", "examiner", "station", "start"]),
             }
@@ -510,6 +510,7 @@ class MessageHandler(BroadcastWebSocketHandler):
         with self._update_examinee(msg, msg.get("i")) as examinee:
             examinee.update({
                 "name": msg.get("name"),
+                "note": msg.get("note", ""),
                 "priority": int(msg.get("priority")),
                 "flags": msg.get("flags", []),
                 "locked": locked,
