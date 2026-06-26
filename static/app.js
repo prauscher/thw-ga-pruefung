@@ -1744,8 +1744,6 @@ function _generateStation(i) {
 			}
 			examinees.push(examinee_kv[0]);
 		}
-		var openSlots = [];
-		var activeExaminers = getStationActiveExaminers(i);
 
 		var examineeFixedStationsDone = Object.fromEntries(examinees.map((e_id) => [e_id, []]));
 		for (var assignment of Object.values(data.assignments)) {
@@ -1768,7 +1766,8 @@ function _generateStation(i) {
 				}
 			}
 		}
-		// Add active examiners
+		// Add open slots
+		var openSlots = [];
 		for (var examiner_kv of Object.entries(data.examiners)) {
 			if (examiner_kv[1].station != i) {
 				continue;
@@ -1803,6 +1802,9 @@ function _generateStation(i) {
 			}
 			return examinee_priorities[b] - examinee_priorities[a];
 		});
+
+		// find active examiners
+		var activeExaminers = getStationActiveExaminers(i);
 
 		modal.elem.find(".modal-body").append($("<p>").addClass("fw-bold").text("Station " + name));
 		if (i.startsWith("_")) {
