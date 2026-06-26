@@ -417,6 +417,9 @@ class MessageHandler(BroadcastWebSocketHandler):
             if msg.get("_m", "").startswith("_"):
                 return msg
 
+            # make sure we always transmit _cid to avoid retransmission later
+            admin_fields = {k: v for k, v in msg.items() if k.startswith("_")}
+
             allowlist = {
                 "station": ["i", "name"],
                 "station_delete": ["i"],
@@ -428,17 +431,15 @@ class MessageHandler(BroadcastWebSocketHandler):
 
             # only show our data
             if msg.get("_m") == "examiner" and msg.get("name") != self.current_user.get("name"):
-                return {"_m": "_redacted"}
+                return {**admin_fields, "_m": "_redacted"}
 
             # only allow known messages
             allowed = allowlist.get(msg.get("_m"))
             if allowed is None:
-                return {"_m": "_redacted"}
+                return {**admin_fields, "_m": "_redacted"}
 
             # always leave administrative attributes like _m and _cid alone
-            return {k: v
-                    for k, v in msg.items()
-                    if k.startswith("_") or k in allowed}
+            return {**admin_fields, **{k: v for k, v in msg.items() if k in allowed}}
 
         return super().format_message(msg)
 
