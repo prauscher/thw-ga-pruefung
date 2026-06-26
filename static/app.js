@@ -1725,9 +1725,17 @@ function _generateStation(i) {
 			modal.close();
 		}
 
+		var stationsMissingExaminees = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, Object.keys(data.examinees)]));
+
 		// Find valid examinees (which must not be locked and not skip this station) and sort by priorities
 		var examinees = [];
 		for (const examinee_kv of Object.entries(data.examinees)) {
+			for (const skipped_s_id of (examinee_kv[1].skip_stations || [])) {
+				var _i = stationsMissingExaminees[skipped_s_id].indexOf(examinee_kv[0]);
+				if (_i >= 0) {
+					stationsMissingExaminees[skipped_s_id].splice(_i, 1);
+				}
+			}
 			if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > socket.time())) {
 				continue;
 			}
@@ -1738,11 +1746,21 @@ function _generateStation(i) {
 		}
 		var openSlots = [];
 		var activeExaminers = getStationActiveExaminers(i);
+
 		var examineeFixedStationsDone = Object.fromEntries(examinees.map((e_id) => [e_id, []]));
 		for (var assignment of Object.values(data.assignments)) {
+			// Gather data for later priorization of examinees
+			if (assignment.result == "done" || assignment.result == "open") {
+				var _i = stationsMissingExaminees[assignment.station].indexOf(assignment.examinee);
+				if (_i >= 0) {
+					stationsMissingExaminees[assignment.station].splice(_i, 1);
+				}
+			}
+
 			if (assignment.result == "done" && assignment.station.startsWith("_")) {
 				examineeFixedStationsDone[assignment.examinee].push(assignment.station);
 			}
+			// Remove examinees who already have visited this station or are currently not available
 			if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
 				var _i = examinees.indexOf(assignment.examinee);
 				if (_i >= 0) {
@@ -1762,13 +1780,24 @@ function _generateStation(i) {
 			}
 		}
 		openSlots.sort(function (a, b) {return a.request_time - b.request_time;});
+
+		// Regular priorities (estimate remaining time)
 		var examinee_priorities = Object.fromEntries(examinees.map(function (e_id) {
 			return [
 				e_id,
 				data.examinees[e_id].priority + (Examinee.calculateRemainingTime(e_id) / 60) + Math.random()
 			];
 		}));
+
+		// "value" of an examinee is equivalent to the number of stations the examinee must still attend (excluding our current) with less than 5 remaining examinees
+		var examineeValues = Object.fromEntries(Object.keys(data.examinees).map((e_id) => [e_id, Object.entries(stationsMissingExaminees).filter(([missing_s_id, missing_examinees]) => (missing_s_id != i && missing_examinees.length <= 5 && missing_examinees.includes(e_id))).length ]));
+
 		examinees.sort(function (a, b) {
+			var deltaValue = examineeValues[b] - examineeValues[a];
+			if (deltaValue != 0) {
+				return deltaValue;
+			}
+
 			if (examineeFixedStationsDone[a].length != examineeFixedStationsDone[b].length) {
 				return examineeFixedStationsDone[b].length - examineeFixedStationsDone[a].length;
 			}
