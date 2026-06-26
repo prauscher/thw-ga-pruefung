@@ -1805,6 +1805,27 @@ function _generateStation(i) {
 
 		// find active examiners
 		var activeExaminers = getStationActiveExaminers(i);
+		var activeExaminerOVs = [];
+		for (const activeExaminer of activeExaminers) {
+			const activeExaminerOV = activeExaminer.split(" ")[0];
+			if (activeExaminerOVs.indexOf(activeExaminerOV) < 0) {
+				activeExaminerOVs.push(activeExaminerOV);
+			}
+		}
+
+		// If we have examiners from different ovs, try to avoid the same ov for examiner and examinee in assignment
+		if (activeExaminerOVs.length > 1) {
+			// Check proposed assignments and swap examinee with first examinee of different ov than examiner
+			for (var _j = 0; _j < Math.min(examinees.length, openSlots.length); _j++) {
+				_k = _j;
+				while (_k < examinees.length && data.examinees[examinees[_k]].name.split(" ")[0] == openSlots[_j].examiner.split(" ")[0]) {
+					_k++;
+				}
+				if (_k != _j && _k < examinees.length) {
+					[examinees[_j], examinees[_k]] = [examinees[_k], examinees[_j]];
+				}
+			}
+		}
 
 		modal.elem.find(".modal-body").append($("<p>").addClass("fw-bold").text("Station " + name));
 		if (i.startsWith("_")) {
