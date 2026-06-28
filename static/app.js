@@ -2134,7 +2134,9 @@ function _generateStation(i) {
 			continue;
 		}
 
-		activeExaminers.push(examiner_kv[0]);
+		if (activeExaminers.indexOf(examiner_kv[0]) < 0) {
+			activeExaminers.push(examiner_kv[0]);
+		}
 
 		if (!(examiner_kv[0] in examinerNodes)) {
 			examinerNodes[examiner_kv[0]] = [];
@@ -2188,7 +2190,7 @@ function _generateStation(i) {
 				}
 
 				var factors = [];
-					for (const _s_id of Object.keys(data.stations)) {
+				for (const _s_id of Object.keys(data.stations)) {
 					if (ownTimes[e_id][_s_id] !== null && stationTimes[_s_id] !== null) {
 						factors.push(ownTimes[e_id][_s_id] / stationTimes[_s_id]);
 					}
