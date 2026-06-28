@@ -1089,7 +1089,10 @@ function _openExamineeModal(e_id) {
 					_openAssignmentModal(assignment.i);
 				}),
 			),
-			$("<td>").text("examiner" in assignment ? assignment.examiner : ""),
+			$("<td>").append(!("examiner" in assignment) ? [] : $("<a>").attr("href", "#").text(assignment.examiner).click(function (e) {
+				e.preventDefault();
+				_openExaminerModal(assignment.examiner);
+			})),
 			$("<td>").addClass("text-end").text(Math.round((assignment.start - oldNow) / 60)),
 			$("<td>").addClass("text-end").append(durationContent),
 		]));
