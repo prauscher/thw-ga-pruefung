@@ -1268,6 +1268,7 @@ function _openStationModal(s_id) {
 
 	var examineeTimes = Object.fromEntries(Object.keys(data.examinees).map((_e_id) => [_e_id, Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, null]))]));
 	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, []]));
+	var examinerTimes = {};
 	var otherStationExaminees = [];
 	var waitingExaminees = [];
 	var lockedExaminees = [];
@@ -1308,6 +1309,12 @@ function _openStationModal(s_id) {
 		if (assignment.result == "done" && !assignment.station.startsWith("_")) {
 			examineeTimes[assignment.examinee][assignment.station] = assignment;
 			stationTimes[assignment.station].push(assignment.end - assignment.start);
+			if (assignment.station == s_id) {
+				if (!(assignment.examiner in examinerTimes)) {
+					examinerTimes[assignment.examiner] = [];
+				}
+				examinerTimes[assignment.examiner].push(assignment.end - assignment.start);
+			}
 		}
 
 		if (assignment.station == s_id) {
@@ -1341,7 +1348,7 @@ function _openStationModal(s_id) {
 	stationTimes = Object.fromEntries(Object.entries(stationTimes).map(([_s_id, _times]) => [_s_id, _times.length == 0 ? null : _times.reduce((_c, _v) => _v + _c, 0) / _times.length]));
 
 	if (!s_id.startsWith("_")) {
-		var examinerTimes = {};
+		var chartExaminerTimes = {};
 		for (const e_id of Object.keys(examineeTimes)) {
 			const assignment = examineeTimes[e_id][s_id];
 			if (assignment === null) {
@@ -1363,27 +1370,27 @@ function _openStationModal(s_id) {
 				factor = (factors.reduce((_c, _v) => _v + _c, 0) / factors.length);
 			}
 
-			if (!(examiner in examinerTimes)) {
-				examinerTimes[examiner] = [];
+			if (!(examiner in chartExaminerTimes)) {
+				chartExaminerTimes[examiner] = [];
 			}
-			examinerTimes[examiner].push({"assignment": assignment, "duration": duration, "factor": factor});
+			chartExaminerTimes[examiner].push({"assignment": assignment, "duration": duration, "factor": factor});
 		}
 
 		var chartCanvas = $("<canvas>");
 		tab.addPanel("Dauer").panel.append([
 			$("<p>").addClass("mt-2").text("Die Übersicht zeigt alle an dieser Station abgeschlossenen Prüfungen. Dabei wird die tatsächliche Zeit in Minuten entlang der X-Achse und die relative Dauer des jeweiligen Prüflings über alle Stationen auf der Y-Achse angezeigt. Die Farbe zeigt den*die angegebenen Prüfer*in an."),
 			$("<div>").append([
-				chartCanvas.toggle(Object.keys(examinerTimes).length > 0),
-				$("<p>").text("Bisher stehen keine Daten zur Verfügung.").toggle(Object.keys(examinerTimes).length == 0),
+				chartCanvas.toggle(Object.keys(chartExaminerTimes).length > 0),
+				$("<p>").text("Bisher stehen keine Daten zur Verfügung.").toggle(Object.keys(chartExaminerTimes).length == 0),
 			]),
 		]);
 
 		var chart = new Chart(chartCanvas, {
 			"type": "scatter",
 			"data": {
-				"datasets": Object.keys(examinerTimes).map((examiner) => ({
+				"datasets": Object.entries(chartExaminerTimes).map(([examiner, times]) => ({
 					"label": examiner,
-					"data": examinerTimes[examiner].map((data) => ({"x": data.duration, "y": data.factor, "_assignment": data.assignment})),
+					"data": times.map((data) => ({"x": data.duration, "y": data.factor, "_assignment": data.assignment})),
 				})),
 			},
 			"options": {
@@ -1497,9 +1504,24 @@ function _openStationModal(s_id) {
 				$("<tfoot>").append(
 					$("<tr>").toggle(assignments.length == 0).append(
 						$("<th>").attr("colspan", 3).text("(Leer)")
-					),
+					)
+				).append(s_id.startsWith("_") ? [] : Object.entries(examinerTimes).map(function ([e_name, times]) {
+					const duration = times.reduce((_c, _v) => _c + _v) / times.length;
+
+					var usage = duration / stationTimes[s_id];
+					var durationContent = [$("<span>").text(Math.round(duration / 60))];
+					durationContent.push($("<br>"));
+					durationContent.push($("<span>").toggleClass("text-danger", usage > 1).toggleClass("text-success", usage < 1).text((usage >= 1 ? "+" : "") + Math.round((usage - 1) * 100) + " %"));
+
+					return $("<tr>").append([
+						$("<th>").text("Durchschnitt"),
+						$("<th>").text(e_name),
+						$("<th>").addClass("text-end").append(durationContent),
+					]);
+				})).append(
 					$("<tr>").toggle(assignments.length > 0).append([
-						$("<th>").attr("colspan", 2).text("Durchschnitt"),
+						$("<th>").text("Durchschnitt"),
+						$("<th>").text("Gesamt"),
 						$("<th>").addClass("text-end").text(durationCount == 0 ? "unbekannt" : Math.round((durationSum / durationCount) / 60)),
 					])
 				),
