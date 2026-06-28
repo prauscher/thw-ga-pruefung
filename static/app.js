@@ -1037,9 +1037,7 @@ function _openExamineeModal(e_id) {
 			assignments.push({"i": a_id, ...assignment});
 		}
 	}
-	assignments.sort(function (a, b) {
-		return a.start - b.start;
-	});
+	assignments.sort((a, b) => a.start - b.start);
 	stationTimes = Object.fromEntries(Object.entries(stationTimes).map(([s_id, _times]) => [s_id, (_times.count > 0 ? _times.sum / _times.count : null)]));
 
 	var currentAssignmentText;
@@ -1666,7 +1664,7 @@ function _openExaminerModal(name) {
 	modal.elem.find(".modal-dialog").addClass("modal-lg");
 
 	var assignments = Object.keys(data.assignments).filter((a_id) => data.assignments[a_id].examiner == name);
-	assignments.sort((a, b) => data.assignments[b].start - data.assignments[a].start);
+	assignments.sort((a, b) => data.assignments[a].start - data.assignments[b].start);
 
 	var station_ids = Object.keys(data.stations);
 	station_ids.sort(function (a, b) {
