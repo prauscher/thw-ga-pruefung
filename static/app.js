@@ -1142,7 +1142,7 @@ function _openExamineeModal(e_id) {
 	modal.elem.find(".modal-body").append([
 		$("<p>").text(currentAssignmentText),
 		lockPanel.toggle(user && user.role == "operator"),
-		updateFlagsPanel.toggle(user && user.role == "operator"),
+		updateFlagsPanel.toggle(user && ["operator", "evaluator"].includes(user.role)),
 		$("<h5>").text("Offene Stationen"),
 		$("<div>").addClass("table-responsive").append(
 			$("<table>").addClass(["table", "table-striped"]).append([

@@ -550,7 +550,7 @@ class MessageHandler(BroadcastWebSocketHandler):
                 skip_stations.remove(msg.get("station", ""))
             examinee["skip_stations"] = skip_stations
 
-    @require_role("operator")
+    @require_role("operator", "evaluator")
     def process_examinee_flags(self, msg):
         with self._update_examinee(msg, msg.get("i")) as examinee:
             examinee["flags"] = msg.get("flags", [])
