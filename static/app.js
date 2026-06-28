@@ -1065,6 +1065,7 @@ function _openExamineeModal(e_id) {
 		if (assignment.result === "canceled") {
 			name = name + " (Abgebrochen)";
 		}
+
 		var duration = (assignment.end || socket.time()) - assignment.start;
 		var usage = 1.0;
 		if (!assignment.station.startsWith("_") && stationTimes[assignment.station] != null) {
@@ -1072,11 +1073,12 @@ function _openExamineeModal(e_id) {
 			sums.stations_with_avg += duration;
 			sums.avg_station += stationTimes[assignment.station];
 		}
-		var durationContent = [$("<span>").text(Math.round(duration / 60))];
+		var durationContent = [$("<span>").text((assignment.end === null ? "bisher " : "") + Math.round(duration / 60))];
 		if (assignment.result === "done" && !assignment.station.startsWith("_")) {
 			durationContent.push($("<br>"));
 			durationContent.push($("<span>").toggleClass("text-danger", usage > 1).toggleClass("text-success", usage < 1).text((usage >= 1 ? "+" : "") + Math.round((usage - 1) * 100) + " %"));
 		}
+
 		var oldNow = now;
 		now = assignment.end;
 		if (assignment.result === "open" && assignment.end !== null) {
@@ -1463,11 +1465,15 @@ function _openStationModal(s_id) {
 				),
 				$("<tbody>").append(
 					assignments.map(function (assignment) {
-						var duration = [];
-						if (assignment.end === null) {
-							duration.push($("<span>").text("bisher " + Math.round((socket.time() - assignment.start) / 60)));
-						} else {
-							duration.push($("<span>").text(Math.round((assignment.end - assignment.start) / 60)));
+						var duration = (assignment.end || socket.time()) - assignment.start;
+						var usage = 1.0;
+						if (!assignment.station.startsWith("_") && stationTimes[assignment.station] != null) {
+							usage = duration / stationTimes[assignment.station];
+						}
+						var durationContent = [$("<span>").text((assignment.end === null ? "bisher " : "") + Math.round(duration / 60))];
+						if (assignment.result === "done" && !assignment.station.startsWith("_")) {
+							durationContent.push($("<br>"));
+							durationContent.push($("<span>").toggleClass("text-danger", usage > 1).toggleClass("text-success", usage < 1).text((usage >= 1 ? "+" : "") + Math.round((usage - 1) * 100) + " %"));
 						}
 
 						var name = $("<span>").append(
@@ -1484,7 +1490,7 @@ function _openStationModal(s_id) {
 						return $("<tr>").toggleClass("fw-bold", assignment.result == "open").append([
 							$("<td>").append(name),
 							$("<td>").append("examiner" in assignment ? assignment.examiner : ""),
-							$("<td>").addClass("text-end").append(duration)
+							$("<td>").addClass("text-end").append(durationContent)
 						]);
 					})
 				),
@@ -1668,7 +1674,19 @@ function _openExaminerModal(name) {
 	var modal = new Modal("Prüfer*in " + name);
 	modal.elem.find(".modal-dialog").addClass("modal-lg");
 
-	var assignments = Object.keys(data.assignments).filter((a_id) => data.assignments[a_id].examiner == name);
+	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, []]));
+	var assignments = [];
+
+	for (const [a_id, assignment] of Object.entries(data.assignments)) {
+		if (assignment.examiner == name) {
+			assignments.push(a_id);
+		}
+		if (assignment.result == "done" && assignment.end !== null && !assignment.station.startsWith("_")) {
+			stationTimes[assignment.station].push(assignment.end - assignment.start);
+		}
+	}
+
+	stationTimes = Object.fromEntries(Object.entries(stationTimes).map(([_s_id, _times]) => [_s_id, _times.length == 0 ? null : _times.reduce((_c, _v) => _v + _c, 0) / _times.length]));
 	assignments.sort((a, b) => data.assignments[a].start - data.assignments[b].start);
 
 	var station_ids = Object.keys(data.stations);
@@ -1750,6 +1768,17 @@ function _openExaminerModal(name) {
 							assignmentDurations[assignment.station].push(assignment.end - assignment.start);
 						}
 
+						var duration = (assignment.end || socket.time()) - assignment.start;
+						var usage = 1.0;
+						if (!assignment.station.startsWith("_") && stationTimes[assignment.station] != null) {
+							usage = duration / stationTimes[assignment.station];
+						}
+						var durationContent = [$("<span>").text((assignment.end === null ? "bisher " : "") + Math.round(duration / 60))];
+						if (assignment.result === "done" && !assignment.station.startsWith("_")) {
+							durationContent.push($("<br>"));
+							durationContent.push($("<span>").toggleClass("text-danger", usage > 1).toggleClass("text-success", usage < 1).text((usage >= 1 ? "+" : "") + Math.round((usage - 1) * 100) + " %"));
+						}
+
 						var name = data.examinees[assignment.examinee].name;
 						if (assignment.result === "canceled") {
 							name = name + " (Abgebrochen)";
@@ -1768,21 +1797,28 @@ function _openExaminerModal(name) {
 									_openStationModal(assignment.station);
 								})
 							),
-							$("<td>").addClass("text-end").text(assignment.end === null ? "bisher " + Math.round((socket.time() - assignment.start) / 60) : Math.round((assignment.end - assignment.start) / 60)),
+							$("<td>").addClass("text-end").append(durationContent),
 						]);
 					})
 				),
 				$("<tfoot>").append([
 					$("<tr>").toggle(Object.keys(assignmentDurations).length == 0).append($("<th>").attr("colspan", 3).text("(bisher keine Prüfung abgeschlossen)")),
 				]).append(
-					Object.entries(assignmentDurations).map(function (dur_kv) {
-						const s_id = dur_kv[0];
-						const durations = dur_kv[1];
+					Object.entries(assignmentDurations).map(function ([s_id, durations]) {
+						const duration = durations.reduce((_c, _v) => _c + _v) / durations.length;
+
+						var usage = 1.0;
+						if (stationTimes[s_id] != null) {
+							usage = duration / stationTimes[s_id];
+						}
+						var durationContent = [$("<span>").text(Math.round(duration / 60))];
+						durationContent.push($("<br>"));
+						durationContent.push($("<span>").toggleClass("text-danger", usage > 1).toggleClass("text-success", usage < 1).text((usage >= 1 ? "+" : "") + Math.round((usage - 1) * 100) + " %"));
 
 						return $("<tr>").append([
 							$("<th>").text("Durchschnitt"),
 							$("<th>").text(data.stations[s_id].name),
-							$("<th>").addClass("text-end").text(durations.length == 0 ? "unbekannt" : Math.round((durations.reduce((_c, _v) => _c + _v) / durations.length) / 60)),
+							$("<th>").addClass("text-end").append(durationContent),
 						]);
 					})
 				),
