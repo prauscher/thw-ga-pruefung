@@ -15,6 +15,11 @@ function event2text(event) {
 	return JSON.stringify(event);
 }
 
+function formatTime(timestamp) {
+	var date = new Date(timestamp * 1000);
+	return (date.getHours() < 10 ? "0" : "") + date.getHours() + ":" + (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
+}
+
 function ReliableWebSocket(options) {
 	var speed = 20;
 	var paused = true;
@@ -43,10 +48,7 @@ function ReliableWebSocket(options) {
 					"x": {
 						"type": "linear",
 						"ticks": {
-							"callback": function (value, index, ticks) {
-								var date = new Date(value * 1000);
-								return (date.getHours() < 10 ? "0" : "") + date.getHours() + ":" + (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
-							},
+							"callback": (value, index, ticks) => formatTime(value),
 						},
 					},
 					"y": {
@@ -64,7 +66,8 @@ function ReliableWebSocket(options) {
 				"plugins": {
 					"tooltip": {
 						"callbacks": {
-							"label": (context) => (context.dataset.label || "") + ": " + context.dataset.data[context.dataIndex].y + " / " + event2text(context.dataset.data[context.dataIndex].event),
+							"title": (contexts) => contexts.map((context) => formatTime(context.dataset.data[context.dataIndex].x) + " / " + event2text(context.dataset.data[context.dataIndex].event)),
+							"label": (context) => context.dataset.label + ": " + Math.round(context.dataset.data[context.dataIndex].y * 100) / 100,
 						},
 					},
 				},
