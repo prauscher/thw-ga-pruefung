@@ -2177,11 +2177,15 @@ function _generateStation(i) {
 	}
 
 	var end = null;
+	var end_data = {"method": "no_data"};
 	if (!i.startsWith("_") && examineesDone.length > 0) {
 		if (examineesDone.length >= totalExaminees.length) {
 			end = lastFinishedAssignment;
+			end_data["method"] = "finished";
 		} else if (lastStartedAssignment !== null && activeExaminers.length > 0) {
-			end = lastStartedAssignment + totalExaminees.reduce(function (carry, e_id) {
+			end_data["method"] = "estimate";
+
+			var factor = totalExaminees.reduce(function (carry, e_id) {
 				// Ignore examinees which completed this station
 				if (examineesDone.indexOf(e_id) >= 0) {
 					return carry;
@@ -2199,7 +2203,16 @@ function _generateStation(i) {
 					factor = (factors.reduce((_c, _v) => _v + _c, 0) / factors.length);
 				}
 				return carry + factor;
-			}, 0) * stationTimes[i] / activeExaminers.length;
+			}, 0);
+
+			end_data["lastStartedAssignment"] = lastStartedAssignment;
+			end_data["totalExamineesCount"] = totalExaminees.length;
+			end_data["examineesDoneCount"] = examineesDone.length;
+			end_data["factor"] = factor;
+			end_data["stationTime"] = stationTimes[i];
+			end_data["activeExaminersCount"] = activeExaminers.length;
+
+			end = lastStartedAssignment + factor * stationTimes[i] / activeExaminers.length;
 		}
 	}
 
@@ -2224,7 +2237,7 @@ function _generateStation(i) {
 					}))
 				),
 				$("<li>").addClass("list-group-item").toggle(!i.startsWith("_")).append([
-					$("<span>").addClass(["float-end", "abschluss-value"]).data("timestamp", end).text(end === null ? "unbekannt" : formatTimestamp(end)),
+					$("<span>").addClass(["float-end", "abschluss-value"]).data("timestamp_calc", end_data).data("timestamp", end).text(end === null ? "unbekannt" : formatTimestamp(end)),
 					$("<span>").text("Abschluss"),
 				]),
 			]).append(entryNodes),

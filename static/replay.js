@@ -23,33 +23,9 @@ function ReliableWebSocket(options) {
 
 	var stationEstimates = {};
 
-	var playButton = $("<button>").addClass(["btn", "me-2", paused ? "btn-secondary" : "btn-outline-secondary"]).text("Play / Pause").click(function () {
-		paused = !paused;
-		$(this).toggleClass("btn-secondary", !paused);
-		$(this).toggleClass("btn-outline-secondary", paused);
-
-	});
-	var timestampLabel = $("<span>");
-	var estimateChartButton = $("<button>").addClass(["btn", "ms-2", "btn-secondary"]).text("Schätzungen").click(function () {
-		var modal = new Modal("Schätzungsübersicht");
-		modal.elem.find(".modal-dialog").addClass("modal-xl");
-
+	function buildChart(datasets) {
 		var chartCanvas = $("<canvas>");
-		modal.elem.find(".modal-body").append([
-			$("<div>").append(chartCanvas),
-		]);
-		var datasets = Object.entries(stationEstimates).map(function (entry) {
-			const validEstimates = entry[1].filter((estimate) => estimate.estimate != null);
-			return {
-				"label": data.stations[entry[0]].name,
-				"data": validEstimates.map((estimate) => ({
-					"x": estimate.timestamp,
-					"y": (estimate.estimate - validEstimates[validEstimates.length - 1].estimate) / 3600,
-					"event": estimate.event,
-				})),
-				"stepped": "before",
-			};
-		});
+
 		datasets.sort(function (a, b) {
 			let _a = a.label.toLowerCase();
 			let _b = b.label.toLowerCase();
@@ -73,22 +49,115 @@ function ReliableWebSocket(options) {
 							},
 						},
 					},
+					"y": {
+						"type": "linear",
+						"position": "left",
+					},
+					"y2": {
+						"type": "linear",
+						"position": "right",
+						"grid": {
+							"drawOnChartArea": false,
+						},
+					},
 				},
 				"plugins": {
 					"tooltip": {
 						"callbacks": {
-							"label": function (context) {
-								let label = context.dataset.label || "";
-								if (context.dataIndex) {
-									label = label + " " + event2text(context.dataset.data[context.dataIndex].event);
-								}
-								return label;
-							},
+							"label": (context) => (context.dataset.label || "") + ": " + context.dataset.data[context.dataIndex].y + " / " + event2text(context.dataset.data[context.dataIndex].event),
 						},
 					},
 				},
 			},
 		});
+
+		return $("<div>").append(chartCanvas);
+	}
+
+	var playButton = $("<button>").addClass(["btn", "me-2", paused ? "btn-secondary" : "btn-outline-secondary"]).text("Play / Pause").click(function () {
+		paused = !paused;
+		$(this).toggleClass("btn-secondary", !paused);
+		$(this).toggleClass("btn-outline-secondary", paused);
+
+	});
+	var timestampLabel = $("<span>");
+	var estimateChartButton = $("<button>").addClass(["btn", "ms-2", "btn-secondary"]).text("Schätzungen").click(function () {
+		var modal = new Modal("Schätzungsübersicht");
+		modal.elem.find(".modal-dialog").addClass("modal-xl");
+
+		var tab = new Tab();
+		modal.elem.find(".modal-body").append(tab.elem);
+
+		var datasets = Object.entries(stationEstimates).map(function (entry) {
+			const validEstimates = entry[1].filter((estimate) => estimate.estimate != null);
+			return {
+				"label": data.stations[entry[0]].name,
+				"data": validEstimates.map((estimate) => ({
+					"x": estimate.timestamp,
+					"y": (estimate.estimate - validEstimates[validEstimates.length - 1].estimate) / 3600,
+					"event": estimate.event,
+				})),
+				"stepped": "before",
+			};
+		});
+		tab.addPanel("Gesamt").panel.append(buildChart(datasets));
+
+		var tabDatas = Object.entries(stationEstimates);
+		tabDatas.sort(([a_id, a_estimates], [b_id, b_estimates]) => (data.stations[a_id].name < data.stations[b_id].name) ? -1 : 1);
+
+		for (const [s_id, estimates] of tabDatas) {
+			const validEstimates = estimates.filter((estimate) => estimate.estimate != null && estimate.event.station == s_id);
+
+			tab.addPanel(data.stations[s_id].name).panel.append(buildChart([
+				{
+					"label": "Abweichung Schätzung [h]",
+					"yAxisID": "y2",
+					"data": validEstimates.map((estimate) => ({
+						"x": estimate.timestamp,
+						"y": (estimate.estimate - validEstimates[validEstimates.length - 1].estimate) / 3600,
+						"event": estimate.event,
+					})),
+					"stepped": "before",
+				},
+				{
+					"label": "Anzahl Prüfer*innen",
+					"data": validEstimates.map((estimate) => ({
+						"x": estimate.timestamp,
+						"y": estimate.calc.activeExaminersCount,
+						"event": estimate.event,
+					})),
+					"stepped": "before",
+				},
+				{
+					"label": "Anzahl offener Prüflinge",
+					"data": validEstimates.map((estimate) => ({
+						"x": estimate.timestamp,
+						"y": estimate.calc.totalExamineesCount - estimate.calc.examineesDoneCount,
+						"event": estimate.event,
+					})),
+					"stepped": "before",
+				},
+				{
+					"label": "Faktor",
+					"data": validEstimates.map((estimate) => ({
+						"x": estimate.timestamp,
+						"y": estimate.calc.factor,
+						"event": estimate.event,
+					})),
+					"stepped": "before",
+				},
+				{
+					"label": "Stationsdauer [min]",
+					"data": validEstimates.map((estimate) => ({
+						"x": estimate.timestamp,
+						"y": estimate.calc.stationTime / 60,
+						"event": estimate.event,
+					})),
+					"stepped": "before",
+				},
+			]));
+		}
+
 		modal.show();
 	});
 	$("body").append($("<div>").css({"position": "fixed", "bottom": "1em", "left": "50%", "right": "50%", "margin": "0px -250px", "padding": ".3em", "width": "500px", "background": "#cccccc", "border-radius": ".5em"}).append(
@@ -110,11 +179,13 @@ function ReliableWebSocket(options) {
 			if (!(s_id in stationEstimates)) {
 				stationEstimates[s_id] = [];
 			}
-			const estimate = $(".station-" + s_id).find(".abschluss-value").data("timestamp");
+			const estimateElem = $(".station-" + s_id).find(".abschluss-value");
+			const estimate = estimateElem.data("timestamp");
+			const estimateData = estimateElem.data("timestamp_calc");
 			const lastEstimate = stationEstimates[s_id][stationEstimates[s_id].length - 1];
 			// avoid spamming the same value
 			if (lastEstimate == null || lastEstimate.estimate != estimate) {
-				stationEstimates[s_id].push({"timestamp": timestamp, "estimate": estimate, "event": event_data});
+				stationEstimates[s_id].push({"timestamp": timestamp, "estimate": estimate, "calc": estimateData, "event": event_data});
 			}
 		}
 	}
