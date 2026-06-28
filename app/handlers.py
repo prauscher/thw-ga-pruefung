@@ -376,7 +376,7 @@ class AppState(BroadcastState):
     def get_examiner(self, user_name):
         return self.examiners.get(
             user_name,
-            {"examinee_requests": [], "station": "_"},
+            {"examinee_requests": [], "station": "_frei"},
         )
 
 
@@ -627,7 +627,7 @@ class MessageHandler(BroadcastWebSocketHandler):
     def process_examiner_station(self, msg):
         station = msg.get("station")
         if msg.get("station") not in self.state.stations:
-            station = "_"
+            station = "_frei"
 
         name = msg.get("name")
         if self.current_user.get("role") == "examiner":

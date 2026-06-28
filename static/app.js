@@ -761,7 +761,7 @@ function render() {
 }
 
 function render_examiner() {
-	var examiner = data.examiners[user.name] || {"station": "_", "examinee_requests": []};
+	var examiner = data.examiners[user.name] || {"station": "_frei", "examinee_requests": []};
 
 	var remainingExaminees = Object.keys(data.examinees).filter((e_id) => !("skip_stations" in data.examinees[e_id] && data.examinees[e_id].skip_stations.indexOf(examiner.station) >= 0));
 	var currentAssignments = [];
@@ -801,15 +801,15 @@ function render_examiner() {
 
 	$("#examiner-alerts").empty().append(currentStations.length > 1 ? [
 		$("<div>").addClass(["alert", "alert-danger"]).text("Die von dir ausgewählte Station stimmt zumindest mit einer aktuellen Zuweisung nicht überein. Bitte überprüfe deine Stationsauswahl."),
-	] : []).append(currentStations.length === 1 && examiner.station == "_" ? [
+	] : []).append(currentStations.length === 1 && examiner.station.startsWith("_") ? [
 		$("<div>").addClass(["alert", "alert-success"]).text("Aktuell bist du auf keine Station gebucht. Wähle die dir zugeteilte Station aus."),
 	] : []).append(currentAssignments.length + examiner.examinee_requests.length == 0 && !examiner.station.startsWith("_") ? [
 		$("<div>").addClass(["alert", "alert-warning"]).text("Momentan sind dir keine Prüflinge zugeordnet. Mit einem Klick auf den unteren Button kannst du einen Prüfling anfordern: Dies wird dir zunächst durch einen Eintrag \"(Angefordert)\" angezeigt, sobald die Zuteilung erfolgt ist wird dieser Eintrag durch den Namen ersetzt."),
-	] : []).append(examiner.station != "_" && remainingExaminees.length <= 5 && remainingExaminees.length > 1 ? [
+	] : []).append(!examiner.station.startsWith("_") && remainingExaminees.length <= 5 && remainingExaminees.length > 1 ? [
 		$("<div>").addClass(["alert", "alert-info"]).text("Für deine Station sind nur noch " + remainingExaminees.length + " Prüflinge offen."),
-	] : []).append(examiner.station != "_" && remainingExaminees.length <= 1 && remainingExaminees.length > 0 ? [
+	] : []).append(!examiner.station.startsWith("_") && remainingExaminees.length <= 1 && remainingExaminees.length > 0 ? [
 		$("<div>").addClass(["alert", "alert-info"]).text("Für deine Station ist nur noch ein Prüfling offen."),
-	] : []).append(examiner.station != "_" && remainingExaminees.length == 0 ? [
+	] : []).append(!examiner.station.startsWith("_") && remainingExaminees.length == 0 ? [
 		$("<div>").addClass(["alert", "alert-primary"]).text("Für deine Station sind keine Prüflinge mehr offen."),
 	] : []);
 
@@ -826,7 +826,7 @@ function render_examiner() {
 	});
 
 	$("#examiner-station").empty().prop("disabled", false).append([
-		$("<option>").prop("value", "_").text("(Keine)"),
+		$("<option>").prop("value", "_frei").text("(Keine)"),
 	]).append(station_ids.map(function (s_id) {
 		return $("<option>").prop("selected", s_id == examiner.station).prop("value", s_id).text(data.stations[s_id].name);
 	})).data("socket-state", examiner.station);
@@ -1683,7 +1683,7 @@ function _openExaminerModal(name) {
 	}
 	var stationDisplay = $("<span>").data("station_id", examiner.station).text(_station(examiner.station));
 	var stationInput = $("<select>").addClass("form-select").append([
-		$("<option>").prop("value", "_").text("(Keine)"),
+		$("<option>").prop("value", "_frei").text("(Keine)"),
 	]).append(station_ids.map((s_id) => $("<option>").prop("selected", s_id == examiner.station).prop("value", s_id).text(data.stations[s_id].name)));
 	var stationButton = $("<button>").addClass(["btn", "btn-sm", "btn-warning", "ms-2"]).toggle(user.role == "operator").text("Ändern").click(function () {
 		stationInput.val(stationDisplay.data("station_id"));
