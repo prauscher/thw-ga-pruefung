@@ -1586,30 +1586,27 @@ function _openAssignmentModal(a_id) {
 	var examiner = "examiner" in assignment ? assignment.examiner : "-";
 	var examinerDisplay = $("<span>").text(examiner);
 	var examinerInput = $("<input>").attr("type", "text").addClass("form-control").attr("autocomplete", "off");
+	var examinerButton = $("<button>").addClass(["btn", "btn-sm", "btn-warning", "ms-2"]).toggle(user.role == "operator").text("Ändern").click(function () {
+		examinerInput.val(examinerDisplay.text());
+
+		examinerDisplay.hide();
+		examinerButton.hide();
+		examinerForm.show();
+	});
 	var examinerForm = $("<div>").hide().addClass("input-group").append([
 		examinerInput,
 		$("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(function () {
-			var _button = $(this);
-
 			var newExaminer = examinerInput.val();
 			socket.send({"_m": "assignment_change_examiner", "i": a_id, "examiner": newExaminer});
 
-			examinerForm.hide();
 			examinerDisplay.text(newExaminer).show();
-			_button.show();
+			examinerButton.show();
+			examinerForm.hide();
 		}),
 	]);
 	var examinerPanel = $("<div>").append([
 		examinerDisplay,
-		$("<button>").addClass(["btn", "btn-sm", "btn-warning", "ms-2"]).toggle(user.role == "operator").text("Ändern").click(function () {
-			var _button = $(this);
-
-			examinerInput.val(examinerDisplay.text());
-
-			examinerDisplay.hide();
-			_button.hide();
-			examinerForm.show();
-		}),
+		examinerButton,
 		examinerForm,
 	]);
 
