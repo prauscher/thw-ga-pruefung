@@ -2102,10 +2102,8 @@ function _generateStation(i) {
 		examinees.push(examinee_kv[0]);
 	}
 	for (var assignment of Object.values(data.assignments)) {
-		if ("examiner" in assignment && assignment.station == i) {
-			if (assignment.result == "open" && activeExaminers.indexOf(assignment.examiner) < 0) {
-				activeExaminers.push(assignment.examiner);
-			}
+		if ("examiner" in assignment && assignment.station == i && activeExaminers.indexOf(assignment.examiner) < 0 && ((assignment.end > socket.time() - 60 * 60 && assignment.result == "done") || assignment.result == "open")) {
+			activeExaminers.push(assignment.examiner);
 		}
 		if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
 			var _i = examinees.indexOf(assignment.examinee);
