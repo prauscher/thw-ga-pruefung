@@ -1,3 +1,20 @@
+function event2text(event) {
+	if (event._m == "assignment") {
+		const examiner = event.examiner;
+		const examinee = data.examinees[event.examinee].name;
+		const station = (event.station.startsWith("_") ? fixedStations : data.stations)[event.station].name;
+
+		if (event.result == "open") {
+			return "Zuweisung " + examinee + " (" + examiner + ") an " + station;
+		}
+		if (event.result == "done") {
+			return "Abschluss " + examinee + " (" + examiner + ") an " + station;
+		}
+	}
+
+	return JSON.stringify(event);
+}
+
 function ReliableWebSocket(options) {
 	var speed = 20;
 	var paused = true;
@@ -28,7 +45,9 @@ function ReliableWebSocket(options) {
 				"data": validEstimates.map((estimate) => ({
 					"x": estimate.timestamp,
 					"y": (estimate.estimate - validEstimates[validEstimates.length - 1].estimate) / 3600,
+					"event": estimate.event,
 				})),
+				"stepped": "before",
 			};
 		});
 		datasets.sort(function (a, b) {
@@ -51,6 +70,19 @@ function ReliableWebSocket(options) {
 							"callback": function (value, index, ticks) {
 								var date = new Date(value * 1000);
 								return (date.getHours() < 10 ? "0" : "") + date.getHours() + ":" + (date.getMinutes() < 10 ? "0" : "") + date.getMinutes();
+							},
+						},
+					},
+				},
+				"plugins": {
+					"tooltip": {
+						"callbacks": {
+							"label": function (context) {
+								let label = context.dataset.label || "";
+								if (context.dataIndex) {
+									label = label + " " + event2text(context.dataset.data[context.dataIndex].event);
+								}
+								return label;
 							},
 						},
 					},
@@ -81,8 +113,8 @@ function ReliableWebSocket(options) {
 			const estimate = $(".station-" + s_id).find(".abschluss-value").data("timestamp");
 			const lastEstimate = stationEstimates[s_id][stationEstimates[s_id].length - 1];
 			// avoid spamming the same value
-			if (lastEstimate == null || lastEstimate.timestamp != timestamp || lastEstimate.estimate != estimate) {
-				stationEstimates[s_id].push({"timestamp": timestamp, "estimate": estimate});
+			if (lastEstimate == null || lastEstimate.estimate != estimate) {
+				stationEstimates[s_id].push({"timestamp": timestamp, "estimate": estimate, "event": event_data});
 			}
 		}
 	}
