@@ -1660,6 +1660,128 @@ function _openAssignmentModal(a_id) {
 	modal.show();
 }
 
+function _openExaminerModal(name) {
+	const examiner = data.examiners[name];
+	var modal = new Modal("Prüfer*in " + name);
+	modal.elem.find(".modal-dialog").addClass("modal-lg");
+
+	var assignments = Object.keys(data.assignments).filter((a_id) => data.assignments[a_id].examiner == name);
+	assignments.sort((a, b) => data.assignments[b].start - data.assignments[a].start);
+
+	var station_ids = Object.keys(data.stations);
+	station_ids.sort(function (a, b) {
+		let _a = data.stations[a].name.toLowerCase();
+		let _b = data.stations[b].name.toLowerCase();
+		if (_a < _b) {return -1;}
+		if (_a > _b) {return 1;}
+		return 0;
+	});
+
+	function _station(s_id) {
+		return !s_id || s_id.startsWith("_") ? "(Keine)" : data.stations[s_id].name;
+	}
+	var stationDisplay = $("<span>").data("station_id", examiner.station).text(_station(examiner.station));
+	var stationInput = $("<select>").addClass("form-select").append([
+		$("<option>").prop("value", "_").text("(Keine)"),
+	]).append(station_ids.map((s_id) => $("<option>").prop("selected", s_id == examiner.station).prop("value", s_id).text(data.stations[s_id].name)));
+	var stationButton = $("<button>").addClass(["btn", "btn-sm", "btn-warning", "ms-2"]).toggle(user.role == "operator").text("Ändern").click(function () {
+		stationInput.val(stationDisplay.data("station_id"));
+
+		stationDisplay.hide();
+		stationButton.hide();
+		stationForm.show();
+	});
+	var stationForm = $("<div>").hide().addClass("input-group").append([
+		stationInput,
+		$("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(function () {
+			var _button = $(this);
+
+			var newStation = stationInput.val();
+			socket.send({"_m": "examiner_station", "name": name, "station": newStation});
+
+			stationDisplay.data("station_id", newStation).text(_station(newStation)).show();
+			stationButton.show();
+			stationForm.hide();
+		}),
+	]);
+	var stationPanel = $("<div>").append([
+		stationDisplay,
+		stationButton,
+		stationForm,
+	]);
+
+	var assignmentDurations = [];
+
+	modal.elem.find(".modal-body").append([
+		$("<p>").text("Ein*e Prüfer*in übernimmt die Bewertung an einer Station und wird in der Übersicht einerseits an der aktuell ausgewählten Station als auch (in kursiv) an weiteren Stationen angezeigt, an denen noch Prüflinge für diese*n Prüfer*in eingeteilt sind."),
+		$("<table>").addClass(["table", "table-striped"]).append(
+			$("<tbody>").append([
+				$("<tr>").append([
+					$("<th>").text("Name"),
+					$("<td>").text(name),
+				]),
+				$("<tr>").append([
+					$("<th>").text("Aktuelle Station"),
+					$("<td>").append(stationPanel),
+				]),
+			])
+		),
+		$("<h5>").text("Zuweisungen"),
+		$("<div>").addClass("table-responsive").append(
+			$("<table>").addClass(["table", "table-striped"]).append([
+				$("<thead>").append(
+					$("<tr>").append([
+						$("<th>").text("Prüfling"),
+						$("<th>").text("Station"),
+						$("<th>").addClass("text-end").text("Dauer [min]"),
+					])
+				),
+				$("<tbody>").append(
+					assignments.map(function (a_id) {
+						const assignment = data.assignments[a_id];
+
+						if (assignment.end !== null) {
+							assignmentDurations.push(assignment.end - assignment.start);
+						}
+
+						var name = data.examinees[assignment.examinee].name;
+						if (assignment.result === "canceled") {
+							name = name + " (Abgebrochen)";
+						}
+
+						return $("<tr>").append([
+							$("<td>").toggleClass("fst-italic", assignment.result === "canceled").append(
+								$("<a>").attr("href", "#").text(name).click(function (e) {
+									e.preventDefault();
+									_openAssignmentModal(a_id);
+								})
+							),
+							$("<td>").append(
+								$("<a>").attr("href", "#").text(data.stations[assignment.station].name).click(function (e) {
+									e.preventDefault();
+									_openStationModal(assignment.station);
+								})
+							),
+							$("<td>").addClass("text-end").text(assignment.end === null ? "bisher " + Math.round((socket.time() - assignment.start) / 60) : Math.round((assignment.end - assignment.start) / 60)),
+						]);
+					})
+				),
+				$("<tfoot>").append([
+					$("<tr>").toggle(assignments.length == 0).append([
+						$("<th>").attr("colspan", 3).text("(bisher keine Prüfung abgenommen)")
+					]),
+					$("<tr>").toggle(assignments.length > 0).append([
+						$("<th>").attr("colspan", 2).text("Durchschnitt"),
+						$("<th>").addClass("text-end").text(assignmentDurations.length == 0 ? "unbekannt" : Math.round((assignmentDurations.reduce((_c, _v) => _c + _v) / assignmentDurations.length) / 60)),
+					]),
+				]),
+			])
+		),
+	]);
+
+	modal.show();
+}
+
 function _generateStation(i) {
 	var name = i.startsWith("_") ? fixedStations[i].name : data.stations[i].name + " (" + data.stations[i].name_pdf + ")";
 	var assignButton = $("<button>").addClass(["btn", "btn-success", "assign-examinee"]).text("Zuweisen").click(function (e) {
@@ -2035,8 +2157,9 @@ function _generateStation(i) {
 
 	var entryNodes = [];
 	for (const examiner_kv of examiners) {
-
-		entryNodes.push($("<li>").addClass(["list-group-item", "fw-bold", "pe-1"]).css("border-right", ".8em solid " + examinerColors[0]).text(examiner_kv[0]));
+		entryNodes.push($("<li>").toggleClass("fst-italic", !(examiner_kv[0] in data.examiners) || data.examiners[examiner_kv[0]].station != i).addClass(["list-group-item", "fw-bold", "pe-1"]).css("border-right", ".8em solid " + examinerColors[0]).text(examiner_kv[0]).css("cursor", "pointer").click(function () {
+			_openExaminerModal(examiner_kv[0]);
+		}));
 		for (const item of examiner_kv[1]) {
 			entryNodes.push(item);
 		}

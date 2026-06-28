@@ -623,13 +623,17 @@ class MessageHandler(BroadcastWebSocketHandler):
             self.state.save()
             self.broadcast(msg, {"_m": "examiner", "name": user_name, **examiner})
 
-    @require_role("examiner")
+    @require_role("operator", "examiner")
     def process_examiner_station(self, msg):
         station = msg.get("station")
         if msg.get("station") not in self.state.stations:
             station = "_"
 
-        with self._update_examiner(msg, self.current_user.get("name")) as examiner:
+        name = msg.get("name")
+        if self.current_user.get("role") == "examiner":
+            name = self.current_user.get("name")
+
+        with self._update_examiner(msg, name) as examiner:
             examiner["station"] = station
 
     @require_role("examiner")
