@@ -5,6 +5,7 @@ var user = null;
 // Default colors
 var flag_colors = ["#3584e4", "#33d17a", "#f6d32d", "#ff7800", "#e01b24", "#9141ac", "#986a44"];
 const fixedStations = {
+	"_frei": {"name": "Freie Prüfer*innen"},
 	"_theorie": {"name": "Theorie"},
 	"_pause": {"name": "Mittagspause"},
 };
@@ -926,7 +927,8 @@ function render_operator() {
 
 	$("#pause-container").empty().append([
 		_generateStation("_theorie").addClass("mb-3"),
-		_generateStation("_pause"),
+		_generateStation("_pause").addClass("mb-3"),
+		_generateStation("_frei"),
 	]);
 }
 
@@ -2222,7 +2224,7 @@ function _generateStation(i) {
 				_openStationModal(i);
 			}),
 			$("<ul>").addClass(["list-group", "list-group-flush", "examinees"]).append([
-				$("<li>").addClass("list-group-item").append(
+				$("<li>").addClass("list-group-item").toggle(i != "_frei").append(
 					$("<div>").addClass(["progress"]).append(totalExaminees.length == 0 ? [
 						$("<div>").addClass(["progress-bar", "bg-danger"]).css("width", "100%").text(""),
 					] : [
@@ -2241,7 +2243,7 @@ function _generateStation(i) {
 					$("<span>").text("Abschluss"),
 				]),
 			]).append(entryNodes),
-			$("<div>").addClass("card-footer").append([
+			$("<div>").addClass("card-footer").toggle(i != "_frei").append([
 				assignButton.toggle(user && user.role == "operator"),
 			])
 		])
