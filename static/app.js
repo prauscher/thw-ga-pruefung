@@ -477,7 +477,7 @@ $(function () {
 
 	$("#examiner-request-cancel").click(function (e) {
 		$(this).prop("disabled", true);
-		socket.send({"_m": "examiner_request_cancel"});
+		socket.send({"_m": "examiner_request_remove"});
 	});
 
 	$("#examinee-add").click(function () {

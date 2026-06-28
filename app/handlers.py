@@ -632,22 +632,17 @@ class MessageHandler(BroadcastWebSocketHandler):
         with self._update_examiner(msg, self.current_user.get("name")) as examiner:
             examiner["station"] = station
 
-    @require_role("operator")
-    def process_examiner_request_remove(self, msg):
-        with self._update_examiner(msg, msg.get("name")) as examiner:
-            with suppress(IndexError):
-                examiner["examinee_requests"].pop()
-
     @require_role("examiner")
     def process_examiner_request(self, msg):
         with self._update_examiner(msg, self.current_user.get("name")) as examiner:
             examiner["examinee_requests"].append({"request": time.time()})
 
-    @require_role("examiner")
-    def process_examiner_request_cancel(self, msg):
-        if not self.state.examiners.get(self.current_user.get("name"), {}).get("examinee_requests"):
-            return
+    @require_role("operator", "examiner")
+    def process_examiner_request_remove(self, msg):
+        name = msg.get("name")
+        if self.current_user.get("role") == "examiner":
+            name = self.current_user.get("name")
 
-        with self._update_examiner(msg, self.current_user.get("name")) as examiner:
-            if examiner["examinee_requests"]:
+        with self._update_examiner(msg, name) as examiner:
+            with suppress(IndexError, KeyError):
                 examiner["examinee_requests"].pop();
