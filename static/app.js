@@ -1711,7 +1711,7 @@ function _openExaminerModal(name) {
 		stationForm,
 	]);
 
-	var assignmentDurations = [];
+	var assignmentDurations = {};
 
 	modal.elem.find(".modal-body").append([
 		$("<p>").text("Ein*e Prüfer*in übernimmt die Bewertung an einer Station und wird in der Übersicht einerseits an der aktuell ausgewählten Station als auch (in kursiv) an weiteren Stationen angezeigt, an denen noch Prüflinge für diese*n Prüfer*in eingeteilt sind."),
@@ -1742,7 +1742,10 @@ function _openExaminerModal(name) {
 						const assignment = data.assignments[a_id];
 
 						if (assignment.end !== null) {
-							assignmentDurations.push(assignment.end - assignment.start);
+							if (!(assignment.station in assignmentDurations)) {
+								assignmentDurations[assignment.station] = [];
+							}
+							assignmentDurations[assignment.station].push(assignment.end - assignment.start);
 						}
 
 						var name = data.examinees[assignment.examinee].name;
@@ -1768,14 +1771,19 @@ function _openExaminerModal(name) {
 					})
 				),
 				$("<tfoot>").append([
-					$("<tr>").toggle(assignments.length == 0).append([
-						$("<th>").attr("colspan", 3).text("(bisher keine Prüfung abgenommen)")
-					]),
-					$("<tr>").toggle(assignments.length > 0).append([
-						$("<th>").attr("colspan", 2).text("Durchschnitt"),
-						$("<th>").addClass("text-end").text(assignmentDurations.length == 0 ? "unbekannt" : Math.round((assignmentDurations.reduce((_c, _v) => _c + _v) / assignmentDurations.length) / 60)),
-					]),
-				]),
+					$("<tr>").toggle(Object.keys(assignmentDurations).length == 0).append($("<th>").attr("colspan", 3).text("(bisher keine Prüfung abgeschlossen)")),
+				]).append(
+					Object.entries(assignmentDurations).map(function (dur_kv) {
+						const s_id = dur_kv[0];
+						const durations = dur_kv[1];
+
+						return $("<tr>").append([
+							$("<th>").text("Durchschnitt"),
+							$("<th>").text(data.stations[s_id].name),
+							$("<th>").addClass("text-end").text(durations.length == 0 ? "unbekannt" : Math.round((durations.reduce((_c, _v) => _c + _v) / durations.length) / 60)),
+						]);
+					})
+				),
 			])
 		),
 	]);
