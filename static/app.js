@@ -376,11 +376,11 @@ $(function () {
 										$("<div>").addClass("mb-3").append([
 											$("<label>").attr("for", "role").addClass("col-form-label").text("Rolle"),
 											$("<select>").attr("id", "role").addClass("form-select").append([
-												$("<option>").attr("value", "admin").text("Administrator"),
-												$("<option>").attr("value", "operator").text("Prüflingsdisposition"),
-												$("<option>").attr("value", "evaluator").text("Auswerter"),
-												$("<option>").attr("value", "examiner").text("Prüfer"),
-												$("<option>").attr("value", "viewer").text("Betrachter"),
+												$("<option>").attr("value", "admin").text("Administrator*in"),
+												$("<option>").attr("value", "operator").text("Bediener*in"),
+												$("<option>").attr("value", "evaluator").text("Auswerter*in"),
+												$("<option>").attr("value", "examiner").text("Prüfer*in"),
+												$("<option>").attr("value", "viewer").text("Betrachter*in"),
 											]),
 										]),
 									]),
