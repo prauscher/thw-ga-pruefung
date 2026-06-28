@@ -2212,7 +2212,7 @@ function _generateStation(i) {
 			end_data["stationTime"] = stationTimes[i];
 			end_data["activeExaminersCount"] = activeExaminers.length;
 
-			end = lastStartedAssignment + factor * stationTimes[i] / activeExaminers.length;
+			end = lastStartedAssignment + stationTimes[i] * Math.max(factor / activeExaminers.length, 1);
 		}
 	}
 
