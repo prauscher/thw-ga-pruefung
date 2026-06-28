@@ -77,14 +77,14 @@ function ReliableWebSocket(options) {
 		return $("<div>").append(chartCanvas);
 	}
 
-	var playButton = $("<button>").addClass(["btn", "me-2", paused ? "btn-secondary" : "btn-outline-secondary"]).text("Play / Pause").click(function () {
+	var playButton = $("<button>").addClass(["btn", paused ? "btn-secondary" : "btn-outline-secondary"]).text("Play / Pause").click(function () {
 		paused = !paused;
 		$(this).toggleClass("btn-secondary", !paused);
 		$(this).toggleClass("btn-outline-secondary", paused);
 
 	});
-	var timestampLabel = $("<span>");
-	var estimateChartButton = $("<button>").addClass(["btn", "ms-2", "btn-secondary"]).text("Schätzungen").click(function () {
+	var timestampLabel = $("<p>");
+	var estimateChartButton = $("<button>").addClass(["btn", "btn-secondary"]).text("Schätzungen").click(function () {
 		var modal = new Modal("Schätzungsübersicht");
 		modal.elem.find(".modal-dialog").addClass("modal-xl");
 
@@ -164,9 +164,9 @@ function ReliableWebSocket(options) {
 		modal.show();
 	});
 	$("body").append($("<div>").css({"position": "fixed", "bottom": "1em", "left": "50%", "right": "50%", "margin": "0px -250px", "padding": ".3em", "width": "500px", "background": "#cccccc", "border-radius": ".5em"}).append(
-		playButton,
-		timestampLabel,
-		estimateChartButton
+		playButton.addClass("float-start"),
+		estimateChartButton.addClass("float-end"),
+		timestampLabel.addClass(["my-1", "text-center"]),
 	));
 
 	var modal = new Modal("Prüfungswiederholung");
