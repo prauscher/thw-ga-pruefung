@@ -2276,6 +2276,51 @@ function _generateStation(i) {
 		}
 	}
 
+	var createExaminersButton = $("<button>").addClass(["btn", "btn-success"]).text("Prüfer*in anlegen").click(function () {
+		var modal = new Modal("Prüfer*innen anlegen");
+
+		function _submit() {
+			var print = new PrintOutput();
+			print.setOrientation("portrait");
+			for (var name of modal.elem.find("#names").val().split("\n").values()) {
+				name = name.trim();
+				if (name != "") {
+					var token = _gen_id() + _gen_id();
+
+					print.write("<div style=\"page-break-after:right;\">" + generateExaminerPage(modal.elem.find("#base_url").val(), token, name) + "</div>");
+
+					socket.send({"_m": "_create_user", "token": token, "name": name, "role": "examiner"})
+				}
+			}
+			print.print();
+
+			modal.close();
+		}
+
+		var base_url = new URL(location);
+		base_url.hash = "";
+		base_url = base_url.href;
+
+		modal.elem.find(".modal-body").append([
+			$("<p>").text(""),
+			$("<div>").addClass("mb-3").append([
+				$("<label>").attr("for", "base_url").addClass("col-form-label").text(""),
+				$("<input>").attr("type", "text").addClass("form-control").attr("id", "base_url").val(base_url)
+			]),
+			$("<div>").addClass("mb-3").append([
+				$("<label>").attr("for", "names").addClass("col-form-label").text("Namen"),
+				$("<textarea>").addClass("form-control").attr("rows", 15).attr("id", "names"),
+			]),
+		]);
+
+		var button = $("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(_submit);
+		modal.elem.find(".modal-footer").append(button);
+		modal.show();
+		modal.elem.on("shown.bs.modal", function () {
+			modal.elem.find("#names").focus();
+		});
+	});
+
 	return $("<div>").addClass("col").append(
 		$("<div>").addClass(["card", "station-" + i]).append([
 			$("<div>").addClass("card-header").css("cursor", "pointer").text(name).click(function () {
@@ -2301,8 +2346,9 @@ function _generateStation(i) {
 					$("<span>").text("Abschluss"),
 				]),
 			]).append(entryNodes),
-			$("<div>").addClass("card-footer").toggle(i != "_frei").append([
-				assignButton.toggle(user && user.role == "operator"),
+			$("<div>").addClass("card-footer").append([
+				assignButton.toggle(i != "_frei" && user && user.role == "operator"),
+				createExaminersButton.toggle(i == "_frei" && user && user.role == "admin"),
 			])
 		])
 	);
@@ -2392,6 +2438,40 @@ var Examinee = {
 		}
 		return null;
 	},
+}
+
+function generateExaminerPage(base_url, token, name) {
+	var page = $("<div>");
+
+	var url = new URL(base_url);
+	url.hash = token;
+	var url = url.href;
+
+	page.append([
+		$("<h1>").text("Informationen für " + name),
+		$("<p>").append([
+			"Vielen Dank dir für deine Unterstützung als Prüfer*in bei der heutigen Grundausbildungsprüfung! ",
+			"Für die Zuteilung der Prüflinge auf die Stationen wird heute ein digitales System eingesetzt. ",
+			"Diese Seite enthält unter anderem deinen Zugangscode zu diesem System. ",
+			"Bitte lese die Seite daher sorgfältig und stecke ihn anschließend sicher weg, damit niemand außer dir den QR-Code bzw. den Zugriffscode einsehen kann.",
+		]),
+		$("<p>").append([
+			"Du kannst das System über den unten dargestellten QR-Code erreichen. ",
+			"Sollte das nicht funktionieren, öffne die darunter gelistete Webseite und tippe den Zugangscode bitte von Hand ein. ",
+			"Sobald du bereit für den ersten Prüfling bist kannst du über das System einen Prüfling anfordern. ",
+			"Der Prüfling wird durch Helfer*innen an deine Station gebracht, welche dir auch den individuellen Prüfungsbogen für den Prüfling übergeben. ",
+			"Diesen gibst du ausgefüllt und unterschrieben den Helfern wieder mit, wenn sie nach Abschluss eines Prüflings einen neuen Prüfling bringen und den vorherigen abholen. ",
+			"Bei Fragen erreichst du die Prüfungsleitung per Sprechfunk als \"Orga\" von \"Station X\".",
+		]),
+		$("<img>").css("margin", "1em auto .5em").attr("src", TCQrcode.encodeAsBase64(url)),
+		$("<p>").css("text-align", "center").append([
+			base_url,
+			$("<br>"),
+			token,
+		]),
+	]);
+
+	return page.html();
 }
 
 function _generatePage(assignment) {
