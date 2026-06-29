@@ -335,10 +335,10 @@ class BroadcastWebSocketHandler(WebSocketHandler):
     @require_role("admin")
     def process_user_delete(self, msg):
         current_user = self.current_user
-        self.state.users.pop(msg["token"], "")
+        user = self.state.users.pop(msg["token"], {})
         self.state.save()
 
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |       | {current_user['name']:<25} | {msg['_cid']:<8} | Deleted user {msg.get('name')}")
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} |       | {current_user['name']:<25} | {msg['_cid']:<8} | Deleted user {user.get('name')}")
         self.reply(msg, {"_m": "_confirm"})
 
 
