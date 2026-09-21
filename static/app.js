@@ -1692,7 +1692,7 @@ function _openAssignmentModal(a_id) {
 }
 
 function _openExaminerModal(name) {
-	const examiner = data.examiners[name];
+	const examiner = data.examiners[name] || {};
 	var modal = new Modal("Prüfer*in " + name);
 	modal.elem.find(".modal-dialog").addClass("modal-lg");
 
