@@ -1012,7 +1012,7 @@ function _openExamineeModal(e_id) {
 
 	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, {"sum": 0, "count": 0}]));
 	var assignments = [];
-	var missingStations = Object.keys(data.stations).concat(Object.keys(fixedStations));
+	var missingStations = Object.keys(data.stations).concat(Object.keys(fixedStations)).filter((s_id) => s_id != "_frei");
 	var currentAssignment = null;
 	var firstStart = null;
 	for (const a_id of Object.keys(data.assignments)) {
