@@ -1959,7 +1959,7 @@ function _generateStation(i) {
 		var examineeFixedStationsDone = Object.fromEntries(examinees.map((e_id) => [e_id, []]));
 		for (var assignment of Object.values(data.assignments)) {
 			// Gather data for later priorization of examinees
-			if (assignment.result == "done" || assignment.result == "open") {
+			if ((assignment.result == "done" || assignment.result == "open") && !assignment.station.startsWith("_")) {
 				var _i = stationsMissingExaminees[assignment.station].indexOf(assignment.examinee);
 				if (_i >= 0) {
 					stationsMissingExaminees[assignment.station].splice(_i, 1);
