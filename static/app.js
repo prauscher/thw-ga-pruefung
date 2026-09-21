@@ -975,7 +975,7 @@ function _buildExamineeItem(e_id, a_id) {
 
 	node.append($("<span>").addClass("float-end")
 		.append("flags" in data.examinees[e_id] ? data.examinees[e_id].flags.map((color) => $("<span>").css("color", color).append([" ", circle.clone()])) : [])
-		.append("note" in data.examinees[e_id] && data.examinees[e_id] != "" ? [$("<span>").addClass("ms-1").attr("title", data.examinees[e_id].note).append(icon_note.clone())] : [])
+		.append("note" in data.examinees[e_id] && data.examinees[e_id].note != "" ? [$("<span>").addClass("ms-1").attr("title", data.examinees[e_id].note).append(icon_note.clone())] : [])
 	);
 	node.append($("<span>").addClass(["float-start", "badge", "me-1", state_indicator]).css("min-width", "2em").text(openStations.length));
 	node.append($("<span>").addClass("examinee-name").text(data.examinees[e_id].name));
