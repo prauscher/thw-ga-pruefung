@@ -2302,9 +2302,9 @@ function _generateStation(i) {
 		base_url = base_url.href;
 
 		modal.elem.find(".modal-body").append([
-			$("<p>").text(""),
+			$("<p>").text("Dieses Formular hilft dir beim Erzeugen der Prüfer*innen. Tippe die Basis-URL die Prüfer*innen verwenden sollen ein und je Zeile einen Namen mit Ortsverband (z.B. OGGE Horst Müller) an. Die OV-Kürzel helfen dem System dabei, Prüfungen durch Prüfer*innen vom OV des Prüflings möglichst zu vermeiden. Nach Bestätigen des Formulars erhältst du personalisierte Informationszettel mit QR-Code zum Login für jede*n Prüfer*in."),
 			$("<div>").addClass("mb-3").append([
-				$("<label>").attr("for", "base_url").addClass("col-form-label").text(""),
+				$("<label>").attr("for", "base_url").addClass("col-form-label").text("Basis-URL für Prüfer*innen"),
 				$("<input>").attr("type", "text").addClass("form-control").attr("id", "base_url").val(base_url)
 			]),
 			$("<div>").addClass("mb-3").append([
