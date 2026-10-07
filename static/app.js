@@ -562,7 +562,10 @@ function showWizard() {
 
 	var buttons = [];
 
-	for (const [serie, data] of Object.entries(serien)) {
+	var serien_keys = Object.keys(serien);
+	serien_keys.sort();
+	for (const serie of serien_keys) {
+		const data = serien[serie];
 		buttons.push($("<button>").attr("type", "button").addClass(["btn", "btn-primary", "d-block", "mb-2"]).text("Serie " + serie).click(function (e) {
 			e.preventDefault();
 
