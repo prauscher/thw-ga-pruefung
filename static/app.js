@@ -2628,12 +2628,13 @@ function _generatePage(assignment) {
 			]),
 		]));
 
-		header.append($("<p>").html("Bitte setze für jeden Prüfungspunkt in das zugehörige Feld einen Haken (✓) für erfüllte Punkte oder ein Strich (—) für nicht erfüllte Punkte."));
+		header.append($("<p>").css("margin", "0.1cm 0.4cm 0cm").html("Bitte setze für jeden Prüfungspunkt in das zugehörige Feld einen Haken (✓) für erfüllte Punkte oder ein Strich (—) für nicht erfüllte Punkte."));
 
-		body.css("columns", "2 auto");
+		var tasks = $("<div>").css("margin", "0px 10px");
+		tasks.css("columns", "2 auto");
 
 		for (var task of data.stations[assignment.station].tasks) {
-			body.append($("<div>").css("padding", "10px").css("break-inside", "avoid").append([
+			tasks.append($("<div>").css("padding", "10px 0px").css("break-inside", "avoid").append([
 				$("<table>").css("width", "100%").css("border", "1px dotted black").css("border-collapse", "collapse").append([
 					$("<tr>").append([
 						$("<th>").css("text-align","left").attr("colspan", 2).text(task.name)
@@ -2662,6 +2663,8 @@ function _generatePage(assignment) {
 				}))
 			]));
 		}
+
+		body.append(tasks);
 	}
 
 	var page = $("<div>");
@@ -2708,7 +2711,7 @@ function PrintOutput() {
 		}, 0);
 	};
 	this.setOrientation = function (orientation) {
-		this.write("<head><style type=\"text/css\">@page { size: A4 " + orientation + "; margin: 0.5cm; } body { font-family:\"Times New Roman\", Times, serif; font-size: 11pt; }</style></head>");
+		this.write("<head><style type=\"text/css\">@page { size: A4 " + orientation + "; margin: 0cm; } body { margin: 0.5cm; font-family:\"Times New Roman\", Times, serif; font-size: 11pt; }</style></head>");
 	};
 }
 
