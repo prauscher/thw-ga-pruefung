@@ -253,9 +253,7 @@ $(function () {
 				}
 			}
 			render();
-			if (Object.keys(data.stations) == 0) {
-				showWizard();
-			}
+			checkWizard();
 		},
 		handlers: {
 			"set_global_settings": function (msg) {
@@ -527,12 +525,17 @@ function convertRoman(num) {
 	if (num >= 1) return "I" + convertRoman(num - 1);
 }
 
-var wizardModal = null;
+function checkWizard() {
+	// Called on init and should be called whenever a wizard dialog is closed to check if further init is required
+	if (Object.keys(data.stations) == 0) {
+		showStationWizard();
+	}
+}
 
-function showWizard() {
+function showStationWizard() {
 	// wait until aufgaben is filled from remote
 	if (aufgaben == null) {
-		setTimeout(showWizard, 100);
+		setTimeout(showStationWizard, 100);
 		return;
 	}
 
@@ -558,7 +561,7 @@ function showWizard() {
 	}
 
 	// need to show modal, possibly with message
-	wizardModal = new Modal("Willkommen");
+	var wizardModal = new Modal("Willkommen");
 
 	var buttons = [];
 
@@ -588,7 +591,7 @@ function showWizard() {
 
 	wizardModal.show();
 	wizardModal.elem.on("hidden.bs.modal", function () {
-		wizardModal = null;
+		checkWizard();
 	});
 }
 
