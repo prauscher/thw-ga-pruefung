@@ -348,7 +348,7 @@ $(function () {
 				var createButton = $("<button>").addClass(["btn", "btn-sm", "btn-success"]).text("Hinzufügen").click(_create);
 
 				modal.elem.find(".modal-body").append([
-					$("<p>").text("Benutzer werden mit Namen und anhand eines geheimen, eindeutigen Tokens identifiziert. Benutzer mit erweiterten Berechtigungen um die Benutzerverwaltung zu bearbeiten sind hier fett markiert. Beachte beim anlegen neuer Benutzer, dass dir der Token nur beim Anlegen angezeigt wird und notiere ihn dir daher unbedingt."),
+					$("<p>").text("Benutzer werden mit Namen und anhand eines geheimen, eindeutigen Tokens identifiziert. Beachte beim anlegen neuer Benutzer, dass dir der Token nur beim Anlegen angezeigt wird und notiere ihn dir daher unbedingt."),
 					$("<table>").addClass(["table", "table-striped"]).append([
 						$("<thead>").append(
 							$("<tr>").append([
@@ -527,8 +527,12 @@ function convertRoman(num) {
 
 function checkWizard() {
 	// Called on init and should be called whenever a wizard dialog is closed to check if further init is required
-	if (Object.keys(data.stations) == 0) {
+	if (Object.keys(data.stations).length == 0) {
 		showStationWizard();
+	} else if (user.role == "admin" && Object.keys(data.examiners).length == 0) {
+		showHintWizard();
+	} else if (user.role == "admin" && Object.keys(data.examinees).length == 0) {
+		showHintWizard();
 	}
 }
 
@@ -595,6 +599,33 @@ function showStationWizard() {
 	});
 }
 
+function showHintWizard() {
+	var modal = new Modal("Willkommen");
+
+	modal.elem.find(".modal-body").append([
+		$("<p>").text("Wenn du dich schon auskennst, kannst du dieses Fenster schließen und direkt zur Prüfungsverwaltung springen. Es wird sich erneut öffnen, bis sowohl Prüflinge als auch Prüfer*innen angelegt wurden."),
+		$("<p>").text("Du bist aktuell als Administrator angemeldet. Diese Rolle wird nur für die Grundeinrichtung benötigt, in der die Prüflinge und Prüfer*innen angelegt werden. Dabei kannst du für je Prüfer*in eine Seite mit einem QR-Code ausdrucken, der einen direkten Zugriff auf dieses System erlaubt."),
+		$("<p>").text("Nach der Einrichtung kannst du in der Benutzerverwaltung weitere Benutzer wie z.B. Bediener*innen anlegen, mit denen die eigentliche Zuweisung von Prüflingen auf die Stationen und Prüfer*innen erfolgt."),
+	]);
+
+	var buttons = [];
+
+	buttons.push($("<button>").addClass(["btn", "btn-success"]).text("Prüflinge eintragen").click(function () {
+		_openExamineeEditModal(null);
+	}));
+
+	buttons.push($("<button>").addClass(["btn", "btn-success"]).text("Prüfer*innen eintragen").click(function () {
+		_openCreateExaminersModal();
+	}));
+
+	buttons.push($("<button>").addClass(["btn", "btn-danger"]).text("Benutzerverwaltung").click(function () {
+		socket.send({"_m": "request_users"});
+	}));
+
+	modal.elem.find(".modal-footer").append(buttons);
+	modal.show();
+}
+
 function _openExamineeEditModal(e_id) {
 	var modal = new Modal(e_id === null ? "Prüflinge eintragen" : "Prüfling " + data.examinees[e_id].name + " bearbeiten");
 
@@ -625,7 +656,7 @@ function _openExamineeEditModal(e_id) {
 	}
 
 	modal.elem.find(".modal-body").append([
-		$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup). Eine höhere Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen). Prüflinge können für die Zuteilung gesperrt angelegt werden, um Zuteilungen zu verhindern, z.B. zur Koordination der Anmeldung. Ein Sperrwert von 0 gibt den Prüfling frei, der Wert -1 sperrt den Prüfling bis zur manuellen Freigabe. Ein Wert über 0 sperrt den Prüfling für die angegebene Minutenanzahl:"),
+		$("<p>").text("Prüflinge werden primär anhand ihres Namens verwaltet. Dieses Formular erlaubt es, einen oder mehrere Prüflinge anzulegen. Die Prüflinge müssen dabei mit einem Namen und OV pro Zeile angegeben werden (z.B. ODAR Markus Kaup). Eine höhere Priorität verschafft Prüflingen einen virtuellen Zeitvorsprung, damit ihre Prüfung früher beendet wird (z.B. für Jugend-Goldabzeichen). Prüflinge können für die Zuteilung gesperrt angelegt werden, um Zuteilungen zu verhindern, z.B. zur Koordination der Anmeldung. Ein Sperrwert von 0 gibt den Prüfling frei, der Wert -1 sperrt den Prüfling bis zur manuellen Freigabe. Ein Wert über 0 sperrt den Prüfling für die angegebene Minutenanzahl. Markierungen werden neben dem Namen von Prüflingen angezeigt, die Notiz für Prüfende sehen lediglich Prüfer*innen in ihrer Ansicht."),
 		$("<form>").append([
 			$("<div>").addClass("mb-3").append([
 				$("<label>").attr("for", "priority").addClass("col-form-label").text("Priorität"),
@@ -2283,48 +2314,7 @@ function _generateStation(i) {
 	}
 
 	var createExaminersButton = $("<button>").addClass(["btn", "btn-success"]).text("Prüfer*in anlegen").click(function () {
-		var modal = new Modal("Prüfer*innen anlegen");
-
-		function _submit() {
-			var print = new PrintOutput();
-			print.setOrientation("portrait");
-			for (var name of modal.elem.find("#names").val().split("\n").values()) {
-				name = name.trim();
-				if (name != "") {
-					var token = _gen_id() + _gen_id();
-
-					print.write("<div style=\"page-break-after:right;\">" + generateExaminerPage(modal.elem.find("#base_url").val(), token, name) + "</div>");
-
-					socket.send({"_m": "_create_user", "token": token, "name": name, "role": "examiner"})
-				}
-			}
-			print.print();
-
-			modal.close();
-		}
-
-		var base_url = new URL(location);
-		base_url.hash = "";
-		base_url = base_url.href;
-
-		modal.elem.find(".modal-body").append([
-			$("<p>").text("Dieses Formular hilft dir beim Erzeugen der Prüfer*innen. Tippe die Basis-URL die Prüfer*innen verwenden sollen ein und je Zeile einen Namen mit Ortsverband (z.B. OGGE Horst Müller) an. Die OV-Kürzel helfen dem System dabei, Prüfungen durch Prüfer*innen vom OV des Prüflings möglichst zu vermeiden. Nach Bestätigen des Formulars erhältst du personalisierte Informationszettel mit QR-Code zum Login für jede*n Prüfer*in."),
-			$("<div>").addClass("mb-3").append([
-				$("<label>").attr("for", "base_url").addClass("col-form-label").text("Basis-URL für Prüfer*innen"),
-				$("<input>").attr("type", "text").addClass("form-control").attr("id", "base_url").val(base_url)
-			]),
-			$("<div>").addClass("mb-3").append([
-				$("<label>").attr("for", "names").addClass("col-form-label").text("Namen"),
-				$("<textarea>").addClass("form-control").attr("rows", 15).attr("id", "names"),
-			]),
-		]);
-
-		var button = $("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(_submit);
-		modal.elem.find(".modal-footer").append(button);
-		modal.show();
-		modal.elem.on("shown.bs.modal", function () {
-			modal.elem.find("#names").focus();
-		});
+		_openCreateExaminersModal();
 	});
 
 	return $("<div>").addClass("col").append(
@@ -2358,6 +2348,51 @@ function _generateStation(i) {
 			])
 		])
 	);
+}
+
+function _openCreateExaminersModal() {
+	var modal = new Modal("Prüfer*innen anlegen");
+
+	function _submit() {
+		var print = new PrintOutput();
+		print.setOrientation("portrait");
+		for (var name of modal.elem.find("#names").val().split("\n").values()) {
+			name = name.trim();
+			if (name != "") {
+				var token = _gen_id() + _gen_id();
+
+				print.write("<div style=\"page-break-after:right;\">" + generateExaminerPage(modal.elem.find("#base_url").val(), token, name) + "</div>");
+
+				socket.send({"_m": "_create_user", "token": token, "name": name, "role": "examiner"})
+			}
+		}
+		print.print();
+
+		modal.close();
+	}
+
+	var base_url = new URL(location);
+	base_url.hash = "";
+	base_url = base_url.href;
+
+	modal.elem.find(".modal-body").append([
+		$("<p>").text("Dieses Formular hilft dir beim Erzeugen der Prüfer*innen. Tippe die Basis-URL die Prüfer*innen verwenden sollen ein und je Zeile einen Namen mit Ortsverband (z.B. OGGE Horst Müller) an. Die OV-Kürzel helfen dem System dabei, Prüfungen durch Prüfer*innen vom OV des Prüflings möglichst zu vermeiden. Nach Bestätigen des Formulars erhältst du personalisierte Informationszettel mit QR-Code zum Login für jede*n Prüfer*in."),
+		$("<div>").addClass("mb-3").append([
+			$("<label>").attr("for", "base_url").addClass("col-form-label").text("Basis-URL für Prüfer*innen"),
+			$("<input>").attr("type", "text").addClass("form-control").attr("id", "base_url").val(base_url)
+		]),
+		$("<div>").addClass("mb-3").append([
+			$("<label>").attr("for", "names").addClass("col-form-label").text("Namen"),
+			$("<textarea>").addClass("form-control").attr("rows", 15).attr("id", "names"),
+		]),
+	]);
+
+	var button = $("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(_submit);
+	modal.elem.find(".modal-footer").append(button);
+	modal.show();
+	modal.elem.on("shown.bs.modal", function () {
+		modal.elem.find("#names").focus();
+	});
 }
 
 function getStationActiveExaminers(s_id) {
