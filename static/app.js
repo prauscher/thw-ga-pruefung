@@ -526,20 +526,24 @@ function convertRoman(num) {
 }
 
 function checkWizard() {
-	// Called on init and should be called whenever a wizard dialog is closed to check if further init is required
-	if (Object.keys(data.stations).length == 0) {
-		showStationWizard();
-	} else if (user.role == "admin" && Object.keys(data.examiners).length == 0) {
-		showHintWizard();
-	} else if (user.role == "admin" && Object.keys(data.examinees).length == 0) {
-		showHintWizard();
+	// Only show wizard to admin
+	if (user.role != "admin") {
+		return;
 	}
-}
 
-function showStationWizard() {
+	// Check if initialization is done
+	const hints = {
+		"stations": Object.keys(data.stations).length == 0,
+		"examiners": Object.keys(data.examiners).length == 0,
+		"examinees": Object.keys(data.examinees).length == 0,
+	};
+	if (! Object.values(hints).some((show_hint) => show_hint)) {
+		return;
+	}
+
 	// wait until aufgaben is filled from remote
 	if (aufgaben == null) {
-		setTimeout(showStationWizard, 100);
+		setTimeout(checkWizard, 100);
 		return;
 	}
 
@@ -564,16 +568,15 @@ function showStationWizard() {
 		}
 	}
 
-	// need to show modal, possibly with message
 	var wizardModal = new Modal("Willkommen");
+	wizardModal.elem.find(".modal-dialog").addClass(["modal-lg", "modal-dialog-scrollable"]);
 
-	var buttons = [];
-
+	var serien_buttons = [];
 	var serien_keys = Object.keys(serien);
 	serien_keys.sort();
 	for (const serie of serien_keys) {
 		const data = serien[serie];
-		buttons.push($("<button>").attr("type", "button").addClass(["btn", "btn-primary", "d-block", "mb-2"]).text("Serie " + serie).click(function (e) {
+		serien_buttons.push($("<button>").attr("type", "button").addClass(["btn", "btn-primary", "mx-1"]).text("Serie " + serie).click(function (e) {
 			e.preventDefault();
 
 			socket.send({"_m": "set_global_settings", "serie_id": serie});
@@ -585,45 +588,67 @@ function showStationWizard() {
 			}
 
 			wizardModal.close();
+			// delay to make sure stations are received
+			setTimeout(checkWizard, 500);
 		}));
 	}
 
+	function _buildBlock(num, index, title, text, block) {
+		return $("<div>").append([
+			$("<h5>").append([
+				index == null ? "" : $("<span>").addClass(["float-end", "badge", hints[index] ? "bg-danger" : "bg-success"]).text(hints[index] ? "offen" : "erledigt"),
+				$("<i>").addClass(["bi", "bi-" + num + "-circle"]),
+				"&nbsp;",
+				title,
+			]),
+			$("<p>").text(text),
+			index == null || hints[index] ? block : "",
+		]);
+	}
+
 	wizardModal.elem.find(".modal-body").append([
-		$("<p>").text("Bisher wurden keine Stationen angelegt. Hier kannst du direkt eine Prüfungsserie laden, um schneller starten zu können. Wenn du ohne vorbereitete Prüfungsserie starten möchtest, schließe dieses Popup einfach wieder."),
-		$("<div>").append(buttons)
+		$("<p>").text("Willkommen im Tool zur Verwaltung einer Grundausbildungsprüfung im THW. Dieser Assistent hilft dir bei der ersten Einrichtung des Systems. Wenn du als fortgeschrittene*r Benutzer*in ohne diesen Assistent direkt starten möchtest, schließe ihn einfach. Er wird Administrator*innen solange beim Start angezeigt, bis die initiale Einrichtung abgeschlossen ist."),
+		_buildBlock(
+			1, "stations", "Stationen",
+			"An Stationen erfolgt die Abnahme der einzelnen Prüfungsaufgaben. Für einen schnellen Einstieg kannst du aus den zur Verfügung stehenden Prüfungsserien direkt eine passende auswählen, um diese zu laden. Für eine eigene Prüfungsserie kannst du im Hauptbildschirm manuell Stationen hinzufügen.",
+			$("<div>").addClass("text-center").append(serien_buttons)
+		),
+		_buildBlock(
+			2, "examiners", "Prüfer*innen",
+			"Prüfer*innen erhalten einen eigenen Zugang zum System, um neue Prüflinge aus dem Bereitstellungsraum anzufordern. Das System erlaubt dir, die Prüfer*innen gesammelt anzulegen und erzeugt je Prüfer*in eine Seite mit einem QR-Code.",
+			$("<div>").addClass("text-center").append($("<button>").attr("type", "button").addClass(["btn", "btn-primary"]).text("Prüfer*innen anlegen").click(function () {
+				examinerModal = _openCreateExaminersModal();
+				examinerModal.elem.on("hidden.bs.modal", function () {
+					// delay to make sure stations are received
+					setTimeout(checkWizard, 500);
+				});
+				wizardModal.close();
+			}))
+		),
+		_buildBlock(
+			3, "examinees", "Prüflinge",
+			"Die Prüflinge durchlaufen die einzelnen Stationen und werden dabei von Prüfer*innen bewertet. Unter diesem Button kannst du mehrere Prüflinge gleichzeitig anlegen.",
+			$("<div>").addClass("text-center").append($("<button>").attr("type", "button").addClass(["btn", "btn-primary"]).text("Prüflinge anlegen").click(function () {
+				examineeModal = _openExamineeEditModal(null);
+				examineeModal.elem.on("hidden.bs.modal", function () {
+					// delay to make sure stations are received
+					setTimeout(checkWizard, 500);
+				});
+				wizardModal.close();
+			}))
+		),
+		_buildBlock(
+			4, null, "Benutzer*innen",
+			"Du bist aktuell als Administrator*in angemeldet. In dieser Rolle kannst du Prüfer*innen, Prüflinge und Stationen verwalten, aber keine Zuweisungen von Prüflingen an Stationen vornehmen. Dies ist z.B. mit der Rolle \"Bediener*in\" möglich. Über den unteren Button erreichst du die Benutzerverwaltung, mit der du diese Benutzer*innen anlegen kannst.",
+			$("<div>").addClass("text-center").append($("<button>").attr("type", "button").addClass(["btn", "btn-primary"]).text("Benutzerverwaltung").click(function () {
+				socket.send({"_m": "request_users"});
+				wizardModal.close();
+			}))
+		),
 	]);
+
 
 	wizardModal.show();
-	wizardModal.elem.on("hidden.bs.modal", function () {
-		checkWizard();
-	});
-}
-
-function showHintWizard() {
-	var modal = new Modal("Willkommen");
-
-	modal.elem.find(".modal-body").append([
-		$("<p>").text("Wenn du dich schon auskennst, kannst du dieses Fenster schließen und direkt zur Prüfungsverwaltung springen. Es wird sich erneut öffnen, bis sowohl Prüflinge als auch Prüfer*innen angelegt wurden."),
-		$("<p>").text("Du bist aktuell als Administrator angemeldet. Diese Rolle wird nur für die Grundeinrichtung benötigt, in der die Prüflinge und Prüfer*innen angelegt werden. Dabei kannst du für je Prüfer*in eine Seite mit einem QR-Code ausdrucken, der einen direkten Zugriff auf dieses System erlaubt."),
-		$("<p>").text("Nach der Einrichtung kannst du in der Benutzerverwaltung weitere Benutzer wie z.B. Bediener*innen anlegen, mit denen die eigentliche Zuweisung von Prüflingen auf die Stationen und Prüfer*innen erfolgt."),
-	]);
-
-	var buttons = [];
-
-	buttons.push($("<button>").addClass(["btn", "btn-success"]).text("Prüflinge eintragen").click(function () {
-		_openExamineeEditModal(null);
-	}));
-
-	buttons.push($("<button>").addClass(["btn", "btn-success"]).text("Prüfer*innen eintragen").click(function () {
-		_openCreateExaminersModal();
-	}));
-
-	buttons.push($("<button>").addClass(["btn", "btn-danger"]).text("Benutzerverwaltung").click(function () {
-		socket.send({"_m": "request_users"});
-	}));
-
-	modal.elem.find(".modal-footer").append(buttons);
-	modal.show();
 }
 
 function _openExamineeEditModal(e_id) {
@@ -698,6 +723,8 @@ function _openExamineeEditModal(e_id) {
 	modal.elem.on("shown.bs.modal", function () {
 		modal.elem.find("#names").focus();
 	});
+
+	return modal;
 }
 
 function _openStationEditModal(s_id) {
@@ -2393,6 +2420,8 @@ function _openCreateExaminersModal() {
 	modal.elem.on("shown.bs.modal", function () {
 		modal.elem.find("#names").focus();
 	});
+
+	return modal;
 }
 
 function getStationActiveExaminers(s_id) {
