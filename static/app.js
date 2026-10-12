@@ -2390,7 +2390,7 @@ function _openCreateExaminersModal() {
 
 				print.write("<div style=\"page-break-after:right;\">" + generateExaminerPage(modal.elem.find("#base_url").val(), token, name) + "</div>");
 
-				socket.send({"_m": "_create_user", "token": token, "name": name, "role": "examiner"})
+				socket.send({"_m": "examiner_create", "token": token, "name": name})
 			}
 		}
 		print.print();
