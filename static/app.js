@@ -2533,11 +2533,13 @@ function generateExaminerPage(base_url, token, name) {
 			"Diesen gibst du ausgefüllt und unterschrieben den Helfern wieder mit, wenn sie nach Abschluss eines Prüflings einen neuen Prüfling bringen und den vorherigen abholen. ",
 			"Bei Fragen erreichst du die Prüfungsleitung per Sprechfunk als \"Orga\" von \"Station X\".",
 		]),
-		$("<img>").css("margin", "1em auto .5em").attr("src", TCQrcode.encodeAsBase64(url)),
-		$("<p>").css("text-align", "center").append([
-			base_url,
-			$("<br>"),
-			token,
+		$("<div>").css("text-align", "center").append([
+			$("<img>").css("margin", "1em auto .5em").attr("src", TCQrcode.encodeAsBase64(url)),
+			$("<p>").append([
+				base_url,
+				$("<br>"),
+				token,
+			]),
 		]),
 	]);
 
