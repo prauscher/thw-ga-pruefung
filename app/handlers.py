@@ -623,6 +623,16 @@ class MessageHandler(BroadcastWebSocketHandler):
             self.state.save()
             self.broadcast(msg, {"_m": "examiner", "name": user_name, **examiner})
 
+    @require_role("admin")
+    def process_examiner_create(self, msg):
+        # create user
+        self.state.users[msg.get("token")] = {"name": msg.get("name"), "role": "examiner"}
+        self.state.save()
+
+        with self._update_examiner(msg, msg.get("name")) as examiner:
+            # only initialize and broadcast new state
+            pass
+
     @require_role("operator", "examiner")
     def process_examiner_station(self, msg):
         station = msg.get("station")
