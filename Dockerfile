@@ -9,7 +9,7 @@ RUN apk add --no-cache "tini=${TINI_VERSION}" "su-exec=${SUEXEC_VERSION}"
 
 FROM base AS build
 
-ARG PYPI_PIP_VERSION=26.1.2
+ARG PYPI_PIP_VERSION=26.2.2
 
 RUN python3 -m venv /opt/venv
 COPY requirements.txt /tmp/requirements.txt
