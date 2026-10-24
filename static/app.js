@@ -2006,9 +2006,11 @@ function _generateStation(i) {
 		var examinees = [];
 		for (const examinee_kv of Object.entries(data.examinees)) {
 			for (const skipped_s_id of (examinee_kv[1].skip_stations || [])) {
-				var _i = stationsMissingExaminees[skipped_s_id].indexOf(examinee_kv[0]);
-				if (_i >= 0) {
-					stationsMissingExaminees[skipped_s_id].splice(_i, 1);
+				if (!skipped_s_id.startsWith("_")) {
+					var _i = stationsMissingExaminees[skipped_s_id].indexOf(examinee_kv[0]);
+					if (_i >= 0) {
+						stationsMissingExaminees[skipped_s_id].splice(_i, 1);
+					}
 				}
 			}
 			if ("locked" in examinee_kv[1] && (examinee_kv[1].locked == -1 || examinee_kv[1].locked > socket.time())) {
