@@ -619,7 +619,7 @@ function checkWizard() {
 			$("<div>").addClass("text-center").append($("<button>").attr("type", "button").addClass(["btn", "btn-primary"]).text("Prüfer*innen anlegen").click(function () {
 				examinerModal = _openCreateExaminersModal();
 				examinerModal.elem.on("hidden.bs.modal", function () {
-					// delay to make sure stations are received
+					// delay to make sure examiners are received
 					setTimeout(checkWizard, 500);
 				});
 				wizardModal.close();
@@ -631,7 +631,7 @@ function checkWizard() {
 			$("<div>").addClass("text-center").append($("<button>").attr("type", "button").addClass(["btn", "btn-primary"]).text("Prüflinge anlegen").click(function () {
 				examineeModal = _openExamineeEditModal(null);
 				examineeModal.elem.on("hidden.bs.modal", function () {
-					// delay to make sure stations are received
+					// delay to make sure examinees are received
 					setTimeout(checkWizard, 500);
 				});
 				wizardModal.close();
