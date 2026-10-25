@@ -2390,7 +2390,7 @@ function _openCreateExaminersModal() {
 			if (name != "") {
 				var token = _gen_id() + _gen_id();
 
-				print.write("<div style=\"page-break-after:right;\">" + generateExaminerPage(modal.elem.find("#base_url").val(), token, name) + "</div>");
+				print.write("<div style=\"page-break-after:right; margin:2em 1em;\">" + generateExaminerPage(modal.elem.find("#base_url").val(), token, name) + "</div>");
 
 				socket.send({"_m": "examiner_create", "token": token, "name": name})
 			}
@@ -2538,8 +2538,10 @@ function generateExaminerPage(base_url, token, name) {
 		$("<div>").css("text-align", "center").append([
 			$("<img>").css("margin", "1em auto .5em").attr("src", TCQrcode.encodeAsBase64(url)),
 			$("<p>").append([
+				"Öffne ",
 				base_url,
 				$("<br>"),
+				"und tippe deinen persönlichen Zugangscode ein: ",
 				token,
 			]),
 		]),
