@@ -304,12 +304,12 @@ $(function () {
 				if (data.examiners[msg.name] && data.examiners[msg.name].examinee_requests && data.examiners[msg.name].examinee_requests.length < msg.examinee_requests.length) {
 					visualAlert($("body.view_operator"));
 				}
+				data.examiners[msg.name] = msg;
+				render();
 				if (user.role == "examiner" && user.name == msg.name) {
 					$("#examiner-request").prop("disabled", false);
 					$("#examiner-request-cancel").prop("disabled", false);
 				}
-				data.examiners[msg.name] = msg;
-				render();
 			},
 			"users": function (msg) {
 				var modal = new Modal("Benutzerverwaltung");
