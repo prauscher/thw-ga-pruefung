@@ -432,7 +432,7 @@ $(function () {
 		var csvContent = "data:text/csv;charset=utf-8,";
 
 		csvContent += "Prüfling,Station,Prüfer,Ergebnis,Start,Ende,Dauer\r\n";
-		for (var a_id of Object.keys(data.assignments)) {
+		for (const a_id of Object.keys(data.assignments)) {
 			const assignment = data.assignments[a_id];
 			csvContent += '"' + data.examinees[assignment.examinee].name.replace('"', '""') + '",';
 			csvContent += '"' + (assignment.station.startsWith("_") ? fixedStations[assignment.station].name : data.stations[assignment.station].name).replace('"', '""') + '",';
@@ -659,7 +659,7 @@ function _openExamineeEditModal(e_id) {
 
 		var flags = modal.elem.find("#flags").find(".btn-outline-dark").map((_i, btn) => $(btn).data("color")).get();
 
-		for (var name of modal.elem.find("#names").val().split("\n").values()) {
+		for (const name of modal.elem.find("#names").val().split("\n").values()) {
 			name = name.trim();
 			if (name != "") {
 				socket.send({"_m": "examinee", "i": e_id === null ? _gen_id() : e_id, "name": name, "note": modal.elem.find("#note").val(), "priority": modal.elem.find("#priority").val(), "locked": modal.elem.find("#locked").val(), "flags": flags});
@@ -735,7 +735,7 @@ function _openStationEditModal(s_id) {
 
 		var tasks = [];
 		var currentTask = null;
-		for (var line of (modal.elem.find("#tasks").val() + "\n").split("\n")) {
+		for (const line of (modal.elem.find("#tasks").val() + "\n").split("\n")) {
 			line = line.trim();
 			if (line == "") {
 				// blank line, add current task if existant
@@ -831,7 +831,7 @@ function render_examiner() {
 	var remainingExaminees = Object.keys(data.examinees).filter((e_id) => !("skip_stations" in data.examinees[e_id] && data.examinees[e_id].skip_stations.indexOf(examiner.station) >= 0));
 	var currentAssignments = [];
 	var currentStations = [examiner.station];
-	for (var a_id of Object.keys(data.assignments)) {
+	for (const a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
 
 		if (["done", "open"].includes(assignment.result) && assignment.station == examiner.station) {
@@ -900,7 +900,7 @@ function render_examiner() {
 function render_operator() {
 	var examineesWaiting = Object.keys(data.examinees);
 
-	for (var a_id of Object.keys(data.assignments)) {
+	for (const a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
 		if (assignment.result == "open") {
 			var _i = examineesWaiting.indexOf(assignment.examinee);
@@ -912,7 +912,7 @@ function render_operator() {
 
 	var examineesWaitingReturnTime = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, ("locked" in data.examinees[e_id]) ? data.examinees[e_id].locked : 0]));
 	var examineesWaitingMissingStations = Object.fromEntries(examineesWaiting.map((e_id) => [e_id, ["_theorie", ...Object.keys(data.stations)].filter((s_id) => !("skip_stations" in data.examinees[e_id] && data.examinees[e_id].skip_stations.indexOf(s_id) >= 0))]));
-	for (var assignment of Object.values(data.assignments)) {
+	for (const assignment of Object.values(data.assignments)) {
 		if (assignment.end !== null) {
 			examineesWaitingReturnTime[assignment.examinee] = Math.max(examineesWaitingReturnTime[assignment.examinee], assignment.end);
 		}
@@ -1010,7 +1010,7 @@ function _buildExamineeItem(e_id, a_id) {
 
 	var openFixedStations = Object.keys(fixedStations).filter((s_id) => !("skip_stations" in data.examinees[e_id] && data.examinees[e_id].skip_stations.indexOf(s_id) >= 0));
 	var openStations = Object.keys(data.stations).filter((s_id) => !("skip_stations" in data.examinees[e_id] && data.examinees[e_id].skip_stations.indexOf(s_id) >= 0));
-	for (var assignment of Object.values(data.assignments)) {
+	for (const assignment of Object.values(data.assignments)) {
 		if (assignment.examinee == e_id && assignment.result == "done") {
 			if (assignment.station.startsWith("_")) {
 				var _i = openFixedStations.indexOf(assignment.station);
@@ -1960,7 +1960,7 @@ function _generateStation(i) {
 				return;
 			}
 
-			for (var assignment of assignments) {
+			for (const assignment of assignments) {
 				socket.send({"_m": "assign", ...assignment})
 			}
 
@@ -1982,7 +1982,7 @@ function _generateStation(i) {
 				print.write("<th scope=\"row\" style=\"width:15%;\">Abgeholt</th>");
 				print.write("<th scope=\"row\" style=\"width:15%;\">" + (i == "_theorie" ? "Abgeschlossen" : "Ausgegeben") + "</th>");
 				print.write("</tr></thead><tbody>");
-				for (var assignment of assignments) {
+				for (const assignment of assignments) {
 					print.write("<tr style=\"height:3em; border-top:1px solid black;\">");
 					print.write("<th style=\"vertical-align:center; text-align:left;\" scope=\"row\">" + data.examinees[assignment.examinee].name + "</th>");
 					print.write("<td style=\"border-left:1px dotted black;\">&nbsp;</td>");
@@ -1992,7 +1992,7 @@ function _generateStation(i) {
 				print.write("</tbody></table>");
 			} else {
 				print.setOrientation("portrait");
-				for (var assignment of assignments) {
+				for (const assignment of assignments) {
 					print.write("<div style=\"page-break-after:right;\">" + _generatePage(assignment) + "</div>");
 				}
 			}
@@ -2023,7 +2023,7 @@ function _generateStation(i) {
 		}
 
 		var examineeFixedStationsDone = Object.fromEntries(examinees.map((e_id) => [e_id, []]));
-		for (var assignment of Object.values(data.assignments)) {
+		for (const assignment of Object.values(data.assignments)) {
 			// Gather data for later priorization of examinees
 			if ((assignment.result == "done" || assignment.result == "open") && !assignment.station.startsWith("_")) {
 				var _i = stationsMissingExaminees[assignment.station].indexOf(assignment.examinee);
@@ -2045,12 +2045,12 @@ function _generateStation(i) {
 		}
 		// Add open slots
 		var openSlots = [];
-		for (var examiner_kv of Object.entries(data.examiners)) {
+		for (const examiner_kv of Object.entries(data.examiners)) {
 			if (examiner_kv[1].station != i) {
 				continue;
 			}
 			if (examiner_kv[1].examinee_requests) {
-				for (var request of examiner_kv[1].examinee_requests) {
+				for (const request of examiner_kv[1].examinee_requests) {
 					openSlots.push({"examiner": examiner_kv[0], "request_time": request.request});
 				}
 			}
@@ -2171,7 +2171,7 @@ function _generateStation(i) {
 	var stationTimes = Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, []]));
 	var ownTimes = Object.fromEntries(Object.keys(data.examinees).map((_e_id) => [_e_id, Object.fromEntries(Object.keys(data.stations).map((_s_id) => [_s_id, null]))]));
 
-	for (var a_id of Object.keys(data.assignments)) {
+	for (const a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
 
 		if (assignment.result == "done" && assignment.end !== null && !assignment.station.startsWith("_")) {
@@ -2227,7 +2227,7 @@ function _generateStation(i) {
 		}
 		examinees.push(examinee_kv[0]);
 	}
-	for (var assignment of Object.values(data.assignments)) {
+	for (const assignment of Object.values(data.assignments)) {
 		if ("examiner" in assignment && assignment.station == i && activeExaminers.indexOf(assignment.examiner) < 0 && ((assignment.end > socket.time() - 60 * 60 && assignment.result == "done") || assignment.result == "open")) {
 			activeExaminers.push(assignment.examiner);
 		}
@@ -2385,7 +2385,7 @@ function _openCreateExaminersModal() {
 	function _submit() {
 		var print = new PrintOutput();
 		print.setOrientation("portrait");
-		for (var name of modal.elem.find("#names").val().split("\n").values()) {
+		for (const name of modal.elem.find("#names").val().split("\n").values()) {
 			name = name.trim();
 			if (name != "") {
 				var token = _gen_id() + _gen_id();
@@ -2428,13 +2428,13 @@ function _openCreateExaminersModal() {
 
 function getStationActiveExaminers(s_id) {
 	var activeExaminers = [];
-	for (var assignment of Object.values(data.assignments)) {
+	for (const assignment of Object.values(data.assignments)) {
 		if (assignment.station == s_id && "examiner" in assignment && activeExaminers.indexOf(assignment.examiner) < 0 && (assignment.start > socket.time() - 90 * 60 || assignment.result == "open")) {
 			activeExaminers.push(assignment.examiner);
 		}
 	}
 
-	for (var examiner_kv of Object.entries(data.examiners)) {
+	for (const examiner_kv of Object.entries(data.examiners)) {
 		if (examiner_kv[1].station != s_id) {
 			continue;
 		}
@@ -2450,7 +2450,7 @@ var Examinee = {
 		var examinee = data.examinees[e_id];
 		var stationTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, {"sum": 0, "count": 0}]));
 		var ownTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, null]));
-		for (var assignment of Object.values(data.assignments)) {
+		for (const assignment of Object.values(data.assignments)) {
 			if (assignment.result == "done" && !assignment.station.startsWith("_")) {
 				stationTimes[assignment.station].sum += (assignment.end - assignment.start);
 				stationTimes[assignment.station].count += 1;
@@ -2462,7 +2462,7 @@ var Examinee = {
 		var factorCount = 0;
 		var factorSum = 0;
 		var remaining = 0;
-		for (var s_id in ownTimes) {
+		for (const s_id in ownTimes) {
 			var avgStationTime = (stationTimes[s_id].count > 0) ? (stationTimes[s_id].sum / stationTimes[s_id].count) : 0;
 
 			if (ownTimes[s_id] === null) {
@@ -2706,7 +2706,7 @@ function _generatePage(assignment) {
 		var tasks = $("<div>").css("margin", "0px 10px");
 		tasks.css("columns", "2 auto");
 
-		for (var task of data.stations[assignment.station].tasks) {
+		for (const task of data.stations[assignment.station].tasks) {
 			tasks.append($("<div>").css("padding", "10px 0px").css("break-inside", "avoid").append([
 				$("<table>").css("width", "100%").css("border", "1px dotted black").css("border-collapse", "collapse").append([
 					$("<tr>").append([
