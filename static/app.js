@@ -265,6 +265,11 @@ $(function () {
 				render();
 			},
 			"station_delete": function (msg) {
+			        for (const examinee of Object.values(data.examinees)) {
+			                if ("skip_stations" in examinee) {
+                                                examinee["skip_stations"] = examinee["skip_stations"].filter((_s_id) => _s_id != msg.i);
+			                }
+			        }
 				data.assignments = Object.fromEntries(Object.entries(data.assignments).filter(([k, assignment]) => assignment.station != msg.i));
 				delete data.stations[msg.i];
 				render();

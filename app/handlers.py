@@ -488,6 +488,13 @@ class MessageHandler(BroadcastWebSocketHandler):
     @require_role("admin")
     def process_station_delete(self, msg):
         i = msg.get("i")
+
+        for examinee in self.state.examinees.values():
+            skip_stations = examinee.get("skip_stations", [])
+            if i in skip_stations:
+                skip_stations.remove(i)
+                examinee["skip_stations"] = skip_stations
+
         self.state.assignments = {a_id: assignment
                                   for a_id, assignment in self.state.assignments.items()
                                   if assignment.get("station") != i}
