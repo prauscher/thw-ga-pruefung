@@ -2022,7 +2022,7 @@ function _generateStation(i) {
 			examinees.push(examinee_kv[0]);
 		}
 
-		var examineeFixedStationsDone = Object.fromEntries(examinees.map((e_id) => [e_id, []]));
+		var examineeFixedStationsDone = Object.fromEntries(Object.keys(data.examinees).map((e_id) => [e_id, []]));
 		for (const assignment of Object.values(data.assignments)) {
 			// Gather data for later priorization of examinees
 			if ((assignment.result == "done" || assignment.result == "open") && !assignment.station.startsWith("_")) {
