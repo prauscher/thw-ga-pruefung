@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import csv
+import copy
 import json
 import hashlib
 import time
@@ -234,6 +235,9 @@ class BroadcastWebSocketHandler(WebSocketHandler):
                 client.send(msg)
 
     def broadcast(self, request, msg):
+        # note that msg might be stored as part of state and manipulated later
+        msg = copy.deepcopy(msg)
+
         msg["_cid"] = request.get("_cid", "")
         self.send_to_all(msg)
         print(f"{datetime.now():%Y-%m-%d %H:%M:%S.%f} | {msg['_snr']:05d} | {self.current_user['name']:<25} | {msg['_cid']:<8} | {msg}")
