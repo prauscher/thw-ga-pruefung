@@ -2253,7 +2253,7 @@ function _generateStation(i) {
 		examinerNodes[examiner].push(item);
 	}
 
-	for (var examiner_kv of Object.entries(data.examiners)) {
+	for (const examiner_kv of Object.entries(data.examiners)) {
 		if (examiner_kv[1].station != i) {
 			continue;
 		}
