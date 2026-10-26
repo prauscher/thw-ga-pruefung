@@ -154,11 +154,10 @@ $(function () {
 				}
 
 				startModal = new Modal("Erstelle Benutzer");
-				var token = _gen_id() + _gen_id();
 
 				function _submit(e) {
 					e.preventDefault();
-					var token = startModal.elem.find("#token").val();
+					const token = startModal.elem.find("#token").val();
 					localStorage.setItem("app_token", token);
 					socket.send({"_m": "_create_user", "token": token, "name": startModal.elem.find("#name").val(), "role": "admin"})
 					startModal.close();
@@ -169,7 +168,7 @@ $(function () {
 					$("<form>").on("submit", _submit).append([
 						$("<div>").addClass("mb-3").append([
 							$("<label>").attr("for", "token").addClass("col-form-label").text("Token"),
-							$("<input>").attr("type", "text").prop("disabled", true).addClass("form-control").attr("name", "token").attr("id", "token").val(token)
+							$("<input>").attr("type", "text").prop("disabled", true).addClass("form-control").attr("name", "token").attr("id", "token").val(_gen_id() + _gen_id())
 						]),
 						$("<div>").addClass("mb-3").append([
 							$("<label>").attr("for", "token").addClass("col-form-label").text("Name"),
@@ -208,7 +207,7 @@ $(function () {
 
 				function _submit(e) {
 					e.preventDefault();
-					var token = startModal.elem.find("#token").val();
+					const token = startModal.elem.find("#token").val();
 					localStorage.setItem("app_token", token);
 					socket.send({"_m": "_login", "token": token});
 					startModal.close();
@@ -220,7 +219,7 @@ $(function () {
 					$("<form>").on("submit", _submit).append([
 						$("<div>").addClass("mb-3").append([
 							$("<label>").attr("for", "token").addClass("col-form-label").text("Token"),
-							$("<input>").attr("type", "text").addClass("form-control").attr("name", "token").attr("id", "token").val(token)
+							$("<input>").attr("type", "text").addClass("form-control").attr("name", "token").attr("id", "token")
 						]),
 					]),
 				]);
@@ -322,7 +321,7 @@ $(function () {
 				function _create(e) {
 					e.preventDefault();
 
-					var user = {
+					const user = {
 						"token": modal.elem.find("#token").val(),
 						"name": modal.elem.find("#username").val(),
 						"role": modal.elem.find("#role").val(),
@@ -467,7 +466,7 @@ $(function () {
 
 	$("#examiner-station").change(function () {
 		const current_station = $(this).data("socket-state");
-		var station = $(this).val();
+		const station = $(this).val();
 		if (current_station && station != current_station) {
 			$(this).prop("disabled", true);
 			socket.send({"_m": "examiner_station", "station": station});
@@ -587,8 +586,7 @@ function checkWizard() {
 			socket.send({"_m": "set_global_settings", "serie_id": serie});
 
 			for (const [station_name, tasks] of Object.entries(data.stations)) {
-				var names = station_name.split(" ");
-				const pdf_name = convertRoman(names[0]);
+				const pdf_name = convertRoman(station_name.split(" ")[0]);
 				socket.send({"_m": "station", "i": _gen_id(), "name": station_name, "name_pdf": pdf_name, "tasks": tasks});
 			}
 
@@ -662,10 +660,10 @@ function _openExamineeEditModal(e_id) {
 	function _submit(e) {
 		e.preventDefault();
 
-		var flags = modal.elem.find("#flags").find(".btn-outline-dark").map((_i, btn) => $(btn).data("color")).get();
+		const flags = modal.elem.find("#flags").find(".btn-outline-dark").map((_i, btn) => $(btn).data("color")).get();
 
-		for (const name of modal.elem.find("#names").val().split("\n").values()) {
-			name = name.trim();
+		for (const _name of modal.elem.find("#names").val().split("\n").values()) {
+			const name = _name.trim();
 			if (name != "") {
 				socket.send({"_m": "examinee", "i": e_id === null ? _gen_id() : e_id, "name": name, "note": modal.elem.find("#note").val(), "priority": modal.elem.find("#priority").val(), "locked": modal.elem.find("#locked").val(), "flags": flags});
 			}
@@ -740,8 +738,8 @@ function _openStationEditModal(s_id) {
 
 		var tasks = [];
 		var currentTask = null;
-		for (const line of (modal.elem.find("#tasks").val() + "\n").split("\n")) {
-			line = line.trim();
+		for (const _line of (modal.elem.find("#tasks").val() + "\n").split("\n")) {
+			const line = _line.trim();
 			if (line == "") {
 				// blank line, add current task if existant
 				if (currentTask !== null) {
@@ -772,19 +770,16 @@ function _openStationEditModal(s_id) {
 
 	var _tasks = "";
 	if (s_id !== null) {
-		var task_definitions = data.stations[s_id].tasks.map((task) => task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).concat(task.notes || []).join("\n"));
-		_tasks = task_definitions.join("\n\n");
+		_tasks = data.stations[s_id].tasks.map((task) => task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).concat(task.notes || []).join("\n")).join("\n\n");
 	}
 
 	var predefinedTasks = $("<select>").prop("multiple", true).attr("size", 7).addClass("form-select").attr("id", "predefined_tasks").append(
 		aufgaben.map(function (task) {
-			var _preset = task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).concat(task.notes || []).join("\n");
+			const _preset = task.min_tasks + " " + task.name + "\n" + task.parts.map((p) => (p.mandatory ? "P " : "O ") + p.name).concat(task.notes || []).join("\n");
 			return $("<option>").data("preset", _preset).text(task.nr + " " + task.name);
 		})
 	).change(function () {
-		var taskDescription = $(this).find("option:selected").map(function (_i, elem) {
-			return $(elem).data("preset");
-		}).get().join("\n\n");
+		const taskDescription = $(this).find("option:selected").map((_i, elem) => $(elem).data("preset")).get().join("\n\n");
 		modal.elem.find("#tasks").val(taskDescription);
 	});
 
@@ -831,7 +826,7 @@ function render() {
 }
 
 function render_examiner() {
-	var examiner = data.examiners[user.name] || {"station": "_frei", "examinee_requests": []};
+	const examiner = data.examiners[user.name] || {"station": "_frei", "examinee_requests": []};
 
 	var remainingExaminees = Object.keys(data.examinees).filter((e_id) => !("skip_stations" in data.examinees[e_id] && data.examinees[e_id].skip_stations.indexOf(examiner.station) >= 0));
 	var currentAssignments = [];
@@ -840,7 +835,7 @@ function render_examiner() {
 		const assignment = data.assignments[a_id];
 
 		if (["done", "open"].includes(assignment.result) && assignment.station == examiner.station) {
-			var _i = remainingExaminees.indexOf(assignment.examinee);
+			const _i = remainingExaminees.indexOf(assignment.examinee);
 			if (_i >= 0) {
 				remainingExaminees.splice(_i, 1);
 			}
@@ -908,7 +903,7 @@ function render_operator() {
 	for (const a_id of Object.keys(data.assignments)) {
 		const assignment = data.assignments[a_id];
 		if (assignment.result == "open") {
-			var _i = examineesWaiting.indexOf(assignment.examinee);
+			const _i = examineesWaiting.indexOf(assignment.examinee);
 			if (_i >= 0) {
 				examineesWaiting.splice(_i, 1);
 			}
@@ -922,7 +917,7 @@ function render_operator() {
 			examineesWaitingReturnTime[assignment.examinee] = Math.max(examineesWaitingReturnTime[assignment.examinee], assignment.end);
 		}
 		if (assignment.result == "done" && assignment.examinee in examineesWaitingMissingStations) {
-			var _i = examineesWaitingMissingStations[assignment.examinee].indexOf(assignment.station);
+			const _i = examineesWaitingMissingStations[assignment.examinee].indexOf(assignment.station);
 			if (_i >= 0) {
 				examineesWaitingMissingStations[assignment.examinee].splice(_i, 1);
 			}
@@ -1018,12 +1013,12 @@ function _buildExamineeItem(e_id, a_id) {
 	for (const assignment of Object.values(data.assignments)) {
 		if (assignment.examinee == e_id && assignment.result == "done") {
 			if (assignment.station.startsWith("_")) {
-				var _i = openFixedStations.indexOf(assignment.station);
+				const _i = openFixedStations.indexOf(assignment.station);
 				if (_i >= 0) {
 					openFixedStations.splice(_i, 1);
 				}
 			} else {
-				var _i = openStations.indexOf(assignment.station);
+				const _i = openStations.indexOf(assignment.station);
 				if (_i >= 0) {
 					openStations.splice(_i, 1);
 				}
@@ -1054,7 +1049,7 @@ function _buildExamineeItem(e_id, a_id) {
 		if (data.assignments[a_id].end !== null) {
 			expectedTimeout = data.assignments[a_id].end;
 		} else {
-			var expectedDuration = Examinee.estimateStationDuration(data.assignments[a_id].examinee, data.assignments[a_id].station);
+			const expectedDuration = Examinee.estimateStationDuration(data.assignments[a_id].examinee, data.assignments[a_id].station);
 			if (expectedDuration !== null) {
 				expectedTimeout = data.assignments[a_id].start + expectedDuration;
 			}
@@ -1097,7 +1092,7 @@ function _openExamineeModal(e_id) {
 
 		if (assignment.examinee == e_id) {
 			if (assignment.result == "done") {
-				var _i = missingStations.indexOf(assignment.station);
+				const _i = missingStations.indexOf(assignment.station);
 				if (_i >= 0) {
 					missingStations.splice(_i, 1);
 				}
@@ -1135,7 +1130,7 @@ function _openExamineeModal(e_id) {
 			name = name + " (Abgebrochen)";
 		}
 
-		var duration = (assignment.end || socket.time()) - assignment.start;
+		const duration = (assignment.end || socket.time()) - assignment.start;
 		var usage = 1.0;
 		if (!assignment.station.startsWith("_") && stationTimes[assignment.station] != null) {
 			usage = duration / stationTimes[assignment.station];
@@ -1358,14 +1353,14 @@ function _openStationModal(s_id) {
 		const assignment = data.assignments[a_id];
 
 		if (assignment.result == "open") {
-			var _i = skippedExaminees.indexOf(assignment.examinee);
+			const _i = skippedExaminees.indexOf(assignment.examinee);
 			if (_i >= 0) {
 				skippedExaminees.splice(_i, 1);
 			}
 
-			var _i = waitingExaminees.indexOf(assignment.examinee);
+			const _j = waitingExaminees.indexOf(assignment.examinee);
 			if (_i >= 0) {
-				waitingExaminees.splice(_i, 1);
+				waitingExaminees.splice(_j, 1);
 			}
 
 			if (assignment.station == s_id) {
@@ -1398,19 +1393,19 @@ function _openStationModal(s_id) {
 
 	// Filter out completed
 	for (const doneExaminee of doneExaminees) {
-		var _i = skippedExaminees.indexOf(doneExaminee);
+		const _i = skippedExaminees.indexOf(doneExaminee);
 		if (_i >= 0) {
 			skippedExaminees.splice(_i, 1);
 		}
 
-		var _i = waitingExaminees.indexOf(doneExaminee);
-		if (_i >= 0) {
-			waitingExaminees.splice(_i, 1);
+		const _j = waitingExaminees.indexOf(doneExaminee);
+		if (_j >= 0) {
+			waitingExaminees.splice(_j, 1);
 		}
 
-		var _i = otherStationExaminees.indexOf(doneExaminee);
-		if (_i >= 0) {
-			otherStationExaminees.splice(_i, 1);
+		const _k = otherStationExaminees.indexOf(doneExaminee);
+		if (_k >= 0) {
+			otherStationExaminees.splice(_k, 1);
 		}
 	}
 
@@ -1577,7 +1572,7 @@ function _openStationModal(s_id) {
 				).append(s_id.startsWith("_") ? [] : Object.entries(examinerTimes).map(function ([e_name, times]) {
 					const duration = times.reduce((_c, _v) => _c + _v) / times.length;
 
-					var usage = duration / stationTimes[s_id];
+					const usage = duration / stationTimes[s_id];
 					var durationContent = [$("<span>").text(Math.round(duration / 60))];
 					durationContent.push($("<br>"));
 					durationContent.push($("<span>").toggleClass("text-danger", usage > 1).toggleClass("text-success", usage < 1).text((usage >= 1 ? "+" : "") + Math.round((usage - 1) * 100) + " %"));
@@ -1683,7 +1678,7 @@ function _openAssignmentModal(a_id) {
 		}
 	}
 
-	var examiner = "examiner" in assignment ? assignment.examiner : "-";
+	const examiner = "examiner" in assignment ? assignment.examiner : "-";
 	var examinerDisplay = $("<span>").text(examiner);
 	var examinerInput = $("<input>").attr("type", "text").addClass("form-control").attr("autocomplete", "off");
 	var examinerButton = $("<button>").addClass(["btn", "btn-sm", "btn-warning", "ms-2"]).toggle(user.role == "operator").text("Ändern").click(function () {
@@ -1696,7 +1691,7 @@ function _openAssignmentModal(a_id) {
 	var examinerForm = $("<div>").hide().addClass("input-group").append([
 		examinerInput,
 		$("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(function () {
-			var newExaminer = examinerInput.val();
+			const newExaminer = examinerInput.val();
 			socket.send({"_m": "assignment_change_examiner", "i": a_id, "examiner": newExaminer});
 
 			examinerDisplay.text(newExaminer).show();
@@ -1808,7 +1803,7 @@ function _openExaminerModal(name) {
 		$("<button>").addClass(["btn", "btn-primary"]).text("Speichern").click(function () {
 			var _button = $(this);
 
-			var newStation = stationInput.val();
+			const newStation = stationInput.val();
 			socket.send({"_m": "examiner_station", "name": name, "station": newStation});
 
 			stationDisplay.data("station_id", newStation).text(_station(newStation)).show();
@@ -1859,7 +1854,7 @@ function _openExaminerModal(name) {
 							assignmentDurations[assignment.station].push(assignment.end - assignment.start);
 						}
 
-						var duration = (assignment.end || socket.time()) - assignment.start;
+						const duration = (assignment.end || socket.time()) - assignment.start;
 						var usage = 1.0;
 						if (!assignment.station.startsWith("_") && stationTimes[assignment.station] != null) {
 							usage = duration / stationTimes[assignment.station];
@@ -1921,7 +1916,7 @@ function _openExaminerModal(name) {
 }
 
 function _generateStation(i) {
-	var name = i.startsWith("_") ? fixedStations[i].name : data.stations[i].name + " (" + data.stations[i].name_pdf + ")";
+	const name = i.startsWith("_") ? fixedStations[i].name : data.stations[i].name + " (" + data.stations[i].name_pdf + ")";
 	var assignButton = $("<button>").addClass(["btn", "btn-success", "assign-examinee"]).text("Zuweisen").click(function (e) {
 		e.preventDefault();
 
@@ -1953,11 +1948,11 @@ function _generateStation(i) {
 				}).get();
 			} else {
 				assignments = modal.elem.find(".examiner").map(function (_i, elem) {
-					var examiner = $(elem).val();
+					const examiner = $(elem).val();
 					if (examiner == "") {
 						return null;
 					}
-					return {"i": _gen_id(), "station": i, "examinee": $(elem).data("e_id"), "examiner": $(elem).val()};
+					return {"i": _gen_id(), "station": i, "examinee": $(elem).data("e_id"), "examiner": examiner};
 				}).filter((_i, assignment) => assignment !== null).get();
 			}
 
@@ -2012,7 +2007,7 @@ function _generateStation(i) {
 		for (const examinee_kv of Object.entries(data.examinees)) {
 			for (const skipped_s_id of (examinee_kv[1].skip_stations || [])) {
 				if (!skipped_s_id.startsWith("_")) {
-					var _i = stationsMissingExaminees[skipped_s_id].indexOf(examinee_kv[0]);
+					const _i = stationsMissingExaminees[skipped_s_id].indexOf(examinee_kv[0]);
 					if (_i >= 0) {
 						stationsMissingExaminees[skipped_s_id].splice(_i, 1);
 					}
@@ -2031,7 +2026,7 @@ function _generateStation(i) {
 		for (const assignment of Object.values(data.assignments)) {
 			// Gather data for later priorization of examinees
 			if ((assignment.result == "done" || assignment.result == "open") && !assignment.station.startsWith("_")) {
-				var _i = stationsMissingExaminees[assignment.station].indexOf(assignment.examinee);
+				const _i = stationsMissingExaminees[assignment.station].indexOf(assignment.examinee);
 				if (_i >= 0) {
 					stationsMissingExaminees[assignment.station].splice(_i, 1);
 				}
@@ -2042,8 +2037,8 @@ function _generateStation(i) {
 			}
 			// Remove examinees who already have visited this station or are currently not available
 			if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
-				var _i = examinees.indexOf(assignment.examinee);
-				if (_i >= 0) {
+				const _j = examinees.indexOf(assignment.examinee);
+				if (_j >= 0) {
 					examinees.splice(_i, 1);
 				}
 			}
@@ -2063,7 +2058,7 @@ function _generateStation(i) {
 		openSlots.sort(function (a, b) {return a.request_time - b.request_time;});
 
 		// Regular priorities (estimate remaining time)
-		var examinee_priorities = Object.fromEntries(examinees.map(function (e_id) {
+		const examinee_priorities = Object.fromEntries(examinees.map(function (e_id) {
 			return [
 				e_id,
 				data.examinees[e_id].priority + (Examinee.calculateRemainingTime(e_id) / 60) + Math.random()
@@ -2071,10 +2066,10 @@ function _generateStation(i) {
 		}));
 
 		// "value" of an examinee is equivalent to the number of stations the examinee must still attend (excluding our current) with less than 5 remaining examinees
-		var examineeValues = Object.fromEntries(Object.keys(data.examinees).map((e_id) => [e_id, Object.entries(stationsMissingExaminees).filter(([missing_s_id, missing_examinees]) => (missing_s_id != i && missing_examinees.length <= 5 && missing_examinees.includes(e_id))).length ]));
+		const examineeValues = Object.fromEntries(Object.keys(data.examinees).map((e_id) => [e_id, Object.entries(stationsMissingExaminees).filter(([missing_s_id, missing_examinees]) => (missing_s_id != i && missing_examinees.length <= 5 && missing_examinees.includes(e_id))).length ]));
 
 		examinees.sort(function (a, b) {
-			var deltaValue = examineeValues[b] - examineeValues[a];
+			const deltaValue = examineeValues[b] - examineeValues[a];
 			if (deltaValue != 0) {
 				return deltaValue;
 			}
@@ -2086,7 +2081,7 @@ function _generateStation(i) {
 		});
 
 		// find active examiners
-		var activeExaminers = getStationActiveExaminers(i);
+		const activeExaminers = getStationActiveExaminers(i);
 		var activeExaminerOVs = [];
 		for (const activeExaminer of activeExaminers) {
 			const activeExaminerOV = activeExaminer.split(" ")[0];
@@ -2224,7 +2219,7 @@ function _generateStation(i) {
 			continue;
 		}
 		if ("skip_stations" in examinee_kv[1] && examinee_kv[1].skip_stations.indexOf(i) >= 0) {
-			var _i = totalExaminees.indexOf(examinee_kv[0]);
+			const _i = totalExaminees.indexOf(examinee_kv[0]);
 			if (_i >= 0) {
 				totalExaminees.splice(_i, 1);
 			}
@@ -2237,7 +2232,7 @@ function _generateStation(i) {
 			activeExaminers.push(assignment.examiner);
 		}
 		if ((assignment.result == "open") || (assignment.result == "done" && assignment.station == i)) {
-			var _i = examinees.indexOf(assignment.examinee);
+			const _i = examinees.indexOf(assignment.examinee);
 			if (_i >= 0) {
 				examinees.splice(_i, 1);
 			}
@@ -2316,7 +2311,7 @@ function _generateStation(i) {
 		} else if (lastStartedAssignment !== null && activeExaminers.length > 0) {
 			end_data["method"] = "estimate";
 
-			var factor = totalExaminees.reduce(function (carry, e_id) {
+			const factor = totalExaminees.reduce(function (carry, e_id) {
 				// Ignore examinees which completed this station
 				if (examineesDone.indexOf(e_id) >= 0) {
 					return carry;
@@ -2365,9 +2360,7 @@ function _generateStation(i) {
 						[assignments.length, "primary"],
 						[examinees.length, "danger"],
 						[totalExaminees.length - examineesDone.length - assignments.length - examinees.length, "secondary"],
-					].map(function (_kv) {
-						var _count = _kv[0];
-						var _bootstrapColor = _kv[1];
+					].map(function ([_count, _bootstrapColor]) {
 						return $("<div>").addClass(["progress-bar", "bg-" + _bootstrapColor]).css("width", (_count / totalExaminees.length) * 100 + "%").text(_count > 0 ? _count : "");
 					}))
 				),
@@ -2390,10 +2383,10 @@ function _openCreateExaminersModal() {
 	function _submit() {
 		var print = new PrintOutput();
 		print.setOrientation("portrait");
-		for (const name of modal.elem.find("#names").val().split("\n").values()) {
-			name = name.trim();
+		for (const _name of modal.elem.find("#names").val().split("\n").values()) {
+			const name = _name.trim();
 			if (name != "") {
-				var token = _gen_id() + _gen_id();
+				const token = _gen_id() + _gen_id();
 
 				print.write("<div style=\"page-break-after:right; margin:2em 1em;\">" + generateExaminerPage(modal.elem.find("#base_url").val(), token, name) + "</div>");
 
@@ -2452,7 +2445,7 @@ function getStationActiveExaminers(s_id) {
 
 var Examinee = {
 	calculateRemainingTime: function (e_id) {
-		var examinee = data.examinees[e_id];
+		const examinee = data.examinees[e_id];
 		var stationTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, {"sum": 0, "count": 0}]));
 		var ownTimes = Object.fromEntries(Object.keys(data.stations).map((s_id) => [s_id, null]));
 		for (const assignment of Object.values(data.assignments)) {
@@ -2559,8 +2552,8 @@ function _generatePage(assignment) {
 	var header = $("<div>");
 	var body = $("<div>");
 
-	var examinee_name = assignment.examinee === undefined ? "OTST Harald Schreiber" : data.examinees[assignment.examinee].name;
-	var examiner_name = assignment.examiner === undefined ? "OTST Berta Beispiel" : assignment.examiner;
+	const examinee_name = assignment.examinee === undefined ? "OTST Harald Schreiber" : data.examinees[assignment.examinee].name;
+	const examiner_name = assignment.examiner === undefined ? "OTST Berta Beispiel" : assignment.examiner;
 
 	if (false) {
 		// Auswertungsbogen, maybe useful later
@@ -2679,9 +2672,9 @@ function _generatePage(assignment) {
 		var code = BARCode({"msg": "A-" + assignment.i, "dim": [200, 80]});
 		var codeContainer = document.createElement("div");
 		codeContainer.appendChild(code);
-		var barcode = "data:image/svg+xml;base64," + window.btoa(codeContainer.innerHTML);
+		const barcode = "data:image/svg+xml;base64," + window.btoa(codeContainer.innerHTML);
 
-		var start = socket.time();
+		const start = socket.time();
 
 		header.append($("<table>").attr("width", "100%").append([
 			$("<tr>").append([
@@ -2774,7 +2767,7 @@ function formatTimestamp(timestamp) {
 }
 
 function PrintOutput() {
-	var frame_id = "print-" + _gen_id();
+	const frame_id = "print-" + _gen_id();
 	this.frame_id = frame_id;
 	$("body").append($("<iframe>").addClass("d-none").attr("id", frame_id).attr("name", frame_id));
 
@@ -2870,7 +2863,7 @@ function Tab() {
 
 	this.elem = $(wrap);
 	this.addPanel = function (name) {
-		var tab_id = "tab-" + (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+		const tab_id = "tab-" + (((1+Math.random())*0x10000)|0).toString(16).substring(1);
 
 		var panel = document.createElement('div');
 		panel.setAttribute('id', tab_id + '-panel');
