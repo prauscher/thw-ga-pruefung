@@ -135,7 +135,7 @@ $(function () {
 			user = _user;
 			$("#socketIndicator").text("Online").addClass("bg-success").removeClass("bg-danger");
 			$("#username").text(user.name);
-			$("#admin").toggle(user.role == "admin");
+			$("#users").toggle(user.role == "admin");
 			$("#examinee-add").toggle(user.role == "admin");
 			$("#station-add").toggle(user.role == "admin");
 			$("#export").toggle(["admin", "operator", "viewer"].includes(user.role));
@@ -460,7 +460,7 @@ $(function () {
 		socket.reconnect();
 	});
 
-	$("#admin").click(function () {
+	$("#users").click(function () {
 		socket.send({"_m": "request_users"});
 	});
 
