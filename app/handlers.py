@@ -227,6 +227,7 @@ class BroadcastWebSocketHandler(WebSocketHandler):
         if include_snr:
             cls.state.snr = (cls.state.snr + 1) & 0xffff
             msg["_snr"] = cls.state.snr
+            msg["_time"] = time.time()
             cls.state.message_cache = cls.state.message_cache[-1023:] + [msg]
             cls.state.save()
 
