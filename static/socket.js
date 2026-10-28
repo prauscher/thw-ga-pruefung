@@ -30,9 +30,11 @@ function ReliableWebSocket(options) {
 		}
 
 		if (ws !== null && ws.readyState === WebSocket.OPEN) {
-			var encoded = JSON.stringify(data);
+			const encoded = JSON.stringify(data);
 			ws.send(encoded);
 		}
+
+		return data._cid;
 	}
 
 	function _showLoadingScreen(content) {
@@ -82,7 +84,7 @@ function ReliableWebSocket(options) {
 			(options.on_connect || function () {})();
 		}
 		ws.onmessage = function(event) {
-			var data = JSON.parse(event.data);
+			const data = JSON.parse(event.data);
 			if (!("_m" in data)) {
 				console.log("Missing _m attribute", data);
 				return;
@@ -90,7 +92,7 @@ function ReliableWebSocket(options) {
 
 			if ("_cid" in data) {
 				// check if item is in send-queue and transmission is now complete
-				var queue_pos = send_queue.findIndex((msg) => (msg._cid === data._cid));
+				const queue_pos = send_queue.findIndex((msg) => (msg._cid === data._cid));
 				if (queue_pos >= 0) {
 					send_queue.splice(queue_pos, 1);
 				}
@@ -136,7 +138,7 @@ function ReliableWebSocket(options) {
 				}
 
 				// Try send_queue immediatly to speed things up
-				for (var i in send_queue) {
+				for (const i in send_queue) {
 					_send(send_queue[i]);
 				}
 				return;
@@ -194,7 +196,7 @@ function ReliableWebSocket(options) {
 
 			// Find missing messages
 			if ("_snr" in data && last_snr !== null) {
-				var snr_delta = ((data._snr + 0xffff) - last_snr) % 0xffff;
+				const snr_delta = ((data._snr + 0xffff) - last_snr) % 0xffff;
 				if (snr_delta == 1) {
 					// Everything is good, we are not missing anything
 					last_snr = data._snr;
