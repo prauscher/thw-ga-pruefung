@@ -309,11 +309,12 @@ $(function () {
 					visualAlert($("body.view_operator"));
 				}
 				data.examiners[msg.name] = msg;
-				render();
+
 				if (user.role == "examiner" && user.name == msg.name) {
-					$("#examiner-request").prop("disabled", false);
-					$("#examiner-request-cancel").prop("disabled", false);
+					$("*").filter(function () {return $(this).data("disable_until_cid") == msg._cid;}).data("disable_until_cid", null);
 				}
+
+				render();
 			},
 			"users": function (msg) {
 				var modal = new Modal("Benutzerverwaltung");
@@ -469,18 +470,21 @@ $(function () {
 		const station = $(this).val();
 		if (current_station && station != current_station) {
 			$(this).prop("disabled", true);
-			socket.send({"_m": "examiner_station", "station": station});
+			const _cid = socket.send({"_m": "examiner_station", "station": station});
+			$(this).data("disable_until_cid", _cid);
 		}
 	});
 
 	$("#examiner-request").click(function (e) {
 		$(this).prop("disabled", true);
-		socket.send({"_m": "examiner_request"});
+		const _cid = socket.send({"_m": "examiner_request"});
+		$(this).data("disable_until_cid", _cid);
 	});
 
 	$("#examiner-request-cancel").click(function (e) {
 		$(this).prop("disabled", true);
-		socket.send({"_m": "examiner_request_remove"});
+		const _cid = socket.send({"_m": "examiner_request_remove"});
+		$(this).data("disable_until_cid", _cid);
 	});
 
 	$("#examinee-add").click(function () {
@@ -878,8 +882,12 @@ function render_examiner() {
 		$("<div>").addClass(["alert", "alert-primary"]).text("Für deine Station sind keine Prüflinge mehr offen."),
 	] : []);
 
+	// must set disabled to false for following check for disable_until_cid
+	$("#examiner-station").prop("disabled", false);
 	$("#examiner-request").prop("disabled", remainingExaminees.length == 0 || examiner.station.startsWith("_"));
-	$("#examiner-request-cancel").toggle(examiner.examinee_requests.length > 0);
+	$("#examiner-request-cancel").prop("disabled", false).toggle(examiner.examinee_requests.length > 0);
+
+	$("#examiner-station,#examiner-request").prop("disabled", function (i, disabled) {return disabled || $(this).data("disable_until_cid") != null;});
 
 	var station_ids = Object.keys(data.stations);
 	station_ids.sort(function (a, b) {
@@ -890,7 +898,7 @@ function render_examiner() {
 		return 0;
 	});
 
-	$("#examiner-station").empty().prop("disabled", false).append([
+	$("#examiner-station").empty().append([
 		$("<option>").prop("value", "_frei").text("(Keine)"),
 	]).append(station_ids.map(function (s_id) {
 		return $("<option>").prop("selected", s_id == examiner.station).prop("value", s_id).text(data.stations[s_id].name);
